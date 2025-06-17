@@ -1,7 +1,12 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once 'app/models/User.php';
 require_once 'app/models/Doctor.php';
+require_once 'app/helpers/LayoutHelper.php';
 
 class AuthController {
     private $conn;
@@ -17,10 +22,15 @@ class AuthController {
             exit();
         }
         
-        $error = $_SESSION['error'] ?? '';
+        $data = ['error' => $_SESSION['error'] ?? ''];
+        $layoutConfig = [
+            'title' => 'Login',
+            'hideHeader' => true
+        ];
+
         unset($_SESSION['error']);
         
-        include 'app/views/Login.php';
+        LayoutHelper::render('pages/Login', $data, $layoutConfig);
     }
 
     public function login() {
@@ -61,11 +71,22 @@ class AuthController {
             exit();
         }
         
-        $error = $_SESSION['error'] ?? '';
-        $success = $_SESSION['success'] ?? '';
+        $data = ['error' => $_SESSION['error'] ?? ''];
+        $layoutConfig = [
+            'title' => 'Login'
+        ];
         unset($_SESSION['error'], $_SESSION['success']);
         
-        include 'app/views/SignUp.php';
+        
+        $data = ['error' => $_SESSION['error'] ?? ''];
+        $layoutConfig = [
+            'title' => 'Login',
+            'hideHeader' => true
+        ];
+
+        unset($_SESSION['error']);
+        
+        LayoutHelper::render('pages/Signup', $data, $layoutConfig);
     }
 
     public function signup() {
@@ -150,7 +171,15 @@ class AuthController {
             exit();
         }
         
-        include 'app/views/Home.php';
+        $data = ['error' => $_SESSION['error'] ?? ''];
+        $layoutConfig = [
+            'title' => 'Login',
+            'hideHeader' => false,
+            'hideFooter' => false
+        ];
+        
+        LayoutHelper::render('pages/Home', $data, $layoutConfig);
+
     }
 
     public function logout() {
