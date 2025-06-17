@@ -25,7 +25,8 @@ class AuthController {
         $data = ['error' => $_SESSION['error'] ?? ''];
         $layoutConfig = [
             'title' => 'Login',
-            'hideHeader' => true
+            'hideHeader' => true,
+            'hideFooter' => true
         ];
 
         unset($_SESSION['error']);
@@ -73,18 +74,11 @@ class AuthController {
         
         $data = ['error' => $_SESSION['error'] ?? ''];
         $layoutConfig = [
-            'title' => 'Login'
+            'title' => 'Login',
+            'hideHeader' => true,
+            'hideFooter' => true
         ];
         unset($_SESSION['error'], $_SESSION['success']);
-        
-        
-        $data = ['error' => $_SESSION['error'] ?? ''];
-        $layoutConfig = [
-            'title' => 'Login',
-            'hideHeader' => true
-        ];
-
-        unset($_SESSION['error']);
         
         LayoutHelper::render('pages/Signup', $data, $layoutConfig);
     }
