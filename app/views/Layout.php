@@ -7,6 +7,7 @@
     
     <link href="<?php echo BASE_URL; ?>/app/styles/global.css" rel="stylesheet"/>
     <link href="<?php echo BASE_URL; ?>/app/styles/output.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/logo.png"/>
     
     <!-- Additional content -->
     <?php if (isset($additionalHead)): ?>
@@ -48,7 +49,7 @@
 
 
     <!-- Main Content Area -->
-    <main class="<?php echo isset($mainClass) ? htmlspecialchars($mainClass) : 'min-h-screen'; ?>">
+    <main class="<?php echo isset($mainClass) ? htmlspecialchars($mainClass) : 'min-h-screen'; ?> bg-[#fef5e1]">
         <?php echo $content; ?>
     </main>
 
