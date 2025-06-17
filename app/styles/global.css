@@ -1,9 +1,14 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 @theme {
   --font-family-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-family-bodoni: 'Bodoni Moda', serif;
+  --color-nhd-blue: #143e79;
+  --color-nhd-green: #8da733;
+  --color-nhd-pale: #fdf3de;
 }
+
 
 @layer base {
     input[type="text"], 
@@ -11,10 +16,46 @@
     input[type="password"], 
     input[type="search"], 
     textarea {
-        @apply flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
+        @apply flex h-10 w-full rounded-xl border border-gray-300 bg-neutral-100 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-neutral-400 focus:ring-nhd-blue transition-all duration-200 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
     }
     
     input[type="file"] {
         @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
+    }
+
+    button, select {
+        @apply flex items-center justify-center h-10 w-full rounded-xl border border-gray-300 bg-nhd-green/10 px-3 py-2 text-sm font-medium text-nhd-blue hover:border-nhd-green hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-green focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ;
+    }
+
+    .index-form {
+        @apply sm:md:lg:px-0 px-4;
+    }
+
+    /* 
+        This part is kind of a hack to specify a lighter default color for any html element.
+    */
+    p, h1, h2, h3, h4, h5, h6,
+    span, label, a, li, dt, dd, th, td, caption,
+    blockquote, pre, code, strong, em, b, i, u, small, sub, sup, mark, del, ins,
+    button, input[type="button"], input[type="submit"], input[type="reset"],
+    textarea, select, option,
+    figcaption, legend, summary, cite, q {
+        @apply text-neutral-700;
+    }
+
+    .form-row {
+        @apply flex flex-row gap-4;
+    }
+
+    .form-col {
+        @apply flex flex-col gap-1;
+    }
+
+    .form-group {
+        @apply flex flex-col gap-1 w-full;
+    }
+
+    #signup-form label {
+        @apply font-family-bodoni font-semibold;
     }
 }
