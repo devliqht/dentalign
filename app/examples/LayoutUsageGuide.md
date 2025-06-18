@@ -91,21 +91,18 @@ $layoutConfig = [
 ```
 
 ## Common Use Cases
-
-### Login/Registration Pages (No Header/Footer)
+### EXAMPLE: Login/Registration Pages (No Header/Footer)
 ```php
 $layoutConfig = [
     'title' => 'Login',
     'hideHeader' => true,
     'hideFooter' => true,
-    'bodyClass' => 'bg-gray-50',
-    'mainClass' => 'min-h-screen flex items-center justify-center'
 ];
 
-LayoutHelper::render('pages/LoginContent', $data, $layoutConfig);
+LayoutHelper::render('pages/Login', $data, $layoutConfig);
 ```
 
-### Dashboard Pages (With Navigation)
+### EXAMPLE: Dashboard Pages (With Navigation)
 ```php
 $navigation = '
     <div class="py-3">
@@ -123,7 +120,7 @@ $layoutConfig = [
     'mainClass' => 'min-h-screen bg-gray-50'
 ];
 
-LayoutHelper::render('pages/DashboardContent', $data, $layoutConfig);
+LayoutHelper::render('pages/Dashboard', $data, $layoutConfig);
 ```
 
 ### Pages with Custom CSS/JS
@@ -165,14 +162,6 @@ LayoutHelper::renderPartial('partials/UserList', $data);
 3. Focus only on the main content
 4. Use the layout system to render them
 
-Example content file (`app/views/pages/NewPageContent.php`):
-```php
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-4"><?php echo $pageTitle; ?></h1>
-    <p><?php echo $content; ?></p>
-</div>
-```
-
 ## Global CSS
 
 The layout automatically includes:
@@ -180,12 +169,3 @@ The layout automatically includes:
 - `app/styles/output.css` (Compiled CSS)
 
 These files are loaded on every page, so you don't need to include them manually.
-
-## Benefits
-
-✅ **DRY Principle**: No repeated HTML structure
-✅ **Global Styles**: CSS automatically included everywhere
-✅ **Consistent Header/Footer**: Shared across all pages
-✅ **Flexible**: Easy to customize per page
-✅ **Maintainable**: Change layout once, affects all pages
-✅ **SEO Friendly**: Proper title and meta tag management 
