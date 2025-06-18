@@ -10,6 +10,11 @@ require_once "app/core/Controller.php";
 
 class AuthController extends Controller
 {
+    /*
+     *   TBA: Middleware to separate guest and auth methods.
+     *
+     *
+     */
     protected function initializeMiddleware()
     {
         $this->middleware("guest", [
@@ -18,7 +23,7 @@ class AuthController extends Controller
         $this->middleware("auth", ["only" => ["home", "logout"]]);
     }
 
-    public function showLogin()
+    public function DisplayLoginPage()
     {
         if ($this->isAuthenticated()) {
             $this->redirect(BASE_URL . "/home");
@@ -32,7 +37,9 @@ class AuthController extends Controller
         $layoutConfig = [
             "title" => "Login",
             "hideHeader" => true,
-            "hideFooter" => true,
+            "hideFooter" => false,
+            "bodyClass" =>
+                "bg-[url('/dentalign/public/bg.png')] bg-opacity-40 bg-cover bg-center",
         ];
 
         unset($_SESSION["error"]);
@@ -40,7 +47,7 @@ class AuthController extends Controller
         $this->view("pages/Login", $data, $layoutConfig);
     }
 
-    public function login()
+    public function LoginUser()
     {
         $this->validateRequest("POST", true);
 
@@ -79,7 +86,7 @@ class AuthController extends Controller
         }
     }
 
-    public function showSignup()
+    public function DisplaySignupPage()
     {
         if ($this->isAuthenticated()) {
             $this->redirect(BASE_URL . "/home");
@@ -102,7 +109,7 @@ class AuthController extends Controller
         $this->view("pages/Signup", $data, $layoutConfig);
     }
 
-    public function signup()
+    public function SignupUser()
     {
         $this->validateRequest("POST", true);
 
@@ -188,9 +195,8 @@ class AuthController extends Controller
         return false;
     }
 
-    public function home()
+    public function DisplayHomePage()
     {
-        // Require authentication
         $this->requireAuth();
 
         $data = [
@@ -206,7 +212,7 @@ class AuthController extends Controller
         $this->view("pages/Home", $data, $layoutConfig);
     }
 
-    public function logout()
+    public function LogoutUser()
     {
         session_destroy();
         $this->redirect(BASE_URL . "/login");
