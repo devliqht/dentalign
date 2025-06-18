@@ -14,6 +14,54 @@ class Router
         $this->routes["POST"][$route] = $action;
     }
 
+    public function put($route, $action)
+    {
+        $this->routes["PUT"][$route] = $action;
+    }
+
+    public function delete($route, $action)
+    {
+        $this->routes["DELETE"][$route] = $action;
+    }
+
+    /**
+     * Group routes by HTTP method and controller. useful If you have any routes that use the same controller.
+     *
+     * @param string|array $methods HTTP method(s) - 'GET', 'POST' or ['GET', 'POST']
+     * @param string $controller Controller class name
+     * @param array $routes Associative array of route => method pairs
+     *
+     * Example usage (from web.php):
+     * $router->group('GET', 'AuthController', [
+     *     '' => 'showLogin',
+     *     'login' => 'showLogin',
+     *     'signup' => 'showSignup',
+     *     'home' => 'home'
+     * ]);
+     *
+     * Or with multiple HTTP methods:
+     * $router->group(['GET', 'POST'], 'AuthController', [
+     *     'profile' => 'profile'
+     * ]);
+     */
+    public function group($methods, $controller, $routes)
+    {
+        if (!is_array($methods)) {
+            $methods = [$methods];
+        }
+
+        $controller = str_replace("::class", "", $controller);
+
+        foreach ($methods as $method) {
+            $method = strtoupper($method);
+
+            foreach ($routes as $route => $action) {
+                $fullAction = $controller . "@" . $action;
+                $this->routes[$method][$route] = $fullAction;
+            }
+        }
+    }
+
     public function handleRequest($url)
     {
         $method = $_SERVER["REQUEST_METHOD"];
