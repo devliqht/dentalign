@@ -14,10 +14,22 @@ class LayoutHelper
     {
         extract($data);
 
+        /*
+         *   To start using the layoutConfig, you pass an array that looks like this:
+         *   $layoutConfig = [
+         *       "title" => "Login",
+         *       "hideHeader" => true,
+         *       "hideFooter" => true,
+         *       "bodyClass" => 'bg-[#fef5e1]'
+         *    ];
+         *
+         *   Where "config_name" => "value". Should you wish not to pass any, there are defaults set in place.
+         */
         $pageTitle = $layoutConfig["title"] ?? null;
         $bodyClass = $layoutConfig["bodyClass"] ?? "";
         $mainClass = $layoutConfig["mainClass"] ?? "min-h-screen";
         $hideHeader = $layoutConfig["hideHeader"] ?? false;
+        $hideGuestHeader = $layoutConfig["hideGuestHeader"] ?? false;
         $hideFooter = $layoutConfig["hideFooter"] ?? false;
         $navigation = $layoutConfig["navigation"] ?? null;
         $additionalHead = $layoutConfig["additionalHead"] ?? null;

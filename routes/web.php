@@ -2,13 +2,25 @@
 require_once "app/core/Router.php";
 
 $router = new Router();
-$router->get("", "AuthController@showLogin");
-$router->get("login", "AuthController@showLogin");
-$router->post("login", "AuthController@login");
-$router->get("signup", "AuthController@showSignup");
-$router->post("signup", "AuthController@signup");
-$router->get("home", "AuthController@home");
-$router->get("logout", "AuthController@logout");
+
+/*
+ *   The routes follow a format:
+ *   'route_name' => 'controller_function'
+ *   e.g 'login' (which corresponds to /login) will active DisplayLoginPage() from the AuthController class
+ *
+ */
+$router->group("GET", "AuthController", [
+    "" => "DisplayLoginPage",
+    "login" => "DisplayLoginPage",
+    "signup" => "DisplaySignupPage",
+    "home" => "DisplayHomePage",
+    "logout" => "LogoutUser",
+]);
+
+$router->group("POST", "AuthController", [
+    "login" => "LoginUser",
+    "signup" => "SignupUser",
+]);
 
 $url = $_GET["url"] ?? "";
 $router->handleRequest($url);
