@@ -35,6 +35,7 @@ class Router
         $controllerFile = "app/controllers/{$controller}.php";
 
         if (file_exists($controllerFile)) {
+            require_once "app/core/Controller.php";
             require_once $controllerFile;
 
             if (class_exists($controller)) {
