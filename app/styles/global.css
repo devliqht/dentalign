@@ -9,7 +9,6 @@
   --color-nhd-pale: #fdf3de;
 }
 
-
 @layer base {
     input[type="text"], 
     input[type="email"], 
@@ -23,8 +22,12 @@
         @apply file:border-0 file:bg-transparent file:text-sm file:font-medium;
     }
 
-    button, select {
-        @apply flex items-center justify-center h-10 w-full rounded-xl border border-gray-300 bg-nhd-green/10 px-3 py-2 text-sm font-medium text-nhd-blue hover:border-nhd-green hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-green focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ;
+    button {
+        @apply flex items-center justify-center h-10 border border-gray-300 text-sm hover:border-nhd-pale hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-pale focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 w-full bg-nhd-blue hover:bg-nhd-blue/90 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl;
+    }
+
+    select {
+        @apply flex items-center justify-center h-10 w-full rounded-xl border border-gray-300 bg-nhd-green/10 px-3 py-2 text-sm font-medium text-nhd-blue hover:border-nhd-green hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-green focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .index-form {
@@ -34,14 +37,14 @@
     /* 
         This part is kind of a hack to specify a lighter default color for any html element.
     */
-    p, h1, h2, h3, h4, h5, h6,
+    /* p, h1, h2, h3, h4, h5, h6,
     span, label, a, li, dt, dd, th, td, caption,
     blockquote, pre, code, strong, em, b, i, u, small, sub, sup, mark, del, ins,
     button, input[type="button"], input[type="submit"], input[type="reset"],
     textarea, select, option,
     figcaption, legend, summary, cite, q {
         @apply text-neutral-700;
-    }
+    } */
 
     .form-row {
         @apply flex flex-row gap-4;
