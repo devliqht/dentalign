@@ -11,6 +11,9 @@
             <?php endif; ?>
             
             <form method="POST" action="<?php echo BASE_URL; ?>/login" class="space-y-2">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
+                    $csrf_token
+                ); ?>">
                 <div class="flex flex-col">
                     <input type="email" id="email" name="email" placeholder="Email" required />
                 </div>

@@ -4,9 +4,9 @@
         <p class="text-gray-600 mb-4">You have successfully logged into your account. This is your dashboard where you can manage your dental care activities.</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-black rounded-lg shadow-md p-6">
         <h3 class="text-xl font-semibold text-gray-900 mb-4">Your Account Information</h3>
-        
+
         <div class="space-y-4">
             <div class="flex justify-between items-center py-2 border-b border-gray-100">
                 <div class="font-medium text-gray-700">Name:</div>
