@@ -29,9 +29,7 @@ abstract class Controller
     /**
      * Initialize middleware - can be overridden by child controllers
      */
-    protected function initializeMiddleware()
-    {
-    }
+    protected function initializeMiddleware() {}
 
     /**
      * Check if user is authenticated
@@ -151,7 +149,6 @@ abstract class Controller
 
         if ($field) {
             $value = $oldInput[$field] ?? "";
-            // Clean up session after retrieving specific field
             if (isset($_SESSION["old_input"])) {
                 unset($_SESSION["old_input"][$field]);
                 if (empty($_SESSION["old_input"])) {
