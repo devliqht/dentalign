@@ -1,139 +1,152 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+ini_set("display_errors", 1);
+ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
 
-require_once 'app/models/User.php';
-require_once 'app/models/Doctor.php';
-require_once 'app/helpers/LayoutHelper.php';
+require_once "app/models/User.php";
+require_once "app/models/Doctor.php";
+require_once "app/helpers/LayoutHelper.php";
 
-class AuthController {
+class AuthController
+{
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         global $conn;
         $this->conn = $conn;
     }
 
-    public function showLogin() {
-        if (isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/home');
+    public function showLogin()
+    {
+        if (isset($_SESSION["user_id"])) {
+            header("Location: " . BASE_URL . "/home");
             exit();
         }
-        
-        $data = ['error' => $_SESSION['error'] ?? ''];
+
+        $data = ["error" => $_SESSION["error"] ?? ""];
         $layoutConfig = [
-            'title' => 'Login',
-            'hideHeader' => true,
-            'hideFooter' => true
+            "title" => "Login",
+            "hideHeader" => true,
+            "hideFooter" => true,
         ];
 
-        unset($_SESSION['error']);
-        
-        LayoutHelper::render('pages/Login', $data, $layoutConfig);
+        unset($_SESSION["error"]);
+
+        LayoutHelper::render("pages/Login", $data, $layoutConfig);
     }
 
-    public function login() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /login');
+    public function login()
+    {
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("Location: /login");
             exit();
         }
 
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+        $email = $_POST["email"] ?? "";
+        $password = $_POST["password"] ?? "";
 
         if (empty($email) || empty($password)) {
-            $_SESSION['error'] = 'Please fill in all fields';
-            header('Location: ' . BASE_URL . '/login');
+            $_SESSION["error"] = "Please fill in all fields";
+            header("Location: " . BASE_URL . "/login");
             exit();
         }
 
         $user = new User($this->conn);
-        
+
         if ($user->findByEmail($email) && $user->verifyPassword($password)) {
-            $_SESSION['user_id'] = $user->userID;
-            $_SESSION['user_name'] = $user->firstName . ' ' . $user->lastName;
-            $_SESSION['user_type'] = $user->userType;
-            $_SESSION['user_email'] = $user->email;
-            
-            header('Location: ' . BASE_URL . '/home');
+            $_SESSION["user_id"] = $user->userID;
+            $_SESSION["user_name"] = $user->firstName . " " . $user->lastName;
+            $_SESSION["user_type"] = $user->userType;
+            $_SESSION["user_email"] = $user->email;
+
+            header("Location: " . BASE_URL . "/home");
             exit();
         } else {
-            $_SESSION['error'] = 'Invalid email or password';
-            header('Location: ' . BASE_URL . '/login');
+            $_SESSION["error"] = "Invalid email or password";
+            header("Location: " . BASE_URL . "/login");
             exit();
         }
     }
 
-    public function showSignup() {
-        if (isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/home');
+    public function showSignup()
+    {
+        if (isset($_SESSION["user_id"])) {
+            header("Location: " . BASE_URL . "/home");
             exit();
         }
-        
-        $data = ['error' => $_SESSION['error'] ?? ''];
+
+        $data = ["error" => $_SESSION["error"] ?? ""];
         $layoutConfig = [
-            'title' => 'Login',
-            'hideHeader' => true,
-            'hideFooter' => true
+            "title" => "Login",
+            "hideHeader" => true,
+            "hideFooter" => true,
         ];
-        unset($_SESSION['error'], $_SESSION['success']);
-        
-        LayoutHelper::render('pages/Signup', $data, $layoutConfig);
+        unset($_SESSION["error"], $_SESSION["success"]);
+
+        LayoutHelper::render("pages/Signup", $data, $layoutConfig);
     }
 
-    public function signup() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/signup');
+    public function signup()
+    {
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("Location: " . BASE_URL . "/signup");
             exit();
         }
 
-        $firstName = $_POST['first_name'] ?? '';
-        $lastName = $_POST['last_name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $confirmPassword = $_POST['confirm_password'] ?? '';
-        $userType = $_POST['user_type'] ?? '';
-        $specialization = $_POST['specialization'] ?? '';
+        $firstName = $_POST["first_name"] ?? "";
+        $lastName = $_POST["last_name"] ?? "";
+        $email = $_POST["email"] ?? "";
+        $password = $_POST["password"] ?? "";
+        $confirmPassword = $_POST["confirm_password"] ?? "";
+        $userType = $_POST["user_type"] ?? "";
+        $specialization = $_POST["specialization"] ?? "";
 
-        if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($userType)) {
-            $_SESSION['error'] = 'Please fill in all required fields';
-            header('Location: ' . BASE_URL . '/signup');
+        if (
+            empty($firstName) ||
+            empty($lastName) ||
+            empty($email) ||
+            empty($password) ||
+            empty($userType)
+        ) {
+            $_SESSION["error"] = "Please fill in all required fields";
+            header("Location: " . BASE_URL . "/signup");
             exit();
         }
 
         if ($password !== $confirmPassword) {
-            $_SESSION['error'] = 'Passwords do not match';
-            header('Location: ' . BASE_URL . '/signup');
+            $_SESSION["error"] = "Passwords do not match";
+            header("Location: " . BASE_URL . "/signup");
             exit();
         }
 
         if (strlen($password) < 6) {
-            $_SESSION['error'] = 'Password must be at least 6 characters long';
-            header('Location: ' . BASE_URL . '/signup');
+            $_SESSION["error"] = "Password must be at least 6 characters long";
+            header("Location: " . BASE_URL . "/signup");
             exit();
         }
 
         $user = new User($this->conn);
         if ($user->emailExists($email)) {
-            $_SESSION['error'] = 'Email already exists';
-            header('Location: ' . BASE_URL . '/signup');
+            $_SESSION["error"] = "Email already exists";
+            header("Location: " . BASE_URL . "/signup");
             exit();
         }
 
-        if ($userType === 'Doctor') {
+        if ($userType === "Doctor") {
             $doctor = new Doctor($this->conn);
             $doctor->firstName = $firstName;
             $doctor->lastName = $lastName;
             $doctor->email = $email;
             $doctor->passwordHash = $doctor->hashPassword($password);
             $doctor->specialization = $specialization;
-            
+
             if ($doctor->createDoctor()) {
-                $_SESSION['success'] = 'Doctor account created successfully! Please login.';
+                $_SESSION["success"] =
+                    "Doctor account created successfully! Please login.";
             } else {
-                $_SESSION['error'] = 'Failed to create doctor account';
+                $_SESSION["error"] = "Failed to create doctor account";
             }
         } else {
             // Create regular user (Patient)
@@ -141,44 +154,46 @@ class AuthController {
             $user->lastName = $lastName;
             $user->email = $email;
             $user->passwordHash = $user->hashPassword($password);
-            $user->userType = 'Patient';
-            
+            $user->userType = "Patient";
+
             if ($user->create()) {
                 $patientQuery = "INSERT INTO PATIENT (PatientID) VALUES (?)";
                 $stmt = $this->conn->prepare($patientQuery);
                 $stmt->bind_param("i", $user->userID);
                 $stmt->execute();
-                
-                $_SESSION['success'] = 'Account created successfully! Please login.';
+
+                $_SESSION["success"] =
+                    "Account created successfully! Please login.";
             } else {
-                $_SESSION['error'] = 'Failed to create account';
+                $_SESSION["error"] = "Failed to create account";
             }
         }
 
-        header('Location: ' . BASE_URL . '/signup');
+        header("Location: " . BASE_URL . "/signup");
         exit();
     }
 
-    public function home() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . BASE_URL . '/login');
+    public function home()
+    {
+        if (!isset($_SESSION["user_id"])) {
+            header("Location: " . BASE_URL . "/login");
             exit();
         }
-        
-        $data = ['error' => $_SESSION['error'] ?? ''];
-        $layoutConfig = [
-            'title' => 'Login',
-            'hideHeader' => false,
-            'hideFooter' => false
-        ];
-        
-        LayoutHelper::render('pages/Home', $data, $layoutConfig);
 
+        $data = ["error" => $_SESSION["error"] ?? ""];
+        $layoutConfig = [
+            "title" => "Login",
+            "hideHeader" => false,
+            "hideFooter" => false,
+        ];
+
+        LayoutHelper::render("pages/Home", $data, $layoutConfig);
     }
 
-    public function logout() {
+    public function logout()
+    {
         session_destroy();
-        header('Location: ' . BASE_URL . '/login');
+        header("Location: " . BASE_URL . "/login");
         exit();
     }
 }

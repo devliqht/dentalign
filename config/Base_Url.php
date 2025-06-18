@@ -1,3 +1,3 @@
 <?php
-    define('BASE_URL', '/dentalign');
+define("BASE_URL", "/dentalign");
 ?>

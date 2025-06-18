@@ -5,7 +5,7 @@
         <div class="flex flex-col items-center justify-center gap-2">
                 <h2 class="text-4xl text-center tracking-tight font-family-bodoni font-semibold text-nhd-blue">Welcome</h2>
                 <p>Don't have an account? <a class="underline text-nhd-green" href="<?php echo BASE_URL; ?>/signup">Sign up here</a></p>
-            </div>
+        </div>
             <?php if (!empty($error)): ?>
                 <div class="error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
