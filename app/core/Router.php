@@ -1,4 +1,5 @@
 <?php
+require_once "app/helpers/LayoutHelper.php";
 
 class Router
 {
@@ -72,7 +73,11 @@ class Router
             $this->dispatch($action);
         } else {
             http_response_code(404);
-            include "app/views/404.php";
+            LayoutHelper::render(
+                "404",
+                [],
+                ["hideHeader" => true, "hideFooter" => true]
+            );
         }
     }
 
