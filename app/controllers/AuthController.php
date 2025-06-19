@@ -80,7 +80,7 @@ class AuthController extends Controller
             $_SESSION["user_type"] = $user->userType;
             $_SESSION["user_email"] = $user->email;
 
-            $this->redirect(BASE_URL . "/home");
+            $this->redirect(BASE_URL . "/patient/dashboard");
         } else {
             $this->redirectBack("Invalid email or password");
         }
@@ -204,12 +204,12 @@ class AuthController extends Controller
         ];
 
         $layoutConfig = [
-            "title" => "Home",
-            "hideHeader" => false,
+            "title" => "Dashboard",
+            "hideHeader" => true,
             "hideFooter" => false,
         ];
 
-        $this->view("pages/Home", $data, $layoutConfig);
+        $this->view("pages/Dashboard", $data, $layoutConfig);
     }
 
     public function LogoutUser()
