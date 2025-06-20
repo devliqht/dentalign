@@ -4,6 +4,7 @@ require_once "app/core/Controller.php";
 require_once "app/models/User.php";
 require_once "app/models/Appointment.php";
 require_once "app/models/Patient.php";
+require_once "app/models/Doctor.php";
 
 class PatientController extends Controller
 {
@@ -18,8 +19,13 @@ class PatientController extends Controller
         $this->requireAuth();
         $this->requireRole("Patient");
 
+        $user = $this->getAuthUser();
+        $appointment = new Appointment($this->conn);
+        $upcomingAppointments = $appointment->getUpcomingAppointmentsByPatient($user['id']);
+
         $data = [
-            "user" => $this->getAuthUser(),
+            "user" => $user,
+            "upcomingAppointments" => $upcomingAppointments,
         ];
 
         $layoutConfig = [
@@ -38,9 +44,13 @@ class PatientController extends Controller
         $this->requireAuth();
         $this->requireRole("Patient");
 
+        $user = $this->getAuthUser();
+        $appointment = new Appointment($this->conn);
+        $appointments = $appointment->getAppointmentsByPatient($user['id']);
+
         $data = [
-            "user" => $this->getAuthUser(),
-            // TODO: Fetch patient's appointments
+            "user" => $user,
+            "appointments" => $appointments,
         ];
 
         $layoutConfig = [
@@ -57,9 +67,25 @@ class PatientController extends Controller
         $this->requireAuth();
         $this->requireRole("Patient");
 
+        $user = $this->getAuthUser();
+        
+        $doctor = new Doctor($this->conn);
+        $doctors = $doctor->getAllDoctors();
+
+        // get doctor time slots if doctor and time selected
+        $availableTimeSlots = [];
+        if (isset($_GET['doctor_id']) && isset($_GET['date'])) {
+            $appointment = new Appointment($this->conn);
+            $availableTimeSlots = $appointment->getAvailableTimeSlots($_GET['doctor_id'], $_GET['date']);
+        }
+
         $data = [
-            "user" => $this->getAuthUser(),
-            // TODO: Fetch available doctors and time slots
+            "user" => $user,
+            "doctors" => $doctors,
+            "availableTimeSlots" => $availableTimeSlots,
+            "selectedDoctorId" => $_GET['doctor_id'] ?? '',
+            "selectedDate" => $_GET['date'] ?? '',
+            "csrf_token" => $this->generateCsrfToken(),
         ];
 
         $layoutConfig = [
@@ -109,15 +135,57 @@ class PatientController extends Controller
         $this->view("pages/patient/Results", $data, $layoutConfig);
     }
 
-    // POST methods for handling form submissions
     public function storeAppointment()
     {
         $this->requireAuth();
         $this->requireRole("Patient");
         $this->validateRequest("POST", true);
 
-        // TODO: Handle appointment booking logic
-        $this->redirectBack("Appointment booked successfully!");
+        $data = $this->sanitize($_POST);
+        $user = $this->getAuthUser();
+
+        $isValid = $this->validate(
+            $data,
+            [
+                "doctor_id" => "required",
+                "appointment_date" => "required",
+                "appointment_time" => "required",
+                "appointment_type" => "required",
+                "reason" => "required|min:10",
+            ],
+            [
+                "doctor_id" => "Please select a doctor",
+                "appointment_date" => "Please select an appointment date",
+                "appointment_time" => "Please select an appointment time",
+                "appointment_type" => "Please select an appointment type",
+                "reason" => "Please provide a reason for your visit (at least 10 characters)",
+            ]
+        );
+
+        if (!$isValid) {
+            $this->redirectBack("Please correct the errors below");
+        }
+
+        // future time check
+        $appointmentDateTime = $data['appointment_date'] . ' ' . $data['appointment_time'] . ':00';
+        if (strtotime($appointmentDateTime) <= time()) {
+            $this->redirectBack("Appointment date and time must be in the future");
+        }
+
+        $appointment = new Appointment($this->conn);
+        $success = $appointment->createAppointment(
+            $user['id'],
+            $data['doctor_id'],
+            $appointmentDateTime,
+            $data['appointment_type'],
+            $data['reason']
+        );
+
+        if ($success) {
+            $this->redirect(BASE_URL . "/patient/bookings", "Appointment booked successfully!");
+        } else {
+            $this->redirectBack("Failed to book appointment. The selected time slot may no longer be available.");
+        }
     }
 }
 ?> 
