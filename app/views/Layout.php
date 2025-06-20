@@ -22,7 +22,7 @@
     
     <!-- SIDEBAR -->
     <?php if (isset($_SESSION["user_name"])): ?>
-        <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r border-gray-200 transform transition-transform duration-300 ease-in-out z-50">
+        <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-nhd-pale shadow-lg transform transition-transform duration-300 ease-in-out z-50">
             <div class="flex items-center justify-between p-4 border-b border-gray-200">
                 <div class="flex items-center">
                     <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="North Hill Dental Logo" class="w-10 h-10 rounded-full mr-3" />
@@ -66,7 +66,7 @@
             </div>
 
             <!-- SIDEBAR CHUCHU -->
-            <nav class="mt-4 px-2">
+            <nav class="mt-4 pr-4">
                                  <?php
                                  $userType = $_SESSION["user_type"] ?? "";
                                  $currentPath = parse_url(
@@ -170,12 +170,12 @@
                         $isActive = $currentPath === $item["url"];
                         $activeClass = $isActive
                             ? "bg-nhd-blue text-white"
-                            : "text-gray-700 hover:bg-gray-100";
+                            : "text-gray-700 hover:bg-nhd-blue/20";
                         ?>
                         <a href="<?php echo BASE_URL . $item["url"]; ?>" 
-                           class="group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors <?php echo $activeClass; ?>">
+                           class="group flex items-center p-4 text-sm font-medium rounded-r-3xl transition-all duration-200 <?php echo $activeClass; ?>">
                             <svg class="<?php echo $isActive
-                                ? "text-white"
+                                ? "text-nhd-pale"
                                 : "text-gray-400 group-hover:text-gray-500"; ?> mr-3 flex-shrink-0 h-5 w-5" 
                                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <?php echo getSidebarIcon($item["icon"]); ?>
