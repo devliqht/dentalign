@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 
 require_once "app/models/User.php";
 require_once "app/models/Doctor.php";
+require_once "app/models/Patient.php";
 require_once "app/core/Controller.php";
 
 class AuthController extends Controller
@@ -178,21 +179,13 @@ class AuthController extends Controller
 
     private function createPatient($data)
     {
-        $user = new User($this->conn);
-        $user->firstName = $data["first_name"];
-        $user->lastName = $data["last_name"];
-        $user->email = $data["email"];
-        $user->passwordHash = $user->hashPassword($data["password"]);
-        $user->userType = "Patient";
+        $patient = new Patient($this->conn);
+        $patient->firstName = $data["first_name"];
+        $patient->lastName = $data["last_name"];
+        $patient->email = $data["email"];
+        $patient->passwordHash = $patient->hashPassword($data["password"]);
 
-        if ($user->create()) {
-            $patientQuery = "INSERT INTO PATIENT (PatientID) VALUES (?)";
-            $stmt = $this->conn->prepare($patientQuery);
-            $stmt->bind_param("i", $user->userID);
-            return $stmt->execute();
-        }
-
-        return false;
+        return $patient->createPatient();
     }
 
     public function DisplayHomePage()
