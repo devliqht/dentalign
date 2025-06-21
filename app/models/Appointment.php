@@ -17,13 +17,16 @@ class Appointment
         $this->conn = $db;
     }
 
-    public function create() {
+    public function create()
+    {
         $query =
-        "INSERT INTO " .  $this->table . " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt) VALUES 
+            "INSERT INTO " .
+            $this->table .
+            " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt) VALUES 
         (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
         ";
         $stmt = $this->conn->prepare($query);
-        
+
         $stmt->bind_param(
             "iisss",
             $this->patientID,
@@ -41,9 +44,13 @@ class Appointment
         return false;
     }
 
-    public function getAppointmentsByPatient($patientID) {
-        $query = "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
-                  FROM " . $this->table . " a
+    public function getAppointmentsByPatient($patientID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+                  FROM " .
+            $this->table .
+            " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
                   WHERE a.PatientID = ?
@@ -56,13 +63,17 @@ class Appointment
             $result = $stmt->get_result();
             return $result->fetch_all(MYSQLI_ASSOC);
         }
-        
+
         return [];
     }
 
-    public function getUpcomingAppointmentsByPatient($patientID) {
-        $query = "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
-                  FROM " . $this->table . " a
+    public function getUpcomingAppointmentsByPatient($patientID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+                  FROM " .
+            $this->table .
+            " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
                   WHERE a.PatientID = ? AND a.DateTime >= NOW()
@@ -75,12 +86,16 @@ class Appointment
             $result = $stmt->get_result();
             return $result->fetch_all(MYSQLI_ASSOC);
         }
-        
+
         return [];
     }
 
-    public function checkDoctorAvailability($doctorID, $dateTime) {
-        $query = "SELECT COUNT(*) as count FROM " . $this->table . " 
+    public function checkDoctorAvailability($doctorID, $dateTime)
+    {
+        $query =
+            "SELECT COUNT(*) as count FROM " .
+            $this->table .
+            " 
                   WHERE DoctorID = ? AND DateTime = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -89,19 +104,25 @@ class Appointment
         if ($stmt->execute()) {
             $result = $stmt->get_result();
             $row = $result->fetch_assoc();
-            return $row['count'] == 0;
+            return $row["count"] == 0;
         }
-        
+
         return false;
     }
 
-    public function createAppointment($patientID, $doctorID, $dateTime, $appointmentType, $reason) {
+    public function createAppointment(
+        $patientID,
+        $doctorID,
+        $dateTime,
+        $appointmentType,
+        $reason
+    ) {
         if (!$this->checkDoctorAvailability($doctorID, $dateTime)) {
             return false;
         }
 
         $this->patientID = $patientID;
-        $this->doctorID = $doctorID; 
+        $this->doctorID = $doctorID;
         $this->dateTime = $dateTime;
         $this->appointmentType = $appointmentType;
         $this->reason = $reason;
@@ -109,14 +130,18 @@ class Appointment
         return $this->create();
     }
 
-    public function getAvailableTimeSlots($doctorID, $date) {
+    public function getAvailableTimeSlots($doctorID, $date)
+    {
         // Define clinic hours (8 AM to 6 PM, 1-hour slots)
         $timeSlots = [];
         for ($hour = 8; $hour < 18; $hour++) {
             $timeSlots[] = sprintf("%02d:00", $hour);
         }
 
-        $query = "SELECT TIME(DateTime) as time FROM " . $this->table . " 
+        $query =
+            "SELECT TIME(DateTime) as time FROM " .
+            $this->table .
+            " 
                   WHERE DoctorID = ? AND DATE(DateTime) = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -126,7 +151,7 @@ class Appointment
         if ($stmt->execute()) {
             $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
-                $bookedTimes[] = $row['time'];
+                $bookedTimes[] = $row["time"];
             }
         }
 

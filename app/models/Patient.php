@@ -18,7 +18,10 @@ class Patient extends User
                 throw new Exception("Failed to create user");
             }
 
-            $patientQuery = "INSERT INTO " . $this->patientTable . " (PatientID) VALUES (?)";
+            $patientQuery =
+                "INSERT INTO " .
+                $this->patientTable .
+                " (PatientID) VALUES (?)";
             $stmt = $this->conn->prepare($patientQuery);
             $stmt->bind_param("i", $this->userID);
 
@@ -38,9 +41,14 @@ class Patient extends User
 
     public function findPatientByEmail($email)
     {
-        $query = "SELECT u.UserID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.UserType, u.CreatedAt
-                  FROM " . $this->table . " u
-                  INNER JOIN " . $this->patientTable . " p ON u.UserID = p.PatientID
+        $query =
+            "SELECT u.UserID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.UserType, u.CreatedAt
+                  FROM " .
+            $this->table .
+            " u
+                  INNER JOIN " .
+            $this->patientTable .
+            " p ON u.UserID = p.PatientID
                   WHERE u.Email = ? LIMIT 1";
 
         $stmt = $this->conn->prepare($query);

@@ -1,6 +1,8 @@
 <div class="max-w-4xl px-4 py-8">
     <div class="p-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4"><?php echo $_SESSION['user_type'] . ' Dashboard'; ?></h2>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4"><?php echo $_SESSION[
+            "user_type"
+        ] . " Dashboard"; ?></h2>
         <p class="text-gray-600 mb-4">You have successfully logged into your account. This is your dashboard where you can manage your dental care activities.</p>
     </div>
     
@@ -15,22 +17,38 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex-1">
                                     <h3 class="text-lg font-semibold text-gray-900">
-                                        <?php echo htmlspecialchars($appointment['AppointmentType']); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["AppointmentType"]
+                                        ); ?>
                                     </h3>
                                     <p class="text-gray-600 mt-1">
-                                        with Dr. <?php echo htmlspecialchars($appointment['DoctorFirstName'] . ' ' . $appointment['DoctorLastName']); ?>
-                                        - <?php echo htmlspecialchars($appointment['Specialization']); ?>
+                                        with Dr. <?php echo htmlspecialchars(
+                                            $appointment["DoctorFirstName"] .
+                                                " " .
+                                                $appointment["DoctorLastName"]
+                                        ); ?>
+                                        - <?php echo htmlspecialchars(
+                                            $appointment["Specialization"]
+                                        ); ?>
                                     </p>
                                     <p class="text-sm text-gray-500 mt-2">
-                                        Reason: <?php echo htmlspecialchars($appointment['Reason']); ?>
+                                        Reason: <?php echo htmlspecialchars(
+                                            $appointment["Reason"]
+                                        ); ?>
                                     </p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-lg font-semibold text-blue-600">
-                                        <?php echo date('M j, Y', strtotime($appointment['DateTime'])); ?>
+                                        <?php echo date(
+                                            "M j, Y",
+                                            strtotime($appointment["DateTime"])
+                                        ); ?>
                                     </p>
                                     <p class="text-gray-600">
-                                        <?php echo date('g:i A', strtotime($appointment['DateTime'])); ?>
+                                        <?php echo date(
+                                            "g:i A",
+                                            strtotime($appointment["DateTime"])
+                                        ); ?>
                                     </p>
                                 </div>
                             </div>

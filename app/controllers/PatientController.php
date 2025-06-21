@@ -21,7 +21,9 @@ class PatientController extends Controller
 
         $user = $this->getAuthUser();
         $appointment = new Appointment($this->conn);
-        $upcomingAppointments = $appointment->getUpcomingAppointmentsByPatient($user['id']);
+        $upcomingAppointments = $appointment->getUpcomingAppointmentsByPatient(
+            $user["id"]
+        );
 
         $data = [
             "user" => $user,
@@ -46,7 +48,7 @@ class PatientController extends Controller
 
         $user = $this->getAuthUser();
         $appointment = new Appointment($this->conn);
-        $appointments = $appointment->getAppointmentsByPatient($user['id']);
+        $appointments = $appointment->getAppointmentsByPatient($user["id"]);
 
         $data = [
             "user" => $user,
@@ -68,23 +70,26 @@ class PatientController extends Controller
         $this->requireRole("Patient");
 
         $user = $this->getAuthUser();
-        
+
         $doctor = new Doctor($this->conn);
         $doctors = $doctor->getAllDoctors();
 
         // get doctor time slots if doctor and time selected
         $availableTimeSlots = [];
-        if (isset($_GET['doctor_id']) && isset($_GET['date'])) {
+        if (isset($_GET["doctor_id"]) && isset($_GET["date"])) {
             $appointment = new Appointment($this->conn);
-            $availableTimeSlots = $appointment->getAvailableTimeSlots($_GET['doctor_id'], $_GET['date']);
+            $availableTimeSlots = $appointment->getAvailableTimeSlots(
+                $_GET["doctor_id"],
+                $_GET["date"]
+            );
         }
 
         $data = [
             "user" => $user,
             "doctors" => $doctors,
             "availableTimeSlots" => $availableTimeSlots,
-            "selectedDoctorId" => $_GET['doctor_id'] ?? '',
-            "selectedDate" => $_GET['date'] ?? '',
+            "selectedDoctorId" => $_GET["doctor_id"] ?? "",
+            "selectedDate" => $_GET["date"] ?? "",
             "csrf_token" => $this->generateCsrfToken(),
         ];
 
@@ -158,7 +163,8 @@ class PatientController extends Controller
                 "appointment_date" => "Please select an appointment date",
                 "appointment_time" => "Please select an appointment time",
                 "appointment_type" => "Please select an appointment type",
-                "reason" => "Please provide a reason for your visit (at least 10 characters)",
+                "reason" =>
+                    "Please provide a reason for your visit (at least 10 characters)",
             ]
         );
 
@@ -167,24 +173,32 @@ class PatientController extends Controller
         }
 
         // future time check
-        $appointmentDateTime = $data['appointment_date'] . ' ' . $data['appointment_time'] . ':00';
+        $appointmentDateTime =
+            $data["appointment_date"] . " " . $data["appointment_time"] . ":00";
         if (strtotime($appointmentDateTime) <= time()) {
-            $this->redirectBack("Appointment date and time must be in the future");
+            $this->redirectBack(
+                "Appointment date and time must be in the future"
+            );
         }
 
         $appointment = new Appointment($this->conn);
         $success = $appointment->createAppointment(
-            $user['id'],
-            $data['doctor_id'],
+            $user["id"],
+            $data["doctor_id"],
             $appointmentDateTime,
-            $data['appointment_type'],
-            $data['reason']
+            $data["appointment_type"],
+            $data["reason"]
         );
 
         if ($success) {
-            $this->redirect(BASE_URL . "/patient/bookings", "Appointment booked successfully!");
+            $this->redirect(
+                BASE_URL . "/patient/bookings",
+                "Appointment booked successfully!"
+            );
         } else {
-            $this->redirectBack("Failed to book appointment. The selected time slot may no longer be available.");
+            $this->redirectBack(
+                "Failed to book appointment. The selected time slot may no longer be available."
+            );
         }
     }
 }
