@@ -7,6 +7,7 @@
   --color-nhd-blue: #143e79;
   --color-nhd-green: #8da733;
   --color-nhd-pale: #fdf3de;
+  --color-nhd-brown: #8b5629;
 }
 
 @layer base {
@@ -14,6 +15,7 @@
     input[type="email"], 
     input[type="password"], 
     input[type="search"], 
+    input[type="date"],
     textarea {
         @apply flex h-10 w-full rounded-xl border border-gray-300 bg-neutral-100 px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-neutral-400 focus:ring-nhd-blue transition-all duration-200 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
     }
@@ -27,7 +29,7 @@
     }
 
     select {
-        @apply flex items-center justify-center h-10 w-full rounded-xl border border-gray-300 bg-nhd-green px-3 py-2 text-sm font-medium text-nhd-blue hover:border-nhd-green hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-green focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply flex items-center justify-center h-10 w-full rounded-xl border border-gray-300 bg-nhd-green/10 px-3 py-2 text-sm font-medium text-nhd-blue hover:border-nhd-green hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-green focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .index-form {

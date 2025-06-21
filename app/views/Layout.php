@@ -22,7 +22,7 @@
     
     <!-- SIDEBAR -->
     <?php if (isset($_SESSION["user_name"])): ?>
-        <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-nhd-pale shadow-lg transform transition-transform duration-300 ease-in-out z-50">
+        <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-nhd-pale border-r-2 border-nhd-green/30 transform transition-transform duration-300 ease-in-out z-50">
             <div class="flex items-center justify-between p-4 border-b border-gray-200">
                 <div class="flex items-center">
                     <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="North Hill Dental Logo" class="w-10 h-10 rounded-full mr-3" />
@@ -36,7 +36,7 @@
             </div>
 
             <!-- User info sa sidebar -->
-            <div class="p-4 border-b border-gray-200">
+            <div class="p-4">
                 <div class="flex items-center">
                     <div class="w-10 h-10 bg-nhd-blue rounded-full flex items-center justify-center text-white font-semibold">
                         <?php echo strtoupper(
@@ -169,7 +169,7 @@
 
                         $isActive = $currentPath === $item["url"];
                         $activeClass = $isActive
-                            ? "bg-nhd-blue text-white"
+                            ? "bg-nhd-blue text-white shadow-xl"
                             : "text-gray-700 hover:bg-nhd-blue/20";
                         ?>
                         <a href="<?php echo BASE_URL . $item["url"]; ?>" 
@@ -302,7 +302,7 @@
 
     <!-- FOOTER -->
     <?php if (!isset($hideFooter) || !$hideFooter): ?>
-        <footer class="bg-nhd-blue text-white mt-auto <?php echo isset(
+        <footer class="bg-nhd-blue text-white mt-auto z-60 relative <?php echo isset(
             $_SESSION["user_name"]
         )
             ? "lg:ml-64"
@@ -447,7 +447,7 @@
                 }
 
                 window.addEventListener('resize', function() {
-                    if (window.innerWidth >= 1024) { // lg breakpoint
+                    if (window.innerWidth >= 768) { // lg breakpoint
                         sidebar.classList.remove('-translate-x-full');
                         sidebarOverlay.classList.add('hidden');
                     } else {

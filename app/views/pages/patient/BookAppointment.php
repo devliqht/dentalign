@@ -1,12 +1,14 @@
 <div class="max-w-4xl px-4 py-8">
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 mb-2">Book Appointment</h2>
+    <div class="px-6 pt-6">
+        <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Book Appointment</h2>
         <p class="text-gray-600">Schedule your dental appointment with one of our experienced doctors.</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-white rounded-lg p-6">
         <form method="POST" action="<?php echo BASE_URL; ?>/patient/book-appointment" class="space-y-6" id="appointment-form">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
+                $csrf_token
+            ); ?>">
             
             <!-- Doctor Selection -->
             <div class="form-group">
@@ -14,10 +16,17 @@
                 <select id="doctor_id" name="doctor_id" require>
                     <option value="">Choose a doctor</option>
                     <?php foreach ($doctors as $doctor): ?>
-                        <option value="<?php echo $doctor['UserID']; ?>" 
-                                <?php echo ($selectedDoctorId == $doctor['UserID']) ? 'selected' : ''; ?>>
-                            Dr. <?php echo htmlspecialchars($doctor['FirstName'] . ' ' . $doctor['LastName']); ?> 
-                            - <?php echo htmlspecialchars($doctor['Specialization']); ?>
+                        <option value="<?php echo $doctor["UserID"]; ?>" 
+                                <?php echo $selectedDoctorId ==
+                                $doctor["UserID"]
+                                    ? "selected"
+                                    : ""; ?>>
+                            Dr. <?php echo htmlspecialchars(
+                                $doctor["FirstName"] . " " . $doctor["LastName"]
+                            ); ?> 
+                            - <?php echo htmlspecialchars(
+                                $doctor["Specialization"]
+                            ); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -30,9 +39,9 @@
                        id="appointment_date" 
                        name="appointment_date" 
                        required 
-                       min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>"
+                       min="<?php echo date("Y-m-d", strtotime("+1 day")); ?>"
                        value="<?php echo htmlspecialchars($selectedDate); ?>"
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      >
             </div>
 
             <!-- Time Selection -->
@@ -43,7 +52,10 @@
                     <?php if (!empty($availableTimeSlots)): ?>
                         <?php foreach ($availableTimeSlots as $timeSlot): ?>
                             <option value="<?php echo $timeSlot; ?>">
-                                <?php echo date('g:i A', strtotime($timeSlot)); ?>
+                                <?php echo date(
+                                    "g:i A",
+                                    strtotime($timeSlot)
+                                ); ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -75,7 +87,7 @@
                          rows="4" 
                          required 
                          placeholder="Please describe your symptoms or the reason for your visit..."
-                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                         ></textarea>
                 <p class="text-sm text-gray-500 mt-1">Minimum 10 characters required.</p>
             </div>
 
@@ -86,7 +98,7 @@
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                        ">
                     Book Appointment
                 </button>
             </div>
