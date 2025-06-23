@@ -33,6 +33,8 @@ $router->group("GET", "PatientController", [
 
 $router->group("POST", "PatientController", [
     "patient/book-appointment" => "storeAppointment",
+    "patient/reschedule-appointment" => "rescheduleAppointment",
+    "patient/cancel-appointment" => "cancelAppointment",
 ]);
 
 $router->group("GET", "DoctorController", [
