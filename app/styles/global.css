@@ -26,6 +26,29 @@
 
     button {
         @apply flex items-center justify-center border border-gray-300 text-sm hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-pale focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 bg-nhd-blue hover:bg-nhd-blue/90 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 hover:shadow-xl;
+        position: relative;
+        overflow: hidden;
+    }
+
+    button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+        z-index: 1;
+    }
+
+    button:hover::before {
+        left: 100%;
+    }
+
+    button > * {
+        position: relative;
+        z-index: 2;
     }
 
     select {
@@ -105,6 +128,22 @@
           transparent,
           rgba(255, 255, 255, 0.3)
         );
+    }
+
+    .toast-success {
+        @apply bg-green-200/50;
+    }
+    
+    .toast-error {
+        background: rgba(254, 242, 242, 0.95);
+    }
+    
+    .toast-info {
+        background: rgba(239, 246, 255, 0.95);
+    }
+    
+    .toast-warning {
+        background: rgba(255, 251, 235, 0.95);
     }
 }
 
