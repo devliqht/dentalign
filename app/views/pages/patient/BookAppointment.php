@@ -116,8 +116,11 @@
 
                     <!-- Time Slots Section -->
                     <div class="flex flex-col flex-1 gap-4">
-                        <h3 class="text-base font-medium text-gray-800 mb-3">Choose Time</h3>
                         <div class="rounded-lg p-4">
+                        <div class="flex items-center gap-4 mb-4">
+                                <label class="text-base font-semibold tracking-tight text-nhd-blue whitespace-nowrap">Choose Time</label>
+                                <div class="h-[1px] bg-nhd-blue w-full"></div>
+                            </div>
                             <div id="time-slots-container" class="flex flex-wrap gap-3 w-full">
                                  <?php if (empty($timeSlots)): ?>
                                      <div class="w-full text-center py-8">
@@ -135,26 +138,115 @@
 
                         <!-- Appointment Type -->
                         <div class="form-group px-4">
-                            <label for="appointment_type" class="block text-sm font-medium text-gray-700 mb-2">Appointment Type</label>
-                            <select id="appointment_type" name="appointment_type" required>
-                                <option value="">Select appointment type</option>
-                                <option value="Consultation">Consultation</option>
-                                <option value="Cleaning">Cleaning</option>
-                                <option value="Filling">Filling</option>
-                                <option value="Root Canal">Root Canal</option>
-                                <option value="Extraction">Extraction</option>
-                                <option value="Orthodontics">Orthodontics</option>
-                                <option value="Emergency">Emergency</option>
-                                <option value="Follow-up">Follow-up</option>
-                            </select>
+                            <div class="flex items-center gap-4 mb-4">
+                                <label class="text-base font-semibold tracking-tight text-nhd-blue whitespace-nowrap">Appointment Type</label>
+                                <div class="h-[1px] bg-nhd-blue w-full"></div>
+                            </div>
+                            <input type="hidden" id="appointment_type" name="appointment_type" value="">
+                            
+                            <div id="appointment-types-container" class="flex flex-wrap gap-3 w-full">
+                                <!-- Consultation -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Consultation">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                        <span>Consultation</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Cleaning -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Cleaning">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>Cleaning</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filling -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Filling">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        <span>Filling</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Root Canal -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Root Canal">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>Root Canal</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Extraction -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Extraction">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        <span>Extraction</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Orthodontics -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Orthodontics">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </svg>
+                                        <span>Orthodontics</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Emergency -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Emergency">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                        <span>Emergency</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Follow-up -->
+                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                     data-type="Follow-up">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                        <span>Follow-up</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Selected Appointment Type Display -->
+                            <div class="mt-4 p-3 glass-card rounded-2xl">
+                                <p class="text-sm text-gray-600">Selected Type:</p>
+                                <p id="selected-type-display" class="text-base font-medium text-nhd-brown">No type selected</p>
+                            </div>
                         </div>
 
                         <!-- Reason for Visit -->
                         <div class="form-group px-4">
-                            <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for Visit</label>
+                            <label for="reason" class="block text-base font-bold text-nhd-blue mb-2">Reason for Visit</label>
                             <textarea id="reason" 
                                     name="reason" 
-                                    rows="4" 
+                                    rows="5" 
                                     required 
                                     placeholder="Please describe your symptoms or the reason for your visit..."
                                     ></textarea>
@@ -163,8 +255,6 @@
                     </div>
                 </div>
             </div>
-
-
 
             <!-- Submit Button -->
             <div class="flex items-center justify-between pt-4">
