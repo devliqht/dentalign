@@ -9,69 +9,81 @@
     
     <link href="<?php echo BASE_URL; ?>/app/styles/global.css" rel="stylesheet"/>
     <link href="<?php echo BASE_URL; ?>/app/styles/output.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/app/styles/components/Toast.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/app/styles/components/Header.css">
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/logo.png"/>
     
-    <!-- Additional content -->
+    
+    <!-- Additional heads -->
     <?php if (isset($additionalHead)): ?>
         <?php echo $additionalHead; ?>
     <?php endif; ?>
     
-    <!-- Better Layout CSS -->
     <style>
         :root {
-            --sidebar-width: 16rem; /* 256px equivalent to w-64 */
+            --sidebar-width: 16rem;
             --gap-size: 1rem;
         }
         
         .app-layout {
-            display: grid;
             min-height: 100vh;
-            gap: var(--gap-size);
-            padding: var(--gap-size);
-        }
-        
-        .app-layout.has-sidebar {
-            grid-template-columns: var(--sidebar-width) 1fr;
         }
         
         .app-layout.no-sidebar {
-            grid-template-columns: 1fr;
             padding: 0;
         }
         
         .sidebar-container {
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            z-index: 20;
+            padding: var(--gap-size);
         }
         
         .main-content-wrapper {
             display: flex;
             flex-direction: column;
-            min-height: calc(100vh - 2rem);
+            min-height: 100vh;
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
             gap: var(--gap-size);
-            padding-top: 2rem;
+            padding: var(--gap-size);
+            <?php if (
+                isset($pageTitle) &&
+                ($pageTitle === "Login" ||
+                    $pageTitle === "Sign Up" ||
+                    $pageTitle === "404")
+            ): ?>
+            <?php else: ?>
+            padding-top: 4rem;
+            <?php endif; ?>
+            position: relative;
+            box-sizing: border-box;
         }
         
         .main-content-wrapper.no-sidebar {
+            margin-left: 0;
+            width: 100%;
             min-height: 100vh;
+            <?php if (
+                isset($pageTitle) &&
+                ($pageTitle === "Login" ||
+                    $pageTitle === "Sign Up" ||
+                    $pageTitle === "404")
+            ): ?>
+            <?php else: ?>
+            padding-top: 4rem;
+            <?php endif; ?>
         }
         
-        /* Mobile responsive behavior */
         @media (max-width: 1024px) {
-            .app-layout.has-sidebar {
-                grid-template-columns: 1fr;
-                padding: 0;
-            }
-            
             .sidebar-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: 50;
-                width: var(--sidebar-width);
-                height: 100vh;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease-in-out;
-                padding: var(--gap-size);
+                z-index: 50;
             }
             
             .sidebar-container.sidebar-open {
@@ -79,8 +91,10 @@
             }
             
             .main-content-wrapper {
-                min-height: 100vh;
-                padding: 0;
+                margin-left: 0;
+                width: 100%;
+                padding: var(--gap-size);
+                padding-top: 4rem;
             }
         }
         
@@ -96,11 +110,12 @@
 </head>
 <body class="<?php echo isset($bodyClass)
     ? htmlspecialchars($bodyClass)
-    : ""; ?>" style="background: url('<?php echo BASE_URL; ?>/public/stacked-waves-haikei.svg'); background-size: cover; background-attachment: fixed;">
+    : ""; ?>" style="background: url('<?php echo BASE_URL; ?>/public/low.svg'); background-size: cover; background-attachment: fixed;">
     
     <div class="app-layout <?php echo isset($_SESSION["user_name"])
         ? "has-sidebar"
         : "no-sidebar"; ?>">
+        <?php include __DIR__ . "/components/Toast.php"; ?>
         
         <!-- SIDEBAR -->
         <?php if (isset($_SESSION["user_name"])): ?>
@@ -265,38 +280,7 @@
                             endforeach; ?>
                         </div>
 
-                        <div class="border-t border-gray-200 my-4"></div>
 
-                        <div class="space-y-1">
-                            <a href="<?php echo BASE_URL; ?>/profile" 
-                               class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
-                                <svg class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 h-5 w-5" 
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <?php echo getSidebarIcon("user"); ?>
-                                </svg>
-                                Profile
-                            </a>
-                            
-                            <a href="<?php echo BASE_URL; ?>/faq" 
-                               class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100 transition-colors">
-                                <svg class="text-gray-400 group-hover:text-gray-500 mr-3 flex-shrink-0 h-5 w-5" 
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <?php echo getSidebarIcon(
-                                        "question-mark-circle"
-                                    ); ?>
-                                </svg>
-                                FAQ
-                            </a>
-                            
-                            <a href="<?php echo BASE_URL; ?>/logout" 
-                               class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-600 hover:bg-red-50 transition-colors">
-                                <svg class="text-red-500 mr-3 flex-shrink-0 h-5 w-5" 
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <?php echo getSidebarIcon("logout"); ?>
-                                </svg>
-                                Logout
-                            </a>
-                        </div>
                     </nav>
                 </div>
                 
@@ -311,6 +295,9 @@
         )
             ? "no-sidebar"
             : ""; ?>">
+            
+            <!-- Glassmorphism Header Component -->
+            <?php include __DIR__ . "/components/Header.php"; ?>
             
             <!-- HEADER -->
             <?php if (!isset($hideHeader) || !$hideHeader): ?>
@@ -327,12 +314,6 @@
                                 <h1 class="text-xl font-bold text-nhd-blue font-family-bodoni">North Hill Dental</h1>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <span class="text-sm text-gray-700">Welcome, <?php echo htmlspecialchars(
-                                    $_SESSION["user_name"]
-                                ); ?>!</span>
-                                <a href="<?php echo BASE_URL; ?>/logout" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                                    Logout
-                                </a>
                             </div>
                         </div>
                     </header>
@@ -459,6 +440,8 @@
         </div>
     </div>
 
+    <script src="<?php echo BASE_URL; ?>/app/views/scripts/Toast.js"></script>
+
     <!-- Additional Scripts -->
     <?php if (isset($additionalScripts)): ?>
         <?php echo $additionalScripts; ?>
@@ -495,7 +478,6 @@
                     sidebarOverlay.addEventListener('click', closeSidebar);
                 }
 
-                // Handle window resize
                 window.addEventListener('resize', function() {
                     if (window.innerWidth >= 1024) {
                         closeSidebar();
