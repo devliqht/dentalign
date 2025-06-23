@@ -13,6 +13,6 @@
   },
   "scripts": {
     "dev": "bunx @tailwindcss/cli -i app/styles/global.css -o app/styles/output.css --watch",
-    "prettier": "bunx prettier --write \"**/*.php\""
+    "prettier": "bunx prettier --write \"**/*.{php,js}\""
   }
 }
