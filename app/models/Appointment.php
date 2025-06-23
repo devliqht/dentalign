@@ -139,7 +139,7 @@ class Appointment
         }
 
         $query =
-            "SELECT TIME(DateTime) as time FROM " .
+            "SELECT TIME_FORMAT(TIME(DateTime), '%H:%i') as time FROM " .
             $this->table .
             " 
                   WHERE DoctorID = ? AND DATE(DateTime) = ?";
@@ -157,6 +157,45 @@ class Appointment
 
         // remove the booked times
         return array_diff($timeSlots, $bookedTimes);
+    }
+
+    public function getAllTimeSlotsWithStatus($doctorID, $date)
+    {
+        // Define clinic hours (8 AM to 6 PM, 1-hour slots)
+        $allTimeSlots = [];
+        for ($hour = 8; $hour < 18; $hour++) {
+            $timeSlot = sprintf("%02d:00", $hour);
+            $allTimeSlots[] = [
+                "time" => $timeSlot,
+                "available" => true,
+            ];
+        }
+
+        $query =
+            "SELECT TIME_FORMAT(TIME(DateTime), '%H:%i') as time FROM " .
+            $this->table .
+            " 
+                  WHERE DoctorID = ? AND DATE(DateTime) = ?";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("is", $doctorID, $date);
+
+        $bookedTimes = [];
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc()) {
+                $bookedTimes[] = $row["time"];
+            }
+        }
+
+        // mark booked times as unavailable
+        foreach ($allTimeSlots as &$slot) {
+            if (in_array($slot["time"], $bookedTimes)) {
+                $slot["available"] = false;
+            }
+        }
+
+        return $allTimeSlots;
     }
 }
 
