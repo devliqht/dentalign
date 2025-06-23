@@ -1,5 +1,5 @@
 <div class="relative min-h-screen flex flex-col items-center justify-center">
-    <div class="flex flex-col items-center justify-center gap-2 index-form">
+    <div class="flex flex-col items-center justify-center gap-2 index-form glass-card p-6">
     <!-- <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="DentAlign Logo" class="mx-auto w-[40%] rounded-full mb-2" /> -->
         <div class="flex flex-col w-full mb-4">
             <h1 class="text-3xl tracking-tight font-family-bodoni font-semibold text-nhd-blue">Register</h1>

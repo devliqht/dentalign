@@ -8,6 +8,8 @@ class Router
     public function get($route, $action)
     {
         $this->routes["GET"][$route] = $action;
+        // GET Routes
+        // 0: /login => $
     }
 
     public function post($route, $action)
@@ -76,7 +78,7 @@ class Router
             LayoutHelper::render(
                 "404",
                 [],
-                ["hideHeader" => true, "hideFooter" => true]
+                ["hideHeader" => true, "hideFooter" => true, "title" => "404"]
             );
         }
     }

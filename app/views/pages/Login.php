@@ -1,7 +1,6 @@
-<div class="relative min-h-screen bg-gradient-to-br from-nhd-pale/30 to-white">
-    <div class="absolute inset-0 bg-gradient-to-r from-nhd-blue/5 to-nhd-green/5"></div>
+<div class="relative min-h-screen">
     
-    <div class="relative flex flex-col items-center justify-center min-h-screen px-4 py-12">
+    <div class="relative glass-card rounded-2xl flex flex-col items-center justify-center min-h-screen px-4 py-12">
         <div class="w-full max-w-4xl mx-auto">
             
             <div class="text-center mb-12">
@@ -14,7 +13,7 @@
             </div>
             <div class="flex flex-col lg:flex-row gap-8 items-center justify-center">
                 <div class="w-full max-w-md">
-                    <div class="bg-white/40 backdrop-blur-sm rounded-2xl p-6 border border-nhd-green/20">
+                    <div class="bg-white/40 glass-card rounded-2xl p-6 border">
                         <div class="text-center mb-6">
                             <h2 class="text-2xl font-family-bodoni font-semibold text-nhd-blue mb-2">
                                 Sign In to Your Account
@@ -64,7 +63,7 @@
                 </div>
 
                 <div class="w-full max-w-md space-y-6">
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-nhd-green/20">
+                    <div class="bg-white/50 glass-card rounded-2xl p-6 border">
                         <div class="flex items-center mb-4">
                             <div class="w-12 h-12 bg-nhd-green/10 rounded-full flex items-center justify-center mr-4">
                                 <svg class="w-6 h-6 text-nhd-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +100,7 @@
                         </ul>
                     </div>
 
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-nhd-blue/20">
+                    <div class="bg-white/50 glass-card rounded-2xl p-6 border">
                         <div class="flex items-center mb-4">
                             <div class="w-12 h-12 bg-nhd-blue/10 rounded-full flex items-center justify-center mr-4">
                                 <svg class="w-6 h-6 text-nhd-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
