@@ -1,23 +1,23 @@
-<div class="max-w-4xl px-4 py-8">
-    <div class="mb-8 p-6">
-        <h2 class="text-3xl font-bold text-gray-900 mb-2">My Bookings</h2>
+<div class="pb-8">
+    <div class="px-4">
+        <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">My Bookings</h2>
         <p class="text-gray-600">View and manage all your dental appointments.</p>
     </div>
 
-    <div class="flex justify-between items-center mb-6 p-6">
+    <div class="flex justify-between items-center mb-4 p-4">
         <div class="flex space-x-2">
-            <button onclick="filterAppointments('all')"  data-filter="all">
+            <button onclick="filterAppointments('all')"  data-filter="all" class="glass-card bg-nhd-blue/80">
                 All Appointments
             </button>
-            <button onclick="filterAppointments('upcoming')"data-filter="upcoming">
+            <button onclick="filterAppointments('upcoming')"data-filter="upcoming" class="glass-card bg-nhd-blue/80">
                 Upcoming
             </button>
-            <button onclick="filterAppointments('past')"  data-filter="past">
+            <button onclick="filterAppointments('past')"  data-filter="past" class="glass-card bg-nhd-blue/80">
                 Past
             </button>
         </div>
         <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
-           class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+           class="inline-flex items-center px-4 py-2 glass-card bg-green-600/85 text-white rounded-2xl hover:bg-green-700 transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -26,16 +26,16 @@
     </div>
 
     <?php if (!empty($appointments)): ?>
-        <div class="space-y-4 p-6" id="appointments-container">
+        <div class="space-y-4 p-6 glass-card m-4" id="appointments-container">
             <?php foreach ($appointments as $appointment):
 
                 $isUpcoming = strtotime($appointment["DateTime"]) > time();
                 $statusClass = $isUpcoming
-                    ? "border-l-green-500 bg-green-50"
-                    : "border-l-gray-400 bg-gray-50";
+                    ? "border-l-green-500/70"
+                    : "border-l-gray-400/70";
                 $dateClass = $isUpcoming ? "text-green-600" : "text-gray-600";
                 ?>
-                <div class="appointment-card bg-white rounded-lg shadow-md border-l-4 <?php echo $statusClass; ?> p-6" 
+                <div class="glass-card rounded-2xl shadow-md border-l-4 <?php echo $statusClass; ?> p-6" 
                      data-status="<?php echo $isUpcoming
                          ? "upcoming"
                          : "past"; ?>">
@@ -47,9 +47,9 @@
                                         $appointment["AppointmentType"]
                                     ); ?>
                                 </h3>
-                                <span class="px-2 py-1 text-xs font-medium rounded-full <?php echo $isUpcoming
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-gray-100 text-gray-800"; ?>">
+                                <span class="glass-card px-2 py-1 text-xs font-medium rounded-full <?php echo $isUpcoming
+                                    ? "bg-green-100/40 text-green-800"
+                                    : "bg-gray-100/40 text-gray-800"; ?>">
                                     <?php echo $isUpcoming
                                         ? "Upcoming"
                                         : "Completed"; ?>
@@ -92,10 +92,10 @@
                             </p>
                             <?php if ($isUpcoming): ?>
                                 <div class="mt-2 flex space-x-2">
-                                    <button class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded hover:bg-blue-200">
+                                    <button class="glass-card text-sm p-2 bg-blue-100/80 text-blue-800 rounded-2xl hover:bg-blue-200">
                                         Reschedule
                                     </button>
-                                    <button class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200">
+                                    <button class="glass-card text-sm px-2 py-1 bg-red-100/80 text-red-800 rounded-2xl hover:bg-red-200">
                                         Cancel
                                     </button>
                                 </div>
