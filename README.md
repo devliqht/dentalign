@@ -1,7 +1,6 @@
-# Dentalign
-
 ![Screenshot](public/cover.png)
 
+# Dentalign
 Dentalign is a clinic management system that is built with PHP, Tailwind and Bun. It features an MVC architecture similar to that of Laravel. We are not using Laravel to avoid writing Eloquent ORM as we are required to write raw SQL and to learn the architecture ourselves :)
 
 ### Collaborators
