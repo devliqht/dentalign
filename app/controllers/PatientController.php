@@ -55,11 +55,13 @@ class PatientController extends Controller
             "appointments" => $appointments,
         ];
 
+      
         $layoutConfig = [
             "title" => "My Bookings",
             "hideHeader" => true,
-            "hideFooter" => false,
+            "hideFooter" => false
         ];
+
 
         $this->view("pages/patient/Bookings", $data, $layoutConfig);
     }
@@ -75,10 +77,10 @@ class PatientController extends Controller
         $doctors = $doctor->getAllDoctors();
 
         // get doctor time slots if doctor and time selected
-        $availableTimeSlots = [];
+        $timeSlots = [];
         if (isset($_GET["doctor_id"]) && isset($_GET["date"])) {
             $appointment = new Appointment($this->conn);
-            $availableTimeSlots = $appointment->getAvailableTimeSlots(
+            $timeSlots = $appointment->getAllTimeSlotsWithStatus(
                 $_GET["doctor_id"],
                 $_GET["date"]
             );
@@ -87,19 +89,55 @@ class PatientController extends Controller
         $data = [
             "user" => $user,
             "doctors" => $doctors,
-            "availableTimeSlots" => $availableTimeSlots,
+            "timeSlots" => $timeSlots,
             "selectedDoctorId" => $_GET["doctor_id"] ?? "",
             "selectedDate" => $_GET["date"] ?? "",
             "csrf_token" => $this->generateCsrfToken(),
         ];
 
+        $additionalHead = '<link rel="stylesheet" href="' . BASE_URL . '/app/styles/views/BookAppointment.css">';
+
         $layoutConfig = [
             "title" => "Book Appointment",
             "hideHeader" => true,
             "hideFooter" => false,
+            "additionalScripts" =>
+                '<script>window.BASE_URL = "' .
+                BASE_URL .
+                '";</script><script src="' .
+                BASE_URL .
+                '/app/views/scripts/BookAppointments.js"></script>',
+            "additionalHead" => $additionalHead
         ];
 
         $this->view("pages/patient/BookAppointment", $data, $layoutConfig);
+    }
+
+    public function getTimeslots()
+    {
+        $this->requireAuth();
+        $this->requireRole("Patient");
+
+        header("Content-Type: application/json");
+
+        if (isset($_GET["doctor_id"]) && isset($_GET["date"])) {
+            $appointment = new Appointment($this->conn);
+            $timeSlots = $appointment->getAllTimeSlotsWithStatus(
+                $_GET["doctor_id"],
+                $_GET["date"]
+            );
+
+            echo json_encode([
+                "success" => true,
+                "timeSlots" => $timeSlots,
+            ]);
+        } else {
+            echo json_encode([
+                "success" => false,
+                "message" => "Missing doctor_id or date parameter",
+            ]);
+        }
+        exit();
     }
 
     public function payments()
