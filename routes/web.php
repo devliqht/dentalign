@@ -26,6 +26,7 @@ $router->group("GET", "PatientController", [
     "patient/dashboard" => "dashboard",
     "patient/bookings" => "bookings",
     "patient/book-appointment" => "bookAppointment",
+    "patient/get-timeslots" => "getTimeslots",
     "patient/payments" => "payments",
     "patient/results" => "results",
 ]);
