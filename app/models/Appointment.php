@@ -197,6 +197,95 @@ class Appointment
 
         return $allTimeSlots;
     }
+
+    public function rescheduleAppointment($appointmentID, $newDateTime)
+    {
+        // first check if the appointment exists and belongs to the current session
+        $checkQuery =
+            "SELECT DoctorID FROM " . $this->table . " WHERE AppointmentID = ?";
+        $checkStmt = $this->conn->prepare($checkQuery);
+        $checkStmt->bind_param("i", $appointmentID);
+
+        if (!$checkStmt->execute()) {
+            return false;
+        }
+
+        $result = $checkStmt->get_result();
+        if ($result->num_rows === 0) {
+            return false; // Appointment doesn't exist
+        }
+
+        $appointment = $result->fetch_assoc();
+        $doctorID = $appointment["DoctorID"];
+
+        // Check if the new time slot is available
+        if (!$this->checkDoctorAvailability($doctorID, $newDateTime)) {
+            return false; // new time slot is not available
+        }
+
+        $query =
+            "UPDATE " .
+            $this->table .
+            " SET DateTime = ? WHERE AppointmentID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("si", $newDateTime, $appointmentID);
+
+        return $stmt->execute();
+    }
+
+    public function cancelAppointment($appointmentID)
+    {
+        $query = "DELETE FROM " . $this->table . " WHERE AppointmentID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
+
+        return $stmt->execute();
+    }
+
+    public function getCompletedAppointmentsByPatient($patientID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
+                  INNER JOIN USER u ON d.DoctorID = u.UserID
+                  WHERE a.PatientID = ? AND a.DateTime < NOW()
+                  ORDER BY a.DateTime DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $patientID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getAppointmentById($appointmentID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
+                  INNER JOIN USER u ON d.DoctorID = u.UserID
+                  WHERE a.AppointmentID = ?";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_assoc();
+        }
+
+        return null;
+    }
 }
 
 ?>

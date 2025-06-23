@@ -48,20 +48,36 @@ class PatientController extends Controller
 
         $user = $this->getAuthUser();
         $appointment = new Appointment($this->conn);
-        $appointments = $appointment->getAppointmentsByPatient($user["id"]);
+        $upcomingAppointments = $appointment->getUpcomingAppointmentsByPatient(
+            $user["id"]
+        );
+        $completedAppointments = $appointment->getCompletedAppointmentsByPatient(
+            $user["id"]
+        );
 
         $data = [
             "user" => $user,
-            "appointments" => $appointments,
+            "upcomingAppointments" => $upcomingAppointments,
+            "completedAppointments" => $completedAppointments,
         ];
 
-      
+        $additionalHead =
+            '<link rel="stylesheet" href="' .
+            BASE_URL .
+            '/app/styles/views/Bookings.css">';
+
         $layoutConfig = [
             "title" => "My Bookings",
             "hideHeader" => true,
-            "hideFooter" => false
+            "hideFooter" => false,
+            "additionalScripts" =>
+                '<script>window.BASE_URL = "' .
+                BASE_URL .
+                '";</script><script src="' .
+                BASE_URL .
+                '/app/views/scripts/Bookings.js"></script>',
+            "additionalHead" => $additionalHead,
         ];
-
 
         $this->view("pages/patient/Bookings", $data, $layoutConfig);
     }
@@ -95,7 +111,10 @@ class PatientController extends Controller
             "csrf_token" => $this->generateCsrfToken(),
         ];
 
-        $additionalHead = '<link rel="stylesheet" href="' . BASE_URL . '/app/styles/views/BookAppointment.css">';
+        $additionalHead =
+            '<link rel="stylesheet" href="' .
+            BASE_URL .
+            '/app/styles/views/BookAppointment.css">';
 
         $layoutConfig = [
             "title" => "Book Appointment",
@@ -107,7 +126,7 @@ class PatientController extends Controller
                 '";</script><script src="' .
                 BASE_URL .
                 '/app/views/scripts/BookAppointments.js"></script>',
-            "additionalHead" => $additionalHead
+            "additionalHead" => $additionalHead,
         ];
 
         $this->view("pages/patient/BookAppointment", $data, $layoutConfig);
@@ -229,13 +248,124 @@ class PatientController extends Controller
         );
 
         if ($success) {
-            $this->redirect(
-                BASE_URL . "/patient/bookings",
-                "Appointment booked successfully!"
-            );
+            $_SESSION["success"] = "Appointment booked successfully!";
+            $this->redirect(BASE_URL . "/patient/bookings");
         } else {
             $this->redirectBack(
                 "Failed to book appointment. The selected time slot may no longer be available."
+            );
+        }
+    }
+
+    public function rescheduleAppointment()
+    {
+        $this->requireAuth();
+        $this->requireRole("Patient");
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+        $user = $this->getAuthUser();
+
+        $isValid = $this->validate(
+            $data,
+            [
+                "appointment_id" => "required",
+                "new_appointment_date" => "required",
+                "new_appointment_time" => "required",
+            ],
+            [
+                "appointment_id" => "Invalid appointment",
+                "new_appointment_date" =>
+                    "Please select a new appointment date",
+                "new_appointment_time" =>
+                    "Please select a new appointment time",
+            ]
+        );
+
+        if (!$isValid) {
+            $this->redirectBack("Please correct the errors below");
+        }
+
+        // Verify the appointment belongs to the current patient
+        $appointment = new Appointment($this->conn);
+        $appointmentDetails = $appointment->getAppointmentById(
+            $data["appointment_id"]
+        );
+
+        if (
+            !$appointmentDetails ||
+            $appointmentDetails["PatientID"] != $user["id"]
+        ) {
+            $this->redirectBack("Invalid appointment or unauthorized access");
+        }
+
+        $newDateTime =
+            $data["new_appointment_date"] .
+            " " .
+            $data["new_appointment_time"] .
+            ":00";
+        if (strtotime($newDateTime) <= time()) {
+            $this->redirectBack(
+                "New appointment date and time must be in the future"
+            );
+        }
+
+        $success = $appointment->rescheduleAppointment(
+            $data["appointment_id"],
+            $newDateTime
+        );
+
+        if ($success) {
+            $_SESSION["success"] = "Appointment rescheduled successfully!";
+            $this->redirect(BASE_URL . "/patient/bookings");
+        } else {
+            $this->redirectBack(
+                "Failed to reschedule appointment. The selected time slot may not be available."
+            );
+        }
+    }
+
+    public function cancelAppointment()
+    {
+        $this->requireAuth();
+        $this->requireRole("Patient");
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+        $user = $this->getAuthUser();
+
+        if (!isset($data["appointment_id"])) {
+            $this->redirectBack("Invalid appointment");
+        }
+
+        // Verify the appointment belongs to the current patient
+        $appointment = new Appointment($this->conn);
+        $appointmentDetails = $appointment->getAppointmentById(
+            $data["appointment_id"]
+        );
+
+        if (
+            !$appointmentDetails ||
+            $appointmentDetails["PatientID"] != $user["id"]
+        ) {
+            $this->redirectBack("Invalid appointment or unauthorized access");
+        }
+
+        // Check if appointment is in the future (can't cancel past appointments)
+        if (strtotime($appointmentDetails["DateTime"]) <= time()) {
+            $this->redirectBack(
+                "Cannot cancel appointments that have already occurred"
+            );
+        }
+
+        $success = $appointment->cancelAppointment($data["appointment_id"]);
+
+        if ($success) {
+            $_SESSION["success"] = "Appointment cancelled successfully!";
+            $this->redirect(BASE_URL . "/patient/bookings");
+        } else {
+            $this->redirectBack(
+                "Failed to cancel appointment. Please try again."
             );
         }
     }
