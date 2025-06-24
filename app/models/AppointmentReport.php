@@ -22,6 +22,8 @@ class AppointmentReport
 
     public function create()
     {
+        error_log("=== APPOINTMENT REPORT CREATE DEBUG START ===");
+        
         $query =
             "INSERT INTO " .
             $this->table .
@@ -29,7 +31,16 @@ class AppointmentReport
                   (PatientRecordID, AppointmentID, BloodPressure, PulseRate, Temperature, RespiratoryRate, GeneralAppearance) 
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
 
+        error_log("SQL Query: $query");
+        error_log("Parameters: PatientRecordID={$this->patientRecordID}, AppointmentID={$this->appointmentID}");
+        
         $stmt = $this->conn->prepare($query);
+        
+        if (!$stmt) {
+            error_log("FAIL: Failed to prepare AppointmentReport statement: " . $this->conn->error);
+            return false;
+        }
+        error_log("Statement prepared successfully");
 
         // Clean data
         $this->bloodPressure = htmlspecialchars(
@@ -49,17 +60,26 @@ class AppointmentReport
             $this->respiratoryRate,
             $this->generalAppearance
         );
+        error_log("Parameters bound successfully");
 
         if ($stmt->execute()) {
             $this->appointmentReportID = $this->conn->insert_id;
+            error_log("AppointmentReport insert successful, ID: " . $this->appointmentReportID);
+            error_log("=== APPOINTMENT REPORT CREATE DEBUG END - SUCCESS ===");
             return true;
+        } else {
+            error_log("FAIL: AppointmentReport execute failed: " . $stmt->error);
+            error_log("MySQL Error Code: " . $stmt->errno);
+            error_log("=== APPOINTMENT REPORT CREATE DEBUG END - FAILED ===");
+            return false;
         }
-
-        return false;
     }
 
     public function createForAppointment($appointmentID, $patientRecordID)
     {
+        error_log("=== APPOINTMENT REPORT DEBUG START ===");
+        error_log("Input: appointmentID=$appointmentID, patientRecordID=$patientRecordID");
+        
         $this->appointmentID = $appointmentID;
         $this->patientRecordID = $patientRecordID;
         $this->bloodPressure = null;
@@ -67,8 +87,13 @@ class AppointmentReport
         $this->temperature = null;
         $this->respiratoryRate = null;
         $this->generalAppearance = null;
+        
+        error_log("Properties set, calling create()");
+        $result = $this->create();
+        error_log("create() result: " . ($result ? "SUCCESS" : "FAILED"));
+        error_log("=== APPOINTMENT REPORT DEBUG END ===");
 
-        return $this->create();
+        return $result;
     }
 
     public function findByAppointmentID($appointmentID)

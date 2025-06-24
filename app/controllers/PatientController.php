@@ -190,87 +190,81 @@ class PatientController extends Controller
 
     public function payments()
     {
-        // Enable error reporting for debugging
-        ini_set("display_errors", 1);
-        ini_set("display_startup_errors", 1);
-        error_reporting(E_ALL);
+        $this->requireAuth();
+        $this->requireRole("Patient");
 
-        // DEBUG: Log that this method is being called
-        error_log("DEBUG: PatientController::payments() method called");
+        $user = $this->getAuthUser();
+        $payment = new Payment($this->conn);
+        $patient = new Patient($this->conn);
+        $appointment = new Appointment($this->conn);
 
-        try {
-            error_log("DEBUG: Step 1 - Starting payments method");
+        $patientData = $patient->getPatientByUserId($user["id"]);
 
-            $this->requireAuth();
-            error_log("DEBUG: Step 2 - Auth required passed");
-
-            $this->requireRole("Patient");
-            error_log("DEBUG: Step 3 - Role check passed");
-
-            $user = $this->getAuthUser();
-            error_log("DEBUG: Step 4 - Got user: " . json_encode($user));
-
-            $payment = new Payment($this->conn);
-            error_log("DEBUG: Step 5 - Created Payment model");
-
-            // Get patient ID from user
-            $patient = new Patient($this->conn);
-            error_log("DEBUG: Step 6 - Created Patient model");
-
-            $patientData = $patient->getPatientByUserId($user["id"]);
-            error_log(
-                "DEBUG: Step 7 - Got patient data: " . json_encode($patientData)
-            );
-
-            if (!$patientData) {
-                error_log("DEBUG: Step 8 - No patient data, redirecting");
-                $this->redirect("/patient/dashboard");
-                return;
-            }
-
-            error_log(
-                "DEBUG: Step 9 - Getting payments for patient ID: " .
-                    $patientData["PatientID"]
-            );
-            $payments = $payment->getPaymentsByPatient(
-                $patientData["PatientID"]
-            );
-            error_log(
-                "DEBUG: Step 10 - Got payments: " .
-                    count($payments) .
-                    " records"
-            );
-
-            // Get breakdown for each payment
-            foreach ($payments as &$paymentRecord) {
-                $paymentWithBreakdown = $payment->getPaymentWithBreakdown(
-                    $paymentRecord["PaymentID"]
-                );
-                $paymentRecord["items"] = $paymentWithBreakdown["items"] ?? [];
-                $paymentRecord["total_amount"] =
-                    $paymentWithBreakdown["total_amount"] ?? 0;
-            }
-            error_log("DEBUG: Step 11 - Processed payment breakdowns");
-
-            $data = [
-                "user" => $user,
-                "payments" => $payments,
-            ];
-
-            $layoutConfig = [
-                "title" => "Payments",
-                "hideHeader" => true,
-                "hideFooter" => false,
-            ];
-
-            error_log("DEBUG: Step 12 - About to render view");
-            $this->view("pages/patient/Payments", $data, $layoutConfig);
-            error_log("DEBUG: Step 13 - View rendered successfully");
-        } catch (Exception $e) {
-            error_log("DEBUG: EXCEPTION in payments(): " . $e->getMessage());
-            error_log("DEBUG: EXCEPTION trace: " . $e->getTraceAsString());
-            echo "Error in payments method: " . $e->getMessage();
+        if (!$patientData) {
+            $this->redirect("/patient/dashboard");
+            return;
         }
+
+        // Get all appointments for the patient
+        $allAppointments = $appointment->getAppointmentsByPatient($user["id"]);
+        
+        // Get existing payments for the patient
+        $existingPayments = $payment->getPaymentsByPatient($patientData["PatientID"]);
+        
+        // Index existing payments by AppointmentID
+        $paymentsByAppointment = [];
+        foreach ($existingPayments as $existingPayment) {
+            $paymentWithBreakdown = $payment->getPaymentWithBreakdown($existingPayment["PaymentID"]);
+            $existingPayment["items"] = $paymentWithBreakdown["items"] ?? [];
+            $existingPayment["total_amount"] = $paymentWithBreakdown["total_amount"] ?? 0;
+            $paymentsByAppointment[$existingPayment["AppointmentID"]] = $existingPayment;
+        }
+        
+        // Create payment records for all appointments (including those without payment records)
+        $payments = [];
+        foreach ($allAppointments as $appointmentRecord) {
+            if (isset($paymentsByAppointment[$appointmentRecord["AppointmentID"]])) {
+                // Use existing payment record
+                $payments[] = $paymentsByAppointment[$appointmentRecord["AppointmentID"]];
+            } else {
+                // Create pseudo payment record for appointments without payment records
+                $payments[] = [
+                    "PaymentID" => null,
+                    "AppointmentID" => $appointmentRecord["AppointmentID"],
+                    "PatientID" => $appointmentRecord["PatientID"],
+                    "Status" => "Pending",
+                    "UpdatedBy" => null,
+                    "UpdatedAt" => $appointmentRecord["CreatedAt"],
+                    "Notes" => null,
+                    "AppointmentDateTime" => $appointmentRecord["DateTime"],
+                    "AppointmentType" => $appointmentRecord["AppointmentType"],
+                    "Reason" => $appointmentRecord["Reason"],
+                    "DoctorName" => $appointmentRecord["DoctorFirstName"] . " " . $appointmentRecord["DoctorLastName"],
+                    "Specialization" => $appointmentRecord["Specialization"] ?? "General",
+                    "UpdatedByName" => "System",
+                    "items" => [],
+                    "total_amount" => 0.00
+                ];
+            }
+        }
+        
+        // Sort by appointment date (most recent first)
+        usort($payments, function($a, $b) {
+            return strtotime($b["AppointmentDateTime"]) - strtotime($a["AppointmentDateTime"]);
+        });
+
+        $data = [
+            "user" => $user,
+            "payments" => $payments,
+        ];
+
+        $layoutConfig = [
+            "title" => "Payments",
+            "hideHeader" => true,
+            "hideFooter" => false,
+        ];
+
+        $this->view("pages/patient/Payments", $data, $layoutConfig);
     }
 
     public function results()
@@ -540,10 +534,19 @@ class PatientController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("Patient");
+        
+        // Debug: Log raw POST data
+        error_log("=== APPOINTMENT BOOKING DEBUG ===");
+        error_log("Raw POST data: " . print_r($_POST, true));
+        
         $this->validateRequest("POST", true);
 
         $data = $this->sanitize($_POST);
         $user = $this->getAuthUser();
+        
+        // Debug: Log sanitized data
+        error_log("Sanitized data: " . print_r($data, true));
+        error_log("User data: " . print_r($user, true));
 
         $isValid = $this->validate(
             $data,
@@ -563,6 +566,12 @@ class PatientController extends Controller
                     "Please provide a reason for your visit (at least 10 characters)",
             ]
         );
+        
+        // Debug: Log validation result
+        error_log("Validation result: " . ($isValid ? "PASSED" : "FAILED"));
+        if (!$isValid) {
+            error_log("Validation errors: " . print_r($_SESSION["validation_errors"] ?? [], true));
+        }
 
         if (!$isValid) {
             $this->redirectBack("Please correct the errors below");
@@ -571,13 +580,34 @@ class PatientController extends Controller
         // future time check
         $appointmentDateTime =
             $data["appointment_date"] . " " . $data["appointment_time"] . ":00";
+            
+        error_log("Appointment DateTime: " . $appointmentDateTime);
+        error_log("Current time: " . date('Y-m-d H:i:s'));
+        error_log("Future check result: " . (strtotime($appointmentDateTime) > time() ? "PASSED" : "FAILED"));
+        
         if (strtotime($appointmentDateTime) <= time()) {
+            error_log("FAILURE: Appointment time is not in the future");
             $this->redirectBack(
                 "Appointment date and time must be in the future"
             );
         }
 
         $appointment = new Appointment($this->conn);
+        
+        // Add debugging
+        error_log("Creating appointment for user ID: " . $user["id"]);
+        error_log("Doctor ID: " . $data["doctor_id"]);
+        error_log("DateTime: " . $appointmentDateTime);
+        
+        // Check if doctor exists
+        $doctorCheck = $this->conn->query("SELECT COUNT(*) as count FROM Doctor WHERE DoctorID = " . intval($data["doctor_id"]));
+        $doctorExists = $doctorCheck->fetch_assoc()['count'] > 0;
+        error_log("Doctor exists: " . ($doctorExists ? "YES" : "NO"));
+        
+        // Check availability before attempting to create
+        $availabilityCheck = $appointment->checkDoctorAvailability($data["doctor_id"], $appointmentDateTime);
+        error_log("Doctor availability check: " . ($availabilityCheck ? "AVAILABLE" : "NOT AVAILABLE"));
+        
         $success = $appointment->createAppointment(
             $user["id"],
             $data["doctor_id"],
@@ -585,15 +615,23 @@ class PatientController extends Controller
             $data["appointment_type"],
             $data["reason"]
         );
+        
+        error_log("Appointment creation result: " . ($success ? "SUCCESS" : "FAILED"));
 
         if ($success) {
+            error_log("SUCCESS: Appointment created successfully");
             $_SESSION["success"] = "Appointment booked successfully!";
             $this->redirect(BASE_URL . "/patient/bookings");
         } else {
-            $this->redirectBack(
-                "Failed to book appointment. The selected time slot may no longer be available."
-            );
+            // Get more specific error information
+            $error = $this->conn->error;
+            error_log("FAILURE: Appointment creation failed with error: " . $error);
+            
+            $_SESSION["error"] = "Failed to book appointment. The selected time slot may no longer be available.";
+            $this->redirectBack();
         }
+        
+        error_log("=== END APPOINTMENT BOOKING DEBUG ===");
     }
 
     public function rescheduleAppointment()
@@ -850,8 +888,92 @@ class PatientController extends Controller
 
     public function testRoute()
     {
-        echo "TEST ROUTE WORKING - PatientController::testRoute() called";
-        exit();
+        // Enable error reporting and logging
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        ini_set('log_errors', 1);
+        ini_set('error_log', '/Applications/XAMPP/xamppfiles/logs/php_error_log');
+        error_reporting(E_ALL);
+        
+        // Test error logging
+        error_log("=== TEST ROUTE DEBUG - " . date('Y-m-d H:i:s') . " ===");
+        
+        // Simple test to check database connectivity and tables
+        try {
+            // Test database connection
+            $result = $this->conn->query("SELECT 1");
+            echo "Database connection: OK<br>";
+            error_log("Database connection: OK");
+            
+            // Test if tables exist
+            $tables = ['USER', 'PATIENT', 'Doctor', 'Appointment', 'PatientRecord', 'AppointmentReport'];
+            foreach ($tables as $table) {
+                $result = $this->conn->query("SHOW TABLES LIKE '$table'");
+                $exists = $result->num_rows > 0;
+                echo "Table $table: " . ($exists ? "EXISTS" : "MISSING") . "<br>";
+                error_log("Table $table: " . ($exists ? "EXISTS" : "MISSING"));
+            }
+            
+            // Test if current user is a patient
+            $user = $this->getAuthUser();
+            if ($user) {
+                echo "Current user ID: " . $user["id"] . "<br>";
+                echo "Current user type: " . $user["type"] . "<br>";
+                error_log("Current user ID: " . $user["id"]);
+                error_log("Current user type: " . $user["type"]);
+                
+                // Check if patient record exists
+                $patientRecord = new PatientRecord($this->conn);
+                $hasRecord = $patientRecord->findByPatientID($user["id"]);
+                echo "Patient record exists: " . ($hasRecord ? "YES" : "NO") . "<br>";
+                error_log("Patient record exists: " . ($hasRecord ? "YES" : "NO"));
+                
+                if (!$hasRecord) {
+                    echo "Attempting to create patient record...<br>";
+                    error_log("Attempting to create patient record...");
+                    if ($patientRecord->createForPatient($user["id"])) {
+                        echo "Patient record created successfully<br>";
+                        error_log("Patient record created successfully");
+                    } else {
+                        echo "Failed to create patient record<br>";
+                        error_log("Failed to create patient record");
+                    }
+                }
+            }
+            
+            // Test appointment booking components
+            echo "<hr><h3>Testing Appointment Booking Components:</h3>";
+            
+            // Test if doctors exist
+            $doctorResult = $this->conn->query("SELECT COUNT(*) as count FROM Doctor");
+            $doctorCount = $doctorResult->fetch_assoc()['count'];
+            echo "Number of doctors: $doctorCount<br>";
+            error_log("Number of doctors: $doctorCount");
+            
+            if ($doctorCount > 0) {
+                // Get first doctor for testing
+                $firstDoctor = $this->conn->query("SELECT DoctorID FROM Doctor LIMIT 1")->fetch_assoc();
+                $doctorId = $firstDoctor['DoctorID'];
+                echo "Testing with Doctor ID: $doctorId<br>";
+                error_log("Testing with Doctor ID: $doctorId");
+                
+                // Test appointment creation (without actually creating)
+                $testDate = date('Y-m-d H:i:s', strtotime('+1 day'));
+                echo "Test appointment time: $testDate<br>";
+                error_log("Test appointment time: $testDate");
+                
+                $appointment = new Appointment($this->conn);
+                $available = $appointment->checkDoctorAvailability($doctorId, $testDate);
+                echo "Doctor availability for test time: " . ($available ? "AVAILABLE" : "NOT AVAILABLE") . "<br>";
+                error_log("Doctor availability for test time: " . ($available ? "AVAILABLE" : "NOT AVAILABLE"));
+            }
+            
+            error_log("=== END TEST ROUTE DEBUG ===");
+            
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            error_log("Error in test route: " . $e->getMessage());
+        }
     }
 
     private function generatePaymentDetailsHTML($payment)

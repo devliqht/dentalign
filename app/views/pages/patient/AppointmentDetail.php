@@ -323,55 +323,73 @@
         </div>
 
         <!-- Payment Information Section -->
-        <?php if ($appointmentPayment): ?>
-            <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-nhd-brown/70 p-6 bg-gradient-to-r from-nhd-brown/5 to-transparent">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-semibold text-nhd-brown mb-2 font-family-bodoni">Payment Information</h3>
-                        <div class="flex items-center space-x-4">
-                            <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-4 py-2 rounded-lg">
-                                <span class="text-xs font-medium uppercase tracking-wider block">Payment ID</span>
-                                <span class="text-2xl font-bold font-mono">#<?php echo str_pad(
-                                    $appointmentPayment["PaymentID"],
-                                    6,
-                                    "0",
-                                    STR_PAD_LEFT
-                                ); ?></span>
-                            </div>
-                            <div>
-                                <span class="text-sm text-gray-500 block">Status</span>
-                                <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full 
-                                    <?php echo strtolower(
-                                        $appointmentPayment["Status"]
-                                    ) === "paid"
+        <!-- Always show payment section, even for appointments without payment records -->
+        <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-nhd-brown/70 p-6 bg-gradient-to-r from-nhd-brown/5 to-transparent">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-semibold text-nhd-brown mb-2 font-family-bodoni">Payment Information</h3>
+                    <div class="flex items-center space-x-4">
+                        <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-4 py-2 rounded-lg">
+                            <span class="text-xs font-medium uppercase tracking-wider block">Payment ID</span>
+                            <span class="text-2xl font-bold font-mono"><?php if ($appointmentPayment): ?>#<?php echo str_pad(
+                                $appointmentPayment["PaymentID"],
+                                6,
+                                "0",
+                                STR_PAD_LEFT
+                            ); ?><?php else: ?>-<?php endif; ?></span>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500 block">Status</span>
+                            <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full 
+                                <?php if ($appointmentPayment): ?>
+                                    <?php echo strtolower($appointmentPayment["Status"]) === "paid"
                                         ? "bg-green-100/40 text-green-800"
                                         : "bg-yellow-100/40 text-yellow-800"; ?>">
-                                    <?php echo htmlspecialchars(
-                                        $appointmentPayment["Status"]
-                                    ); ?>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-sm text-gray-500 block">Amount</span>
-                        <span class="text-2xl font-bold text-nhd-brown">$<?php echo number_format(
-                            $appointmentPayment["total_amount"] ?? 0,
-                            2
-                        ); ?></span>
-                        <div class="mt-2">
-                            <a href="<?php echo BASE_URL; ?>/patient/payments" 
-                               class="inline-flex items-center px-3 py-1 glass-card bg-nhd-blue/85 text-white text-sm rounded-xl hover:bg-nhd-blue transition-colors">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                View Payment Details
-                            </a>
+                                    <?php echo htmlspecialchars($appointmentPayment["Status"]); ?>
+                                <?php else: ?>
+                                    bg-yellow-100/40 text-yellow-800">
+                                    Pending
+                                <?php endif; ?>
+                            </span>
                         </div>
                     </div>
                 </div>
+                <div class="text-right">
+                    <span class="text-sm text-gray-500 block">Amount</span>
+                    <span class="text-2xl font-bold text-nhd-brown">$<?php echo $appointmentPayment ? number_format(
+                        $appointmentPayment["total_amount"] ?? 0,
+                        2
+                    ) : "0.00"; ?></span>
+                    <div class="mt-2">
+                        <a href="<?php echo BASE_URL; ?>/patient/payments" 
+                           class="inline-flex items-center px-3 py-1 glass-card bg-nhd-blue/85 text-white text-sm rounded-xl hover:bg-nhd-blue transition-colors">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            View Payment Details
+                        </a>
+                    </div>
+                </div>
             </div>
-        <?php endif; ?>
+            <?php if (!$appointmentPayment): ?>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="glass-card bg-yellow-50/50 rounded-xl p-4">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <p class="text-yellow-800 text-sm">
+                                <?php if (strtotime($appointment["DateTime"]) > time()): ?>
+                                    Payment invoice will be generated after your appointment.
+                                <?php else: ?>
+                                    Payment processing in progress. Invoice will be available soon.
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
 
         <!-- Action Buttons -->
         <div class="space-y-4">

@@ -24,17 +24,17 @@ switch (strtolower($payment["Status"])) {
     <!-- Collapsed View - Always Visible Header -->
     <div class="flex items-center justify-between cursor-pointer" onclick="togglePaymentCard(<?php echo $payment[
         "PaymentID"
-    ]; ?>)">
+    ] ?? $payment["AppointmentID"]; ?>)">
         <div class="flex items-center space-x-4">
             <!-- Payment ID -->
             <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-3 py-2 rounded-lg">
                 <span class="text-xs font-medium uppercase tracking-wider block">Payment ID</span>
-                <span class="text-lg font-bold font-mono">#<?php echo str_pad(
+                <span class="text-lg font-bold font-mono"><?php if ($payment["PaymentID"]): ?>#<?php echo str_pad(
                     $payment["PaymentID"],
                     6,
                     "0",
                     STR_PAD_LEFT
-                ); ?></span>
+                ); ?><?php else: ?>-<?php endif; ?></span>
             </div>
             
             <!-- Appointment ID -->
@@ -79,7 +79,7 @@ switch (strtolower($payment["Status"])) {
             <div class="glass-card bg-gray-100/60 hover:bg-gray-200/60 rounded-full p-2 transition-colors">
                 <svg id="expand-icon-<?php echo $payment[
                     "PaymentID"
-                ]; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                ] ?? $payment["AppointmentID"]; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </div>
@@ -89,7 +89,7 @@ switch (strtolower($payment["Status"])) {
     <!-- Expanded Content - Initially Hidden -->
     <div id="payment-content-<?php echo $payment[
         "PaymentID"
-    ]; ?>" class="hidden mt-6 pt-6 border-t border-gray-200">
+    ] ?? $payment["AppointmentID"]; ?>" class="hidden mt-6 pt-6 border-t border-gray-200">
         <!-- Appointment & Payment Details -->
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div class="mb-4 lg:mb-0">
@@ -162,7 +162,11 @@ switch (strtolower($payment["Status"])) {
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
-                    Payment breakdown not available
+                    <?php if ($payment["PaymentID"]): ?>
+                        Payment breakdown not available
+                    <?php else: ?>
+                        Payment invoice will be generated after your appointment
+                    <?php endif; ?>
                 </p>
             </div>
         <?php endif; ?>
@@ -196,18 +200,27 @@ switch (strtolower($payment["Status"])) {
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-3">
-            <button onclick="viewPaymentDetails(<?php echo $payment[
-                "PaymentID"
-            ]; ?>)" 
-                    class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
-                View Details
-            </button>
-            <button onclick="printInvoice(<?php echo $payment[
-                "PaymentID"
-            ]; ?>)" 
-                    class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium">
-                Print Invoice
-            </button>
+            <?php if ($payment["PaymentID"]): ?>
+                <button onclick="viewPaymentDetails(<?php echo $payment[
+                    "PaymentID"
+                ]; ?>)" 
+                        class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
+                    View Details
+                </button>
+                <button onclick="printInvoice(<?php echo $payment[
+                    "PaymentID"
+                ]; ?>)" 
+                        class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium">
+                    Print Invoice
+                </button>
+            <?php else: ?>
+                <div class="flex-1 px-6 py-3 glass-card bg-gray-100/40 text-gray-500 rounded-2xl text-center">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    Invoice pending
+                </div>
+            <?php endif; ?>
             <!-- FIXED ROUTING: Now uses the correct bookings route -->
             <a href="<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"

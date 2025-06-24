@@ -108,13 +108,13 @@
         <?php else: ?>
             <div class="glass-card rounded-2xl shadow-md p-8 text-center">
                 <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">No Payment Records</h3>
-                <p class="text-gray-500 mb-6">You don't have any payment records yet.</p>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No Appointments Yet</h3>
+                <p class="text-gray-500 mb-6">You haven't booked any appointments yet. Start by booking your first appointment.</p>
                 <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
                    class="inline-block px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
-                    Book an Appointment
+                    Book Your First Appointment
                 </a>
             </div>
         <?php endif; ?>

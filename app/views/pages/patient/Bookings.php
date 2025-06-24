@@ -110,29 +110,35 @@
                         </div>
                         
                         <!-- Payment Information at Bottom -->
-                        <?php if (
-                            isset(
-                                $appointmentPayments[
-                                    $appointment["AppointmentID"]
-                                ]
-                            )
-                        ): ?>
-                            <?php $payment =
-                                $appointmentPayments[
-                                    $appointment["AppointmentID"]
-                                ]; ?>
-                            <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-2 py-1 rounded text-xs">
-                                        <span class="font-medium">Payment ID:</span> 
-                                        <span class="font-mono font-bold">#<?php echo str_pad(
-                                            $payment["PaymentID"],
-                                            6,
-                                            "0",
-                                            STR_PAD_LEFT
-                                        ); ?></span>
-                                    </div>
-                                    <div class="text-xs font-medium px-2 py-1 rounded-full 
+                        <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-2 py-1 rounded text-xs">
+                                    <span class="font-medium">Payment ID:</span> 
+                                    <span class="font-mono font-bold"><?php if (
+                                        isset(
+                                            $appointmentPayments[
+                                                $appointment["AppointmentID"]
+                                            ]
+                                        )
+                                    ): ?>#<?php echo str_pad(
+    $appointmentPayments[$appointment["AppointmentID"]]["PaymentID"],
+    6,
+    "0",
+    STR_PAD_LEFT
+); ?><?php else: ?>-<?php endif; ?></span>
+                                </div>
+                                <div class="text-xs font-medium px-2 py-1 rounded-full 
+                                    <?php if (
+                                        isset(
+                                            $appointmentPayments[
+                                                $appointment["AppointmentID"]
+                                            ]
+                                        )
+                                    ): ?>
+                                        <?php $payment =
+                                            $appointmentPayments[
+                                                $appointment["AppointmentID"]
+                                            ]; ?>
                                         <?php echo strtolower(
                                             $payment["Status"]
                                         ) === "paid"
@@ -141,16 +147,25 @@
                                         <?php echo htmlspecialchars(
                                             $payment["Status"]
                                         ); ?>
-                                    </div>
-                                </div>
-                                <div class="text-sm font-semibold text-nhd-brown">
-                                    $<?php echo number_format(
-                                        $payment["total_amount"] ?? 0,
-                                        2
-                                    ); ?>
+                                    <?php else: ?>
+                                        bg-yellow-100 text-yellow-800">
+                                        Pending
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        <?php endif; ?>
+                            <div class="text-sm font-semibold text-nhd-brown">
+                                $<?php if (
+                                    isset(
+                                        $appointmentPayments[
+                                            $appointment["AppointmentID"]
+                                        ]
+                                    )
+                                ): ?><?php echo number_format(
+    $appointmentPayments[$appointment["AppointmentID"]]["total_amount"] ?? 0,
+    2
+); ?><?php else: ?>0.00<?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -255,29 +270,35 @@
                         </div>
                         
                         <!-- Payment Information at Bottom -->
-                        <?php if (
-                            isset(
-                                $appointmentPayments[
-                                    $appointment["AppointmentID"]
-                                ]
-                            )
-                        ): ?>
-                            <?php $payment =
-                                $appointmentPayments[
-                                    $appointment["AppointmentID"]
-                                ]; ?>
-                            <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-2 py-1 rounded text-xs">
-                                        <span class="font-medium">Payment ID:</span> 
-                                        <span class="font-mono font-bold">#<?php echo str_pad(
-                                            $payment["PaymentID"],
-                                            6,
-                                            "0",
-                                            STR_PAD_LEFT
-                                        ); ?></span>
-                                    </div>
-                                    <div class="text-xs font-medium px-2 py-1 rounded-full 
+                        <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-2 py-1 rounded text-xs">
+                                    <span class="font-medium">Payment ID:</span> 
+                                    <span class="font-mono font-bold"><?php if (
+                                        isset(
+                                            $appointmentPayments[
+                                                $appointment["AppointmentID"]
+                                            ]
+                                        )
+                                    ): ?>#<?php echo str_pad(
+    $appointmentPayments[$appointment["AppointmentID"]]["PaymentID"],
+    6,
+    "0",
+    STR_PAD_LEFT
+); ?><?php else: ?>-<?php endif; ?></span>
+                                </div>
+                                <div class="text-xs font-medium px-2 py-1 rounded-full 
+                                    <?php if (
+                                        isset(
+                                            $appointmentPayments[
+                                                $appointment["AppointmentID"]
+                                            ]
+                                        )
+                                    ): ?>
+                                        <?php $payment =
+                                            $appointmentPayments[
+                                                $appointment["AppointmentID"]
+                                            ]; ?>
                                         <?php echo strtolower(
                                             $payment["Status"]
                                         ) === "paid"
@@ -286,16 +307,25 @@
                                         <?php echo htmlspecialchars(
                                             $payment["Status"]
                                         ); ?>
-                                    </div>
-                                </div>
-                                <div class="text-sm font-semibold text-nhd-brown">
-                                    $<?php echo number_format(
-                                        $payment["total_amount"] ?? 0,
-                                        2
-                                    ); ?>
+                                    <?php else: ?>
+                                        bg-yellow-100 text-yellow-800">
+                                        Pending
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        <?php endif; ?>
+                            <div class="text-sm font-semibold text-nhd-brown">
+                                $<?php if (
+                                    isset(
+                                        $appointmentPayments[
+                                            $appointment["AppointmentID"]
+                                        ]
+                                    )
+                                ): ?><?php echo number_format(
+    $appointmentPayments[$appointment["AppointmentID"]]["total_amount"] ?? 0,
+    2
+); ?><?php else: ?>0.00<?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

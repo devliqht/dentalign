@@ -292,3 +292,25 @@
     </div>
 </div>
 
+<!-- Server Messages for Toast -->
+<script>
+window.serverMessages = {
+    <?php if (isset($_SESSION["success"])): ?>
+        success: <?php echo json_encode($_SESSION["success"]); ?>,
+        <?php unset($_SESSION["success"]); ?>
+    <?php endif; ?>
+    <?php if (isset($_SESSION["error"])): ?>
+        error: <?php echo json_encode($_SESSION["error"]); ?>,
+        <?php unset($_SESSION["error"]); ?>
+    <?php endif; ?>
+    <?php if (isset($_SESSION["info"])): ?>
+        info: <?php echo json_encode($_SESSION["info"]); ?>,
+        <?php unset($_SESSION["info"]); ?>
+    <?php endif; ?>
+    <?php if (isset($_SESSION["warning"])): ?>
+        warning: <?php echo json_encode($_SESSION["warning"]); ?>,
+        <?php unset($_SESSION["warning"]); ?>
+    <?php endif; ?>
+};
+</script>
+

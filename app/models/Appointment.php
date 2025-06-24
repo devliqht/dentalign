@@ -20,9 +20,17 @@ class Appointment
         $this->conn = $db;
     }
 
-    public function create()
+    public function create($useExistingTransaction = false)
     {
-        $this->conn->begin_transaction();
+        error_log("=== CREATE METHOD DEBUG START ===");
+        error_log("useExistingTransaction: " . ($useExistingTransaction ? "true" : "false"));
+        
+        if (!$useExistingTransaction) {
+            $this->conn->begin_transaction();
+            error_log("New transaction started in create()");
+        } else {
+            error_log("Using existing transaction");
+        }
 
         try {
             $query =
@@ -31,7 +39,15 @@ class Appointment
                 " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt) VALUES 
             (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
             ";
+            error_log("Preparing SQL query: $query");
+            error_log("Parameters: PatientID={$this->patientID}, DoctorID={$this->doctorID}, DateTime={$this->dateTime}, Type={$this->appointmentType}");
+            
             $stmt = $this->conn->prepare($query);
+            if (!$stmt) {
+                error_log("FAIL: Failed to prepare statement: " . $this->conn->error);
+                throw new Exception("Failed to prepare appointment insert statement");
+            }
+            error_log("Statement prepared successfully");
 
             $stmt->bind_param(
                 "iisss",
@@ -41,34 +57,50 @@ class Appointment
                 $this->appointmentType,
                 $this->reason
             );
+            error_log("Parameters bound successfully");
 
             if (!$stmt->execute()) {
-                throw new Exception("Failed to create appointment");
+                error_log("FAIL: Failed to execute statement: " . $stmt->error);
+                throw new Exception("Failed to create appointment: " . $stmt->error);
             }
+            error_log("Appointment insert executed successfully");
 
             $this->appointmentID = $this->conn->insert_id;
+            error_log("Appointment ID: " . $this->appointmentID);
 
-            // Get patient record ID
+            // Get or create patient record
             $patientRecord = new PatientRecord($this->conn);
+            error_log("PatientRecord object created");
+            
             if (!$patientRecord->findByPatientID($this->patientID)) {
-                throw new Exception("Patient record not found");
+                error_log("Patient record not found, attempting to create...");
+                // Patient record doesn't exist, create it
+                if (!$patientRecord->createForPatient($this->patientID)) {
+                    error_log("FAIL: Failed to create patient record");
+                    throw new Exception("Failed to create patient record");
+                }
+                error_log("Patient record created successfully");
+            } else {
+                error_log("Patient record found: RecordID=" . $patientRecord->recordID);
             }
 
-            // Create AppointmentReport automatically
-            $appointmentReport = new AppointmentReport($this->conn);
-            if (
-                !$appointmentReport->createForAppointment(
-                    $this->appointmentID,
-                    $patientRecord->recordID
-                )
-            ) {
-                throw new Exception("Failed to create appointment report");
-            }
+            // Note: AppointmentReport is automatically created by database trigger
+            // No need to create it manually here
+            error_log("AppointmentReport will be created automatically by database trigger");
 
-            $this->conn->commit();
+            if (!$useExistingTransaction) {
+                $this->conn->commit();
+                error_log("Transaction committed in create()");
+            }
+            
+            error_log("=== CREATE METHOD DEBUG END - SUCCESS ===");
             return true;
         } catch (Exception $e) {
-            $this->conn->rollback();
+            error_log("EXCEPTION in create(): " . $e->getMessage());
+            if (!$useExistingTransaction) {
+                $this->conn->rollback();
+                error_log("Transaction rolled back in create()");
+            }
             return false;
         }
     }
@@ -139,6 +171,27 @@ class Appointment
         return false;
     }
 
+    public function checkDoctorAvailabilityWithLock($doctorID, $dateTime)
+    {
+        // Use SELECT FOR UPDATE to prevent race conditions
+        $query =
+            "SELECT COUNT(*) as count FROM " .
+            $this->table .
+            " 
+                  WHERE DoctorID = ? AND DateTime = ? FOR UPDATE";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("is", $doctorID, $dateTime);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            return $row["count"] == 0;
+        }
+
+        return false;
+    }
+
     public function createAppointment(
         $patientID,
         $doctorID,
@@ -146,17 +199,52 @@ class Appointment
         $appointmentType,
         $reason
     ) {
-        if (!$this->checkDoctorAvailability($doctorID, $dateTime)) {
+        error_log("=== APPOINTMENT MODEL DEBUG START ===");
+        error_log("Input parameters: patientID=$patientID, doctorID=$doctorID, dateTime=$dateTime, type=$appointmentType");
+        
+        // Start transaction and check availability with lock to prevent race conditions
+        $this->conn->begin_transaction();
+        error_log("Transaction started");
+        
+        try {
+            // Set transaction timeout to prevent deadlocks
+            $this->conn->query("SET SESSION innodb_lock_wait_timeout = 5");
+            error_log("Lock timeout set");
+            
+            if (!$this->checkDoctorAvailabilityWithLock($doctorID, $dateTime)) {
+                error_log("FAIL: Doctor not available with lock");
+                $this->conn->rollback();
+                return false;
+            }
+            error_log("Doctor availability with lock: CONFIRMED");
+
+            $this->patientID = $patientID;
+            $this->doctorID = $doctorID;
+            $this->dateTime = $dateTime;
+            $this->appointmentType = $appointmentType;
+            $this->reason = $reason;
+            error_log("Appointment object properties set");
+
+            $result = $this->create(true); // Use existing transaction
+            error_log("create() method result: " . ($result ? "SUCCESS" : "FAILED"));
+            
+            if ($result) {
+                error_log("Committing transaction");
+                $this->conn->commit();
+                error_log("Transaction committed successfully");
+            } else {
+                error_log("Rolling back transaction due to create() failure");
+                $this->conn->rollback();
+            }
+            
+            error_log("=== APPOINTMENT MODEL DEBUG END ===");
+            return $result;
+        } catch (Exception $e) {
+            error_log("EXCEPTION in createAppointment: " . $e->getMessage());
+            $this->conn->rollback();
+            error_log("Transaction rolled back due to exception");
             return false;
         }
-
-        $this->patientID = $patientID;
-        $this->doctorID = $doctorID;
-        $this->dateTime = $dateTime;
-        $this->appointmentType = $appointmentType;
-        $this->reason = $reason;
-
-        return $this->create();
     }
 
     public function getAvailableTimeSlots($doctorID, $date)

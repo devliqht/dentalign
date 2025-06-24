@@ -173,19 +173,33 @@ function closeToast(button) {
 window.toast = toast;
 window.closeToast = closeToast;
 
-document.addEventListener("DOMContentLoaded", function () {
-  if (typeof window.serverMessages !== "undefined") {
-    if (window.serverMessages.success) {
-      toast.success(window.serverMessages.success);
-    }
-    if (window.serverMessages.error) {
-      toast.error(window.serverMessages.error);
-    }
-    if (window.serverMessages.info) {
-      toast.info(window.serverMessages.info);
-    }
-    if (window.serverMessages.warning) {
-      toast.warning(window.serverMessages.warning);
-    }
+// Function to check and show server messages (only once)
+let serverMessagesProcessed = false;
+function checkAndShowServerMessages() {
+  if (serverMessagesProcessed || typeof window.serverMessages === "undefined") {
+    return;
   }
+  
+  serverMessagesProcessed = true;
+  
+  if (window.serverMessages.success) {
+    toast.success(window.serverMessages.success);
+  }
+  if (window.serverMessages.error) {
+    toast.error(window.serverMessages.error);
+  }
+  if (window.serverMessages.info) {
+    toast.info(window.serverMessages.info);
+  }
+  if (window.serverMessages.warning) {
+    toast.warning(window.serverMessages.warning);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Check immediately
+  checkAndShowServerMessages();
+  
+  // Also check after a short delay in case serverMessages is set after DOM ready
+  setTimeout(checkAndShowServerMessages, 100);
 });

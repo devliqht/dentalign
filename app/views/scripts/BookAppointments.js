@@ -58,6 +58,86 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Form validation
+  const appointmentForm = document.getElementById("appointment-form");
+  if (appointmentForm) {
+    appointmentForm.addEventListener("submit", function (e) {
+      const doctorId = doctorIdInput.value;
+      const date = dateInput.value;
+      const time = timeInput.value;
+      const appointmentType = appointmentTypeInput.value;
+      const reason = document.getElementById("reason").value;
+
+      // Validate all required fields
+      if (!doctorId) {
+        e.preventDefault();
+        if (window.toast) {
+          toast.error("Please select a doctor");
+        } else {
+          alert("Please select a doctor");
+        }
+        return false;
+      }
+
+      if (!date) {
+        e.preventDefault();
+        if (window.toast) {
+          toast.error("Please select an appointment date");
+        } else {
+          alert("Please select an appointment date");
+        }
+        return false;
+      }
+
+      if (!time) {
+        e.preventDefault();
+        if (window.toast) {
+          toast.error("Please select an appointment time");
+        } else {
+          alert("Please select an appointment time");
+        }
+        return false;
+      }
+
+      if (!appointmentType) {
+        e.preventDefault();
+        if (window.toast) {
+          toast.error("Please select an appointment type");
+        } else {
+          alert("Please select an appointment type");
+        }
+        return false;
+      }
+
+      if (!reason || reason.length < 10) {
+        e.preventDefault();
+        if (window.toast) {
+          toast.error("Please provide a reason for your visit (at least 10 characters)");
+        } else {
+          alert("Please provide a reason for your visit (at least 10 characters)");
+        }
+        return false;
+      }
+
+      // Debug: Log form data before submission
+      console.log("Form validation passed, submitting with data:", {
+        doctorId,
+        date,
+        time,
+        appointmentType,
+        reason: reason.substring(0, 50) + "..."
+      });
+      
+      // Show debug toast
+      if (window.toast) {
+        toast.info("Submitting appointment booking...", 2000);
+      }
+      
+      // All validation passed
+      return true;
+    });
+  }
+
   appointmentTypeCards.forEach((card) => {
     card.addEventListener("click", function () {
       const appointmentType = this.getAttribute("data-type");
