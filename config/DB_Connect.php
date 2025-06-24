@@ -6,7 +6,7 @@
 // define("DB_SOCKET", "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
 
 define("DB_HOST", "localhost:3306");
-define("DB_USER", "s22103604_detalign");
+define("DB_USER", "s22103604_dentalign");
 define("DB_PASS", "sonicdravice");
 define("DB_NAME", "s22103604_dentalign");
 define("DB_SOCKET", "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
