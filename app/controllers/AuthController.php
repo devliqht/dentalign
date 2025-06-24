@@ -116,53 +116,119 @@ class AuthController extends Controller
 
         $data = $this->sanitize($_POST);
 
+        $passwordErrors = $this->validatePassword($data["password"] ?? "");
+        if (!empty($passwordErrors)) {
+            $this->redirectBack(implode(". ", $passwordErrors));
+            return;
+        }
+
+        if (empty($data["confirm_password"])) {
+            $this->redirectBack("Please confirm your password");
+            return;
+        }
+
+        if ($data["password"] !== $data["confirm_password"]) {
+            $this->redirectBack("Passwords do not match");
+            return;
+        }
+
         $isValid = $this->validate(
             $data,
             [
                 "first_name" => "required",
                 "last_name" => "required",
                 "email" => "required|email",
-                "password" => "required|min:6",
+                "password" => "required",
+                "confirm_password" => "required",
                 "user_type" => "required",
             ],
             [
                 "first_name" => "First name is required",
                 "last_name" => "Last name is required",
                 "email" => "Please enter a valid email address",
-                "password" => "Password must be at least 6 characters long",
+                "password" => "Password is required",
+                "confirm_password" => "Please confirm your password",
                 "user_type" => "Please select a user type",
             ]
         );
 
         if (!$isValid) {
             $this->redirectBack("Please correct the errors below");
+            return;
         }
 
-        if ($data["password"] !== ($data["confirm_password"] ?? "")) {
-            $this->redirectBack("Passwords do not match");
+        if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+            $this->redirectBack("Please enter a valid email address");
+            return;
+        }
+
+        $emailParts = explode("@", $data["email"]);
+        if (count($emailParts) !== 2 || empty($emailParts[1])) {
+            $this->redirectBack("Please enter a valid email address with a proper domain");
+            return;
         }
 
         $user = new User($this->conn);
         if ($user->emailExists($data["email"])) {
-            $this->redirectBack("Email already exists");
+            $this->redirectBack("An account with this email address already exists. Please try logging in instead.");
+            return;
         }
 
         $success = false;
+        $errorMessage = "";
 
-        if ($data["user_type"] === "Doctor") {
-            $success = $this->createDoctor($data);
-        } else {
-            $success = $this->createPatient($data);
+        try {
+            if ($data["user_type"] === "Doctor") {
+                $success = $this->createDoctor($data);
+                if (!$success) {
+                    $errorMessage = "Failed to create doctor account. Please contact support.";
+                }
+            } else {
+                $success = $this->createPatient($data);
+                if (!$success) {
+                    $errorMessage = "Failed to create patient account. Please try again or contact support.";
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Signup error: " . $e->getMessage());
+            $errorMessage = "An error occurred while creating your account. Please try again.";
         }
 
         if ($success) {
             $this->redirectBack(
                 null,
-                "Account created successfully! Please login."
+                "Account created successfully! Please login with your email and password."
             );
         } else {
-            $this->redirectBack("Failed to create account. Please try again.");
+            $this->redirectBack($errorMessage ?: "Failed to create account. Please try again.");
         }
+    }
+
+    private function validatePassword($password)
+    {
+        $errors = [];
+        
+        if (strlen($password) < 8) {
+            $errors[] = "Password must be at least 8 characters long";
+        }
+        
+        if (!preg_match('/[A-Z]/', $password)) {
+            $errors[] = "Password must contain at least one uppercase letter";
+        }
+        
+        if (!preg_match('/[a-z]/', $password)) {
+            $errors[] = "Password must contain at least one lowercase letter";
+        }
+        
+        if (!preg_match('/[0-9]/', $password)) {
+            $errors[] = "Password must contain at least one number";
+        }
+        
+        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            $errors[] = "Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)";
+        }
+        
+        return $errors;
     }
 
     private function createDoctor($data)
