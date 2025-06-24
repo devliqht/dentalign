@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 19, 2025 at 02:45 AM
+-- Generation Time: Jun 24, 2025 at 09:11 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -37,6 +37,43 @@ CREATE TABLE `Appointment` (
   `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `Appointment`
+--
+
+INSERT INTO `Appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`, `AppointmentType`, `Reason`, `CreatedAt`) VALUES
+(1, 1, 2, '2025-06-22 08:00:00', 'Consultation', 'Lets gooo hello world', '2025-06-20 16:00:18'),
+(6, 1, 2, '2025-06-26 10:00:00', 'Consultation', 'ajgfahbfafajfz', '2025-06-23 07:32:14'),
+(7, 1, 3, '2025-06-26 09:00:00', 'Follow-up', 'sdadsadadaad', '2025-06-23 09:13:38'),
+(8, 1, 3, '2025-06-26 10:00:00', 'Cleaning', 'asgagsagagasga', '2025-06-23 11:54:20'),
+(19, 1, 3, '2025-06-26 11:00:00', 'Consultation', 'sjonfasiufuiafsaf', '2025-06-24 06:44:35');
+
+--
+-- Triggers `Appointment`
+--
+DELIMITER $$
+CREATE TRIGGER `create_appointment_report_after_appointment_insert` AFTER INSERT ON `Appointment` FOR EACH ROW BEGIN
+    DECLARE patient_record_id INT;
+    
+    -- Get the PatientRecord ID for the patient
+    SELECT RecordID INTO patient_record_id 
+    FROM PatientRecord 
+    WHERE PatientID = NEW.PatientID 
+    LIMIT 1;
+    
+    -- Insert AppointmentReport
+    INSERT INTO AppointmentReport (PatientRecordID, AppointmentID, BloodPressure, PulseRate, Temperature, RespiratoryRate, GeneralAppearance)
+    VALUES (patient_record_id, NEW.AppointmentID, NULL, NULL, NULL, NULL, NULL);
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `delete_appointment_report_after_appointment_delete` AFTER DELETE ON `Appointment` FOR EACH ROW BEGIN
+    DELETE FROM AppointmentReport WHERE AppointmentID = OLD.AppointmentID;
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -55,6 +92,17 @@ CREATE TABLE `AppointmentReport` (
   `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `AppointmentReport`
+--
+
+INSERT INTO `AppointmentReport` (`AppointmentReportID`, `PatientRecordID`, `AppointmentID`, `BloodPressure`, `PulseRate`, `Temperature`, `RespiratoryRate`, `GeneralAppearance`, `CreatedAt`) VALUES
+(1, 1, 1, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
+(2, 1, 6, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
+(3, 1, 7, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
+(4, 1, 8, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
+(28, 1, 19, NULL, NULL, NULL, NULL, NULL, '2025-06-24 06:44:35');
+
 -- --------------------------------------------------------
 
 --
@@ -66,6 +114,15 @@ CREATE TABLE `CLINIC_STAFF` (
   `StaffType` varchar(100) NOT NULL COMMENT 'e.g., Doctor, Nurse, Receptionist, Admin'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `CLINIC_STAFF`
+--
+
+INSERT INTO `CLINIC_STAFF` (`ClinicStaffID`, `StaffType`) VALUES
+(2, 'Doctor'),
+(3, 'Doctor'),
+(4, 'Doctor');
+
 -- --------------------------------------------------------
 
 --
@@ -76,6 +133,15 @@ CREATE TABLE `Doctor` (
   `DoctorID` int(11) NOT NULL,
   `Specialization` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `Doctor`
+--
+
+INSERT INTO `Doctor` (`DoctorID`, `Specialization`) VALUES
+(2, 'General Dentistry'),
+(3, 'Orthodontics'),
+(4, 'General Dentistry');
 
 -- --------------------------------------------------------
 
@@ -109,7 +175,23 @@ CREATE TABLE `PATIENT` (
 --
 
 INSERT INTO `PATIENT` (`PatientID`) VALUES
-(1);
+(1),
+(5),
+(7),
+(8),
+(10),
+(11);
+
+--
+-- Triggers `PATIENT`
+--
+DELIMITER $$
+CREATE TRIGGER `create_patient_record_after_patient_insert` AFTER INSERT ON `PATIENT` FOR EACH ROW BEGIN
+    INSERT INTO PatientRecord (PatientID, Height, Weight, Allergies, LastVisit)
+    VALUES (NEW.PatientID, NULL, NULL, NULL, NULL);
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -127,6 +209,46 @@ CREATE TABLE `PatientRecord` (
   `LastVisit` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `PatientRecord`
+--
+
+INSERT INTO `PatientRecord` (`RecordID`, `PatientID`, `Height`, `Weight`, `Allergies`, `CreatedAt`, `LastVisit`) VALUES
+(1, 1, NULL, NULL, NULL, '2025-06-24 00:31:51', NULL),
+(2, 5, NULL, NULL, NULL, '2025-06-24 00:31:51', NULL),
+(16, 7, NULL, NULL, NULL, '2025-06-24 05:24:27', NULL),
+(18, 8, NULL, NULL, NULL, '2025-06-24 05:25:03', NULL),
+(27, 10, NULL, NULL, NULL, '2025-06-24 05:31:45', NULL),
+(28, 11, NULL, NULL, NULL, '2025-06-24 05:32:47', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `PaymentItems`
+--
+
+CREATE TABLE `PaymentItems` (
+  `PaymentItemID` int(11) NOT NULL,
+  `PaymentID` int(11) NOT NULL,
+  `Description` varchar(255) NOT NULL,
+  `Amount` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `Quantity` int(11) NOT NULL DEFAULT 1,
+  `Total` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `UpdatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `PaymentItems`
+--
+
+INSERT INTO `PaymentItems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`) VALUES
+(1, 2, 'Consultation Fee', 75.00, 1, 75.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
+(2, 3, 'Consultation Fee', 75.00, 1, 75.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
+(4, 5, 'Consultation Fee', 50.00, 1, 50.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
+(5, 5, 'Professional Cleaning', 120.00, 1, 120.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
+(6, 4, 'Follow-up - Standard Fee', 95.00, 1, 95.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16');
+
 -- --------------------------------------------------------
 
 --
@@ -142,6 +264,16 @@ CREATE TABLE `Payments` (
   `UpdatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `Notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `Payments`
+--
+
+INSERT INTO `Payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `UpdatedBy`, `UpdatedAt`, `Notes`) VALUES
+(2, 1, 1, 'Paid', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Consultation appointment'),
+(3, 6, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Consultation appointment'),
+(4, 7, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Follow-up appointment'),
+(5, 8, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Cleaning appointment');
 
 -- --------------------------------------------------------
 
@@ -179,7 +311,15 @@ CREATE TABLE `USER` (
 --
 
 INSERT INTO `USER` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `UserType`, `PasswordHash`) VALUES
-(1, 'Matt Erron', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$vYsisQqh.aCDiV8gixUEV.VhZCUnT4b2Ck9vaqejhG6QAQz0DxEMe');
+(1, 'Matt Errons', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$vYsisQqh.aCDiV8gixUEV.VhZCUnT4b2Ck9vaqejhG6QAQz0DxEMe'),
+(2, 'Matthew Angelo', 'Lumayno', 'matthew.lumayno@gmail.com', '2025-06-19 03:09:10', 'ClinicStaff', '$2y$10$iBfRH9IIaeupUaFEJyOESOG7IhjejpZIJMhUhB0hAzNY0d0qemE9W'),
+(3, 'Jeane ', 'Diputado', 'jeane@gmail.com', '2025-06-21 06:20:13', 'ClinicStaff', '$2y$10$xuTwNTGDGGni2x919pFvXe3l8gEGE3mf.DTIK60goXpQGk2/AFgF6'),
+(4, 'Joseph Gabriel', 'Pascua', 'josephpascua@gmail.com', '2025-06-22 16:38:09', 'ClinicStaff', '$2y$10$MZijGj8xMmoofv78ub.uN.stPpzpjYOs4kTV6IARnNlXs5jklQ7EK'),
+(5, 'Simon Gabriel', 'Gementiza', 'simongementiza@gmail.com', '2025-06-23 03:41:26', 'Patient', '$2y$10$.q/KB313P83140gDwkIWtOm23/32TOmMbpucSlGZ209p0jtUkik/O'),
+(7, 'Simple', 'Test', 'simple_test1750742666@example.com', '2025-06-24 05:24:27', 'Patient', '$2y$12$3rXzNoKfblNK60bQLivWxOLDxQYHTbhMUr8kH01rb8FuGHS15Gqie'),
+(8, 'Simple', 'Test', 'simple_test1750742702@example.com', '2025-06-24 05:25:03', 'Patient', '$2y$12$ZlZERo9FZhtwBZRiEf5AoeeyfbPfFPP5yRTVfHTSDoGSzz8zqj5.u'),
+(10, 'Full', 'Test', 'fulltest1750743104@example.com', '2025-06-24 05:31:45', 'Patient', '$2y$12$93UD311SBR540KkyyYJmX.0jyaPPffuK9Z8aJ9qeLxoRe4QYCSM5S'),
+(11, 'Jemuel', 'Valencia', 'jemuelvalencia@gmail.com', '2025-06-24 05:32:47', 'Patient', '$2y$10$LRry2Qi/j7ytdAxaDrWN2.wlhAlaEB3t/FaEsQKGC2Bx/cqn2X6vi');
 
 --
 -- Indexes for dumped tables
@@ -236,6 +376,13 @@ ALTER TABLE `PatientRecord`
   ADD UNIQUE KEY `PatientID` (`PatientID`);
 
 --
+-- Indexes for table `PaymentItems`
+--
+ALTER TABLE `PaymentItems`
+  ADD PRIMARY KEY (`PaymentItemID`),
+  ADD KEY `idx_payment_id` (`PaymentID`);
+
+--
 -- Indexes for table `Payments`
 --
 ALTER TABLE `Payments`
@@ -266,13 +413,13 @@ ALTER TABLE `USER`
 -- AUTO_INCREMENT for table `Appointment`
 --
 ALTER TABLE `Appointment`
-  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `AppointmentReport`
 --
 ALTER TABLE `AppointmentReport`
-  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `Messages`
@@ -284,13 +431,19 @@ ALTER TABLE `Messages`
 -- AUTO_INCREMENT for table `PatientRecord`
 --
 ALTER TABLE `PatientRecord`
-  MODIFY `RecordID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `RecordID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT for table `PaymentItems`
+--
+ALTER TABLE `PaymentItems`
+  MODIFY `PaymentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `Payments`
 --
 ALTER TABLE `Payments`
-  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `Prescription`
@@ -302,7 +455,7 @@ ALTER TABLE `Prescription`
 -- AUTO_INCREMENT for table `USER`
 --
 ALTER TABLE `USER`
-  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
@@ -352,6 +505,12 @@ ALTER TABLE `PATIENT`
 --
 ALTER TABLE `PatientRecord`
   ADD CONSTRAINT `FK_PatientRecord_Patient` FOREIGN KEY (`PatientID`) REFERENCES `PATIENT` (`PatientID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `PaymentItems`
+--
+ALTER TABLE `PaymentItems`
+  ADD CONSTRAINT `paymentitems_ibfk_1` FOREIGN KEY (`PaymentID`) REFERENCES `Payments` (`PaymentID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `Payments`
