@@ -25,16 +25,23 @@ $router->group("POST", "AuthController", [
 $router->group("GET", "PatientController", [
     "patient/dashboard" => "dashboard",
     "patient/bookings" => "bookings",
+    "patient/bookings/{user_id}/{appointment_id}" => "appointmentDetail",
     "patient/book-appointment" => "bookAppointment",
     "patient/get-timeslots" => "getTimeslots",
+    "patient/get-payment-details" => "getPaymentDetails",
+    "patient/test-route" => "testRoute",
+    "patient/debug-payments" => "debugPayments",
     "patient/payments" => "payments",
     "patient/results" => "results",
+    "patient/profile" => "profile",
 ]);
 
 $router->group("POST", "PatientController", [
     "patient/book-appointment" => "storeAppointment",
     "patient/reschedule-appointment" => "rescheduleAppointment",
     "patient/cancel-appointment" => "cancelAppointment",
+    "patient/update-payment-status" => "updatePaymentStatus",
+    "patient/profile" => "updateProfile",
 ]);
 
 $router->group("GET", "DoctorController", [
@@ -43,11 +50,13 @@ $router->group("GET", "DoctorController", [
     "doctor/appointment-history" => "appointmentHistory",
     "doctor/patient-records" => "patientRecords",
     "doctor/inbox" => "inbox",
+    "staff/profile" => "profile",
 ]);
 
 $router->group("POST", "DoctorController", [
     "doctor/schedule" => "updateSchedule",
     "doctor/patient-records" => "updatePatientRecord",
+    "staff/profile" => "updateProfile",
 ]);
 
 $url = $_GET["url"] ?? "";
