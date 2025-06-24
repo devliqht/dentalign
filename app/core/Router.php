@@ -73,17 +73,27 @@ class Router
         if (isset($this->routes[$method][$url])) {
             $action = $this->routes[$method][$url];
             $this->dispatch($action);
-        } else {
-            http_response_code(404);
-            LayoutHelper::render(
-                "404",
-                [],
-                ["hideHeader" => true, "hideFooter" => true, "title" => "404"]
-            );
+            return;
         }
+
+        // try dynamic route matching
+        foreach ($this->routes[$method] as $route => $action) {
+            $params = $this->matchDynamicRoute($route, $url);
+            if ($params !== false) {
+                $this->dispatch($action, $params);
+                return;
+            }
+        }
+
+        http_response_code(404);
+        LayoutHelper::render(
+            "404",
+            [],
+            ["hideHeader" => true, "hideFooter" => true, "title" => "404"]
+        );
     }
 
-    private function dispatch($action)
+    private function dispatch($action, $params = [])
     {
         list($controller, $method) = explode("@", $action);
 
@@ -97,7 +107,10 @@ class Router
                 $controllerInstance = new $controller();
 
                 if (method_exists($controllerInstance, $method)) {
-                    $controllerInstance->$method();
+                    call_user_func_array(
+                        [$controllerInstance, $method],
+                        $params
+                    );
                 } else {
                     echo "Method {$method} not found in {$controller}";
                 }
@@ -107,6 +120,19 @@ class Router
         } else {
             echo "Controller file {$controllerFile} not found";
         }
+    }
+
+    private function matchDynamicRoute($route, $url)
+    {
+        $pattern = preg_replace("/\{[^}]+\}/", "([^/]+)", $route);
+        $pattern = "#^" . $pattern . "$#";
+
+        if (preg_match($pattern, $url, $matches)) {
+            array_shift($matches);
+            return $matches;
+        }
+
+        return false;
     }
 }
 ?>
