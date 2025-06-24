@@ -1,4 +1,7 @@
 <?php
+require_once "AppointmentReport.php";
+require_once "PatientRecord.php";
+
 class Appointment
 {
     protected $conn;
@@ -19,29 +22,55 @@ class Appointment
 
     public function create()
     {
-        $query =
-            "INSERT INTO " .
-            $this->table .
-            " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt) VALUES 
-        (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
-        ";
-        $stmt = $this->conn->prepare($query);
+        $this->conn->begin_transaction();
 
-        $stmt->bind_param(
-            "iisss",
-            $this->patientID,
-            $this->doctorID,
-            $this->dateTime,
-            $this->appointmentType,
-            $this->reason
-        );
+        try {
+            $query =
+                "INSERT INTO " .
+                $this->table .
+                " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt) VALUES 
+            (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+            ";
+            $stmt = $this->conn->prepare($query);
 
-        if ($stmt->execute()) {
+            $stmt->bind_param(
+                "iisss",
+                $this->patientID,
+                $this->doctorID,
+                $this->dateTime,
+                $this->appointmentType,
+                $this->reason
+            );
+
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to create appointment");
+            }
+
             $this->appointmentID = $this->conn->insert_id;
-            return true;
-        }
 
-        return false;
+            // Get patient record ID
+            $patientRecord = new PatientRecord($this->conn);
+            if (!$patientRecord->findByPatientID($this->patientID)) {
+                throw new Exception("Patient record not found");
+            }
+
+            // Create AppointmentReport automatically
+            $appointmentReport = new AppointmentReport($this->conn);
+            if (
+                !$appointmentReport->createForAppointment(
+                    $this->appointmentID,
+                    $patientRecord->recordID
+                )
+            ) {
+                throw new Exception("Failed to create appointment report");
+            }
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            return false;
+        }
     }
 
     public function getAppointmentsByPatient($patientID)
@@ -235,11 +264,28 @@ class Appointment
 
     public function cancelAppointment($appointmentID)
     {
-        $query = "DELETE FROM " . $this->table . " WHERE AppointmentID = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $appointmentID);
+        $this->conn->begin_transaction();
 
-        return $stmt->execute();
+        try {
+            // Delete associated AppointmentReport first
+            $appointmentReport = new AppointmentReport($this->conn);
+            $appointmentReport->deleteByAppointmentID($appointmentID);
+
+            // Delete the appointment
+            $query = "DELETE FROM " . $this->table . " WHERE AppointmentID = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $appointmentID);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to cancel appointment");
+            }
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            return false;
+        }
     }
 
     public function getCompletedAppointmentsByPatient($patientID)
