@@ -4,7 +4,13 @@
         <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
                 <!-- Profile Button -->
-                <a href="<?php echo BASE_URL; ?>/profile" 
+                <a href="<?php echo BASE_URL; ?>/<?php echo ($_SESSION[
+    "user_type"
+] ??
+    "") ===
+"Patient"
+    ? "patient"
+    : "staff"; ?>/profile" 
                    class="header-action-btn" 
                    title="Profile">
                    <div class="w-6 h-6 bg-nhd-blue/80 rounded-full flex items-center justify-center text-nhd-pale text-xs font-semibold">

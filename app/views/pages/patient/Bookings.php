@@ -36,35 +36,52 @@
         <?php if (!empty($upcomingAppointments)): ?>
             <div class="space-y-4 p-6 glass-card m-4">
                 <?php foreach ($upcomingAppointments as $appointment): ?>
-                    <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-green-500/70 p-6">
+                    <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-green-500/70 hover:border-l-green-600 p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group"
+                         onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')">
+                        
+                        <!-- Appointment ID Header - EMPHASIZED -->
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg">
+                                <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
+                                <span class="text-lg font-bold font-mono">#<?php echo str_pad(
+                                    $appointment["AppointmentID"],
+                                    6,
+                                    "0",
+                                    STR_PAD_LEFT
+                                ); ?></span>
+                            </div>
+                            <span class="glass-card px-2 py-1 text-xs font-medium rounded-full bg-green-100/40 text-green-800 group-hover:bg-green-200/60 transition-colors">
+                                Upcoming
+                            </span>
+                        </div>
+                        
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <h3 class="text-lg font-semibold text-gray-900 mr-3">
+                                    <h3 class="text-lg font-semibold text-gray-900 mr-3 group-hover:text-nhd-blue transition-colors">
                                         <?php echo htmlspecialchars(
                                             $appointment["AppointmentType"]
                                         ); ?>
                                     </h3>
-                                    <span class="glass-card px-2 py-1 text-xs font-medium rounded-full bg-green-100/40 text-green-800">
-                                        Upcoming
-                                    </span>
                                 </div>
-                                <p class="text-gray-600 mb-1">
+                                <p class="text-gray-600 mb-1 group-hover:text-gray-700 transition-colors">
                                     <strong>Doctor:</strong> Dr. <?php echo htmlspecialchars(
                                         $appointment["DoctorFirstName"] .
                                             " " .
                                             $appointment["DoctorLastName"]
                                     ); ?>
-                                    <span class="text-gray-500"> - <?php echo htmlspecialchars(
+                                    <span class="text-gray-500 group-hover:text-gray-600 transition-colors"> - <?php echo htmlspecialchars(
                                         $appointment["Specialization"]
                                     ); ?></span>
                                 </p>
-                                <p class="text-sm text-gray-600 mb-2">
+                                <p class="text-sm text-gray-600 mb-2 group-hover:text-gray-700 transition-colors">
                                     <strong>Reason:</strong> <?php echo htmlspecialchars(
                                         $appointment["Reason"]
                                     ); ?>
                                 </p>
-                                <p class="text-xs text-gray-500">
+                                <p class="text-xs text-gray-500 group-hover:text-gray-600 transition-colors">
                                     Booked on: <?php echo date(
                                         "M j, Y g:i A",
                                         strtotime($appointment["CreatedAt"])
@@ -72,39 +89,68 @@
                                 </p>
                             </div>
                             <div class="text-right ml-6">
-                                <p class="text-lg font-semibold text-green-600">
+                                <p class="text-lg font-semibold text-green-600 group-hover:text-green-700 transition-colors">
                                     <?php echo date(
                                         "M j, Y",
                                         strtotime($appointment["DateTime"])
                                     ); ?>
                                 </p>
-                                <p class="text-gray-600">
+                                <p class="text-gray-600 group-hover:text-gray-700 transition-colors">
                                     <?php echo date(
                                         "g:i A",
                                         strtotime($appointment["DateTime"])
                                     ); ?>
                                 </p>
-                                <div class="mt-2 flex space-x-2">
-                                    <button onclick="openRescheduleModal(<?php echo $appointment[
-                                        "AppointmentID"
-                                    ]; ?>, '<?php echo $appointment[
-    "DoctorID"
-]; ?>', '<?php echo date(
-    "Y-m-d",
-    strtotime($appointment["DateTime"])
-); ?>', '<?php echo date("H:i", strtotime($appointment["DateTime"])); ?>')" 
-                                            class="glass-card text-sm p-2 bg-blue-100/80 text-blue-800 rounded-2xl hover:bg-blue-200">
-                                        Reschedule
-                                    </button>
-                                    <button onclick="confirmCancel(<?php echo $appointment[
-                                        "AppointmentID"
-                                    ]; ?>)" 
-                                            class="glass-card text-sm px-2 py-1 bg-red-100/80 text-red-800 rounded-2xl hover:bg-red-200">
-                                        Cancel
-                                    </button>
+                                <div class="mt-2 opacity-75 group-hover:opacity-100 transition-opacity">
+                                    <span class="glass-card text-sm px-3 py-1 bg-green-100/60 text-green-700 rounded-2xl">
+                                        Click to Manage
+                                    </span>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Payment Information at Bottom -->
+                        <?php if (
+                            isset(
+                                $appointmentPayments[
+                                    $appointment["AppointmentID"]
+                                ]
+                            )
+                        ): ?>
+                            <?php $payment =
+                                $appointmentPayments[
+                                    $appointment["AppointmentID"]
+                                ]; ?>
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-2 py-1 rounded text-xs">
+                                        <span class="font-medium">Payment ID:</span> 
+                                        <span class="font-mono font-bold">#<?php echo str_pad(
+                                            $payment["PaymentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?></span>
+                                    </div>
+                                    <div class="text-xs font-medium px-2 py-1 rounded-full 
+                                        <?php echo strtolower(
+                                            $payment["Status"]
+                                        ) === "paid"
+                                            ? "bg-green-100 text-green-800"
+                                            : "bg-yellow-100 text-yellow-800"; ?>">
+                                        <?php echo htmlspecialchars(
+                                            $payment["Status"]
+                                        ); ?>
+                                    </div>
+                                </div>
+                                <div class="text-sm font-semibold text-nhd-brown">
+                                    $<?php echo number_format(
+                                        $payment["total_amount"] ?? 0,
+                                        2
+                                    ); ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -135,35 +181,52 @@
         <?php if (!empty($completedAppointments)): ?>
             <div class="space-y-4 p-6 glass-card m-4">
                 <?php foreach ($completedAppointments as $appointment): ?>
-                    <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-gray-400/70 p-6">
+                    <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-gray-400/70 hover:border-l-gray-500 p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group"
+                         onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')">
+                        
+                        <!-- Appointment ID Header - EMPHASIZED -->
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg">
+                                <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
+                                <span class="text-lg font-bold font-mono">#<?php echo str_pad(
+                                    $appointment["AppointmentID"],
+                                    6,
+                                    "0",
+                                    STR_PAD_LEFT
+                                ); ?></span>
+                            </div>
+                            <span class="glass-card px-2 py-1 text-xs font-medium rounded-full bg-gray-100/40 text-gray-800 group-hover:bg-gray-200/60 transition-colors">
+                                Completed
+                            </span>
+                        </div>
+                        
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <h3 class="text-lg font-semibold text-gray-900 mr-3">
+                                    <h3 class="text-lg font-semibold text-gray-900 mr-3 group-hover:text-nhd-brown transition-colors">
                                         <?php echo htmlspecialchars(
                                             $appointment["AppointmentType"]
                                         ); ?>
                                     </h3>
-                                    <span class="glass-card px-2 py-1 text-xs font-medium rounded-full bg-gray-100/40 text-gray-800">
-                                        Completed
-                                    </span>
                                 </div>
-                                <p class="text-gray-600 mb-1">
+                                <p class="text-gray-600 mb-1 group-hover:text-gray-700 transition-colors">
                                     <strong>Doctor:</strong> Dr. <?php echo htmlspecialchars(
                                         $appointment["DoctorFirstName"] .
                                             " " .
                                             $appointment["DoctorLastName"]
                                     ); ?>
-                                    <span class="text-gray-500"> - <?php echo htmlspecialchars(
+                                    <span class="text-gray-500 group-hover:text-gray-600 transition-colors"> - <?php echo htmlspecialchars(
                                         $appointment["Specialization"]
                                     ); ?></span>
                                 </p>
-                                <p class="text-sm text-gray-600 mb-2">
+                                <p class="text-sm text-gray-600 mb-2 group-hover:text-gray-700 transition-colors">
                                     <strong>Reason:</strong> <?php echo htmlspecialchars(
                                         $appointment["Reason"]
                                     ); ?>
                                 </p>
-                                <p class="text-xs text-gray-500">
+                                <p class="text-xs text-gray-500 group-hover:text-gray-600 transition-colors">
                                     Booked on: <?php echo date(
                                         "M j, Y g:i A",
                                         strtotime($appointment["CreatedAt"])
@@ -171,20 +234,68 @@
                                 </p>
                             </div>
                             <div class="text-right ml-6">
-                                <p class="text-lg font-semibold text-gray-600">
+                                <p class="text-lg font-semibold text-gray-600 group-hover:text-gray-700 transition-colors">
                                     <?php echo date(
                                         "M j, Y",
                                         strtotime($appointment["DateTime"])
                                     ); ?>
                                 </p>
-                                <p class="text-gray-600">
+                                <p class="text-gray-600 group-hover:text-gray-700 transition-colors">
                                     <?php echo date(
                                         "g:i A",
                                         strtotime($appointment["DateTime"])
                                     ); ?>
                                 </p>
+                                <div class="mt-2 opacity-75 group-hover:opacity-100 transition-opacity">
+                                    <span class="glass-card text-sm px-3 py-1 bg-blue-100/60 text-blue-700 rounded-2xl">
+                                        Click to View Report
+                                    </span>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- Payment Information at Bottom -->
+                        <?php if (
+                            isset(
+                                $appointmentPayments[
+                                    $appointment["AppointmentID"]
+                                ]
+                            )
+                        ): ?>
+                            <?php $payment =
+                                $appointmentPayments[
+                                    $appointment["AppointmentID"]
+                                ]; ?>
+                            <div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-2 py-1 rounded text-xs">
+                                        <span class="font-medium">Payment ID:</span> 
+                                        <span class="font-mono font-bold">#<?php echo str_pad(
+                                            $payment["PaymentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?></span>
+                                    </div>
+                                    <div class="text-xs font-medium px-2 py-1 rounded-full 
+                                        <?php echo strtolower(
+                                            $payment["Status"]
+                                        ) === "paid"
+                                            ? "bg-green-100 text-green-800"
+                                            : "bg-yellow-100 text-yellow-800"; ?>">
+                                        <?php echo htmlspecialchars(
+                                            $payment["Status"]
+                                        ); ?>
+                                    </div>
+                                </div>
+                                <div class="text-sm font-semibold text-nhd-brown">
+                                    $<?php echo number_format(
+                                        $payment["total_amount"] ?? 0,
+                                        2
+                                    ); ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -199,145 +310,6 @@
     </div>
 </div>
 
-<!-- Reschedule Modal -->
-<div id="rescheduleModal" class="fixed inset-0 bg-black/30 backdrop-blur-[1px] hidden items-center justify-center z-50 p-4">
-    <div class="glass-card bg-nhd-pale/90 backdrop-blur-sm rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-2xl font-semibold text-nhd-brown font-family-bodoni">Reschedule Appointment</h3>
-            <button type="button" onclick="closeRescheduleModal()" 
-                    class="glass-card bg-gray-100/80 hover:bg-gray-200/80 rounded-full p-2 transition-colors">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-        
-        <form id="rescheduleForm" method="POST" action="<?php echo BASE_URL; ?>/patient/reschedule-appointment">
-            <input type="hidden" name="appointment_id" id="reschedule_appointment_id">
-            <input type="hidden" name="doctor_id" id="reschedule_doctor_id">
-            <input type="hidden" name="new_appointment_date" id="reschedule_new_date">
-            <input type="hidden" name="new_appointment_time" id="reschedule_new_time">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION[
-                "csrf_token"
-            ] ?? ""; ?>">
-            
-            <!-- Current Appointment Info -->
-            <div class="glass-card bg-blue-50/50 rounded-2xl p-4 mb-6">
-                <h4 class="text-lg font-medium text-nhd-brown mb-2">Current Appointment</h4>
-                <div id="current-appointment-info" class="text-sm text-gray-600">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-            
-            <!-- Date & Time Selection -->
-            <div class="mb-6">
-                <label class="block text-xl font-medium tracking-tight font-family-bodoni text-gray-700 mb-4">Select New Date & Time</label>
-                
-                <div class="flex flex-col lg:flex-row gap-6 w-full">
-                    <!-- Calendar Section -->
-                    <div class="flex-shrink-0">
-                        <h3 class="text-base font-medium text-gray-800 mb-3">Choose Date</h3>
-                        <div class="w-[320px] glass-card border border-gray-200 rounded-xl shadow-sm p-4">
-                            <div class="flex items-center justify-between mb-4">
-                                <button type="button" id="reschedule-prev-month" class="glass-card bg-nhd-blue/80 text-white rounded-lg p-2 hover:bg-nhd-blue transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                    </svg>
-                                </button>
-                                <h3 id="reschedule-calendar-month-year" class="text-lg font-semibold text-gray-800"></h3>
-                                <button type="button" id="reschedule-next-month" class="glass-card bg-nhd-blue/80 text-white rounded-lg p-2 hover:bg-nhd-blue transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            
-                            <!-- Days of Week -->
-                            <div class="grid grid-cols-7 gap-1 mb-2">
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Sun</div>
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Mon</div>
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Tue</div>
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Wed</div>
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Thu</div>
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Fri</div>
-                                <div class="text-center text-xs font-medium text-gray-500 py-2">Sat</div>
-                            </div>
-                            
-                            <!-- Calendar Days -->
-                            <div id="reschedule-calendar-days" class="grid grid-cols-7 gap-1">
-                                <!-- Days will be generated by JavaScript -->
-                            </div>
-                            
-                            <!-- Selected Date Display -->
-                            <div class="mt-4 p-3 glass-card bg-gray-50/50 rounded-2xl">
-                                <p class="text-sm text-gray-600">Selected Date:</p>
-                                <p id="reschedule-selected-date-display" class="text-base font-medium text-nhd-brown">No date selected</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Time Slots Section -->
-                    <div class="flex flex-col flex-1 gap-4">
-                        <h3 class="text-base font-medium text-gray-800 mb-3">Choose Time</h3>
-                        <div class="glass-card bg-gray-50/30 rounded-2xl p-4">
-                            <div id="reschedule-time-slots-container" class="flex flex-wrap gap-3 w-full min-h-[120px]">
-                                <div class="w-full text-center py-8">
-                                    <p class="text-gray-500 text-sm">Please select a date to view available time slots.</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Selected Time Display -->
-                            <div class="mt-4 p-3 glass-card bg-white/50 rounded-2xl">
-                                <p class="text-sm text-gray-600">Selected Time:</p>
-                                <p id="reschedule-selected-time-display" class="text-base font-medium text-nhd-brown">No time selected</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                <button type="button" onclick="closeRescheduleModal()" 
-                        class="flex-1 px-6 py-3 glass-card bg-gray-100/80 text-gray-700 rounded-2xl hover:bg-gray-200/80 transition-colors font-medium">
-                    Cancel
-                </button>
-                <button type="submit" id="reschedule-submit-btn" disabled
-                        class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-                    Reschedule Appointment
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Cancel Confirmation Modal -->
-<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-        <h3 class="text-xl font-semibold mb-4">Cancel Appointment</h3>
-        <p class="text-gray-600 mb-6">Are you sure you want to cancel this appointment? This action cannot be undone.</p>
-        
-        <form id="cancelForm" method="POST" action="<?php echo BASE_URL; ?>/patient/cancel-appointment">
-            <input type="hidden" name="appointment_id" id="cancel_appointment_id">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION[
-                "csrf_token"
-            ] ?? ""; ?>">
-            
-            <div class="flex space-x-3">
-                <button type="button" onclick="closeCancelModal()" 
-                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Keep Appointment
-                </button>
-                <button type="submit" 
-                        class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                    Cancel Appointment
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
 
 <!-- Server Messages for Toast -->
 <script>
@@ -351,5 +323,10 @@ window.serverMessages = {
         <?php unset($_SESSION["error"]); ?>
     <?php endif; ?>
 };
+
+// Function to navigate to appointment detail page
+function navigateToAppointment(url) {
+    window.location.href = url;
+}
 </script>
 
