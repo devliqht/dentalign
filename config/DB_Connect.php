@@ -11,7 +11,7 @@ define("DB_PASS", "sonicdravice");
 define("DB_NAME", "s22103604_dentalign");
 // define("DB_SOCKET", "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock");
 
-$conn = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306, DB_SOCKET);
+$conn = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306);
 
 if ($conn->connect_error) {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, 3306);
