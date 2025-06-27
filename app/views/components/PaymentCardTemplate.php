@@ -6,8 +6,7 @@ switch (strtolower($payment["Status"])) {
         $statusClass = "bg-green-100/40 text-green-800 border-l-green-500/70";
         break;
     case "pending":
-        $statusClass =
-            "bg-yellow-100/40 text-yellow-800 border-l-yellow-500/70";
+        $statusClass = "bg-gray-200/40 text-yellow-800 border-l-yellow-500/70";
         break;
     case "overdue":
         $statusClass = "bg-red-100/40 text-red-800 border-l-red-500/70";
@@ -20,25 +19,26 @@ switch (strtolower($payment["Status"])) {
 }
 ?>
 
-<div class="glass-card rounded-2xl shadow-md border-l-4 <?php echo $statusClass; ?> p-6 hover:shadow-lg transition-all duration-300">
-    <!-- Collapsed View - Always Visible Header -->
+<div class="glass-card rounded-2xl shadow-md border-l-4 border-gray-200 <?php echo $statusClass; ?> p-6 hover:shadow-md transition-all duration-300">
     <div class="flex items-center justify-between cursor-pointer" onclick="togglePaymentCard(<?php echo $payment[
         "PaymentID"
     ] ?? $payment["AppointmentID"]; ?>)">
         <div class="flex items-center space-x-4">
             <!-- Payment ID -->
-            <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-3 py-2 rounded-lg">
+            <div class="glass-card bg-white/10 text-nhd-brown px-3 py-2 rounded-lg shadow-sm border-gray-200">
                 <span class="text-xs font-medium uppercase tracking-wider block">Payment ID</span>
-                <span class="text-lg font-bold font-mono"><?php if ($payment["PaymentID"]): ?>#<?php echo str_pad(
-                    $payment["PaymentID"],
-                    6,
-                    "0",
-                    STR_PAD_LEFT
-                ); ?><?php else: ?>-<?php endif; ?></span>
+                <span class="text-lg font-bold font-mono"><?php if (
+                    $payment["PaymentID"]
+                ): ?>#<?php echo str_pad(
+    $payment["PaymentID"],
+    6,
+    "0",
+    STR_PAD_LEFT
+);else: ?>-<?php endif; ?></span>
             </div>
             
             <!-- Appointment ID -->
-            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg">
+            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg shadow-sm">
                 <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
                 <span class="text-lg font-bold font-mono">#<?php echo str_pad(
                     $payment["AppointmentID"],
@@ -50,7 +50,7 @@ switch (strtolower($payment["Status"])) {
             
             <!-- Status -->
             <div>
-                <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full <?php echo explode(
+                <span class="inline-block glass-card px-3 py-1 text-sm font-medium shadow-sm border-gray-200 rounded-full <?php echo explode(
                     " ",
                     $statusClass
                 )[0] .
@@ -77,20 +77,20 @@ switch (strtolower($payment["Status"])) {
             
             <!-- Expand/Collapse Button -->
             <div class="glass-card bg-gray-100/60 hover:bg-gray-200/60 rounded-full p-2 transition-colors">
-                <svg id="expand-icon-<?php echo $payment[
-                    "PaymentID"
-                ] ?? $payment["AppointmentID"]; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="expand-icon-<?php echo $payment["PaymentID"] ??
+                    $payment[
+                        "AppointmentID"
+                    ]; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </div>
         </div>
     </div>
 
-    <!-- Expanded Content - Initially Hidden -->
-    <div id="payment-content-<?php echo $payment[
-        "PaymentID"
-    ] ?? $payment["AppointmentID"]; ?>" class="hidden mt-6 pt-6 border-t border-gray-200">
-        <!-- Appointment & Payment Details -->
+    <div id="payment-content-<?php echo $payment["PaymentID"] ??
+        $payment[
+            "AppointmentID"
+        ]; ?>" class="hidden mt-6 pt-6 border-t border-gray-200">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div class="mb-4 lg:mb-0">
                 <h3 class="text-2xl font-semibold text-nhd-brown mb-2 font-family-bodoni">
