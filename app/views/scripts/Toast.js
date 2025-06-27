@@ -179,9 +179,9 @@ function checkAndShowServerMessages() {
   if (serverMessagesProcessed || typeof window.serverMessages === "undefined") {
     return;
   }
-  
+
   serverMessagesProcessed = true;
-  
+
   if (window.serverMessages.success) {
     toast.success(window.serverMessages.success);
   }
@@ -199,7 +199,7 @@ function checkAndShowServerMessages() {
 document.addEventListener("DOMContentLoaded", function () {
   // Check immediately
   checkAndShowServerMessages();
-  
+
   // Also check after a short delay in case serverMessages is set after DOM ready
   setTimeout(checkAndShowServerMessages, 100);
 });

@@ -49,6 +49,8 @@ $router->group("GET", "DoctorController", [
     "doctor/schedule" => "schedule",
     "doctor/appointment-history" => "appointmentHistory",
     "doctor/patient-records" => "patientRecords",
+    "doctor/get-patient-details" => "getPatientDetails",
+    "doctor/get-appointment-report" => "getAppointmentReport",
     "doctor/inbox" => "inbox",
     "staff/profile" => "profile",
 ]);
@@ -56,6 +58,8 @@ $router->group("GET", "DoctorController", [
 $router->group("POST", "DoctorController", [
     "doctor/schedule" => "updateSchedule",
     "doctor/patient-records" => "updatePatientRecord",
+    "doctor/update-patient-record-data" => "updatePatientRecordData",
+    "doctor/update-appointment-report" => "updateAppointmentReport",
     "staff/profile" => "updateProfile",
 ]);
 
