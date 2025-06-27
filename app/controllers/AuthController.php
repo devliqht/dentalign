@@ -164,13 +164,17 @@ class AuthController extends Controller
 
         $emailParts = explode("@", $data["email"]);
         if (count($emailParts) !== 2 || empty($emailParts[1])) {
-            $this->redirectBack("Please enter a valid email address with a proper domain");
+            $this->redirectBack(
+                "Please enter a valid email address with a proper domain"
+            );
             return;
         }
 
         $user = new User($this->conn);
         if ($user->emailExists($data["email"])) {
-            $this->redirectBack("An account with this email address already exists. Please try logging in instead.");
+            $this->redirectBack(
+                "An account with this email address already exists. Please try logging in instead."
+            );
             return;
         }
 
@@ -181,17 +185,20 @@ class AuthController extends Controller
             if ($data["user_type"] === "Doctor") {
                 $success = $this->createDoctor($data);
                 if (!$success) {
-                    $errorMessage = "Failed to create doctor account. Please contact support.";
+                    $errorMessage =
+                        "Failed to create doctor account. Please contact support.";
                 }
             } else {
                 $success = $this->createPatient($data);
                 if (!$success) {
-                    $errorMessage = "Failed to create patient account. Please try again or contact support.";
+                    $errorMessage =
+                        "Failed to create patient account. Please try again or contact support.";
                 }
             }
         } catch (Exception $e) {
             error_log("Signup error: " . $e->getMessage());
-            $errorMessage = "An error occurred while creating your account. Please try again.";
+            $errorMessage =
+                "An error occurred while creating your account. Please try again.";
         }
 
         if ($success) {
@@ -200,34 +207,37 @@ class AuthController extends Controller
                 "Account created successfully! Please login with your email and password."
             );
         } else {
-            $this->redirectBack($errorMessage ?: "Failed to create account. Please try again.");
+            $this->redirectBack(
+                $errorMessage ?: "Failed to create account. Please try again."
+            );
         }
     }
 
     private function validatePassword($password)
     {
         $errors = [];
-        
+
         if (strlen($password) < 8) {
             $errors[] = "Password must be at least 8 characters long";
         }
-        
-        if (!preg_match('/[A-Z]/', $password)) {
+
+        if (!preg_match("/[A-Z]/", $password)) {
             $errors[] = "Password must contain at least one uppercase letter";
         }
-        
-        if (!preg_match('/[a-z]/', $password)) {
+
+        if (!preg_match("/[a-z]/", $password)) {
             $errors[] = "Password must contain at least one lowercase letter";
         }
-        
-        if (!preg_match('/[0-9]/', $password)) {
+
+        if (!preg_match("/[0-9]/", $password)) {
             $errors[] = "Password must contain at least one number";
         }
-        
-        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
-            $errors[] = "Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)";
+
+        if (!preg_match("/[^A-Za-z0-9]/", $password)) {
+            $errors[] =
+                "Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)";
         }
-        
+
         return $errors;
     }
 
