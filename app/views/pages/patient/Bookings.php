@@ -36,7 +36,7 @@
         <?php if (!empty($upcomingAppointments)): ?>
             <div class="space-y-4 p-6 glass-card m-4">
                 <?php foreach ($upcomingAppointments as $appointment): ?>
-                    <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-green-500/70 hover:border-l-green-600 p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group"
+                    <div class="glass-card rounded-2xl shadow-md border-2 border-gray-400/70 hover:border-green-600 p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group"
                          onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
 ]; ?>/<?php echo $appointment["AppointmentID"]; ?>')">
@@ -75,11 +75,6 @@
                                     <span class="text-gray-500 group-hover:text-gray-600 transition-colors"> - <?php echo htmlspecialchars(
                                         $appointment["Specialization"]
                                     ); ?></span>
-                                </p>
-                                <p class="text-sm text-gray-600 mb-2 group-hover:text-gray-700 transition-colors">
-                                    <strong>Reason:</strong> <?php echo htmlspecialchars(
-                                        $appointment["Reason"]
-                                    ); ?>
                                 </p>
                                 <p class="text-xs text-gray-500 group-hover:text-gray-600 transition-colors">
                                     Booked on: <?php echo date(
@@ -125,7 +120,7 @@
     6,
     "0",
     STR_PAD_LEFT
-); ?><?php else: ?>-<?php endif; ?></span>
+);else: ?>-<?php endif; ?></span>
                                 </div>
                                 <div class="text-xs font-medium px-2 py-1 rounded-full 
                                     <?php if (
@@ -160,10 +155,16 @@
                                             $appointment["AppointmentID"]
                                         ]
                                     )
-                                ): ?><?php echo number_format(
-    $appointmentPayments[$appointment["AppointmentID"]]["total_amount"] ?? 0,
-    2
-); ?><?php else: ?>0.00<?php endif; ?>
+                                ):
+                                    echo number_format(
+                                        $appointmentPayments[
+                                            $appointment["AppointmentID"]
+                                        ]["total_amount"] ?? 0,
+                                        2
+                                    );
+                                else:
+                                     ?>0.00<?php
+                                endif; ?>
                             </div>
                         </div>
                     </div>
@@ -285,7 +286,7 @@
     6,
     "0",
     STR_PAD_LEFT
-); ?><?php else: ?>-<?php endif; ?></span>
+);else: ?>-<?php endif; ?></span>
                                 </div>
                                 <div class="text-xs font-medium px-2 py-1 rounded-full 
                                     <?php if (
@@ -320,10 +321,16 @@
                                             $appointment["AppointmentID"]
                                         ]
                                     )
-                                ): ?><?php echo number_format(
-    $appointmentPayments[$appointment["AppointmentID"]]["total_amount"] ?? 0,
-    2
-); ?><?php else: ?>0.00<?php endif; ?>
+                                ):
+                                    echo number_format(
+                                        $appointmentPayments[
+                                            $appointment["AppointmentID"]
+                                        ]["total_amount"] ?? 0,
+                                        2
+                                    );
+                                else:
+                                     ?>0.00<?php
+                                endif; ?>
                             </div>
                         </div>
                     </div>

@@ -8,7 +8,6 @@
         </div>
     </div>
 
-    <!-- Filter Tabs -->
     <div class="px-4 mb-6">
         <div class="flex space-x-2">
             <button onclick="showPaymentSection('all')" id="all-payments-btn" 
@@ -29,7 +28,6 @@
     <div class="px-4 space-y-6">
         <?php if (!empty($payments)): ?>
             <?php
-            // Separate payments by status
             $pendingPayments = array_filter($payments, function ($p) {
                 return strtolower($p["Status"]) === "pending";
             });
@@ -47,7 +45,7 @@
                         ); ?>)
                     </h3>
                     <button onclick="toggleSection('pending')" id="pending-toggle" 
-                            class="glass-card bg-yellow-100/60 text-yellow-800 px-3 py-1 rounded-full text-sm hover:bg-yellow-200/60 transition-colors">
+                            class="glass-card bg-gray-300/60 text-yellow-800 px-3 py-1 rounded-full text-sm hover:bg-yellow-200/60 transition-colors">
                         Collapse
                     </button>
                 </div>
@@ -123,14 +121,11 @@
 
 <?php // Payment Card Template - Define it inline since PHP includes work differently
 
-function renderPaymentCard($payment)
-{
-    // This will be defined in the template file
-} ?>
+function renderPaymentCard($payment) {} ?>
 
 <!-- Payment Details Modal -->
 <div id="paymentDetailsModal" class="fixed inset-0 bg-black/30 backdrop-blur-[1px] hidden items-center justify-center z-50 p-4">
-    <div class="glass-card bg-nhd-pale/90 backdrop-blur-sm rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="glass-card bg-white/90 backdrop-blur-sm rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-semibold text-nhd-brown font-family-bodoni">Payment Details</h3>
             <button type="button" onclick="closePaymentModal()" 
@@ -151,19 +146,15 @@ function renderPaymentCard($payment)
 </div>
 
 <script>
-// Payment section management
 function showPaymentSection(section) {
-    // Hide all sections
     document.querySelectorAll('.payment-section').forEach(s => s.style.display = 'none');
     
-    // Show selected section
     if (section === 'all') {
         document.getElementById('all-section').style.display = 'block';
     } else {
         document.getElementById(section + '-section').style.display = 'block';
     }
     
-    // Update button states
     document.querySelectorAll('[id$="-payments-btn"]').forEach(btn => {
         btn.className = 'glass-card bg-gray-200/80 px-4 py-2 rounded-2xl text-gray-700 transition-colors hover:bg-gray-300/80';
     });
@@ -171,7 +162,6 @@ function showPaymentSection(section) {
     document.getElementById(section + '-payments-btn').className = 'glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-white transition-colors';
 }
 
-// Toggle section collapse
 function toggleSection(section) {
     const content = document.getElementById(section + '-content');
     const toggle = document.getElementById(section + '-toggle');
@@ -185,7 +175,6 @@ function toggleSection(section) {
     }
 }
 
-// Payment details modal functions
 function viewPaymentDetails(paymentId) {
     const modal = document.getElementById('paymentDetailsModal');
     modal.classList.remove('hidden');
@@ -236,7 +225,6 @@ function printInvoice(paymentId) {
     }, 1000);
 }
 
-// Toggle individual payment card expand/collapse
 function togglePaymentCard(paymentId) {
     const content = document.getElementById('payment-content-' + paymentId);
     const icon = document.getElementById('expand-icon-' + paymentId);
@@ -250,9 +238,7 @@ function togglePaymentCard(paymentId) {
     }
 }
 
-// Initialize the default view
 document.addEventListener('DOMContentLoaded', function() {
-    // Show pending payments by default
     showPaymentSection('pending');
 });
 </script>
