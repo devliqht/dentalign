@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const minDate = new Date(today);
   minDate.setDate(today.getDate() + 1);
 
-  // Debug: Check if toast system is available
   console.log("Toast system available:", window.toast ? "Yes" : "No");
   if (window.toast) {
     console.log("Toast object:", window.toast);
@@ -58,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Form validation
   const appointmentForm = document.getElementById("appointment-form");
   if (appointmentForm) {
     appointmentForm.addEventListener("submit", function (e) {
@@ -68,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const appointmentType = appointmentTypeInput.value;
       const reason = document.getElementById("reason").value;
 
-      // Validate all required fields
       if (!doctorId) {
         e.preventDefault();
         if (window.toast) {
@@ -112,28 +109,29 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!reason || reason.length < 10) {
         e.preventDefault();
         if (window.toast) {
-          toast.error("Please provide a reason for your visit (at least 10 characters)");
+          toast.error(
+            "Please provide a reason for your visit (at least 10 characters)",
+          );
         } else {
-          alert("Please provide a reason for your visit (at least 10 characters)");
+          alert(
+            "Please provide a reason for your visit (at least 10 characters)",
+          );
         }
         return false;
       }
 
-      // Debug: Log form data before submission
       console.log("Form validation passed, submitting with data:", {
         doctorId,
         date,
         time,
         appointmentType,
-        reason: reason.substring(0, 50) + "..."
+        reason: reason.substring(0, 50) + "...",
       });
-      
-      // Show debug toast
+
       if (window.toast) {
         toast.info("Submitting appointment booking...", 2000);
       }
-      
-      // All validation passed
+
       return true;
     });
   }

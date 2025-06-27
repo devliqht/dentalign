@@ -56,7 +56,6 @@ function initializeRescheduleCalendar() {
   renderRescheduleCalendar();
   updateRescheduleSelectedDateDisplay();
 
-  // Remove existing event listeners to avoid duplicates
   const prevButton = document.getElementById("reschedule-prev-month");
   const nextButton = document.getElementById("reschedule-next-month");
 
