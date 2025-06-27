@@ -30,12 +30,21 @@ class PatientRecord
         $stmt = $this->conn->prepare($query);
 
         if (!$stmt) {
-            error_log("Failed to prepare PatientRecord insert statement: " . $this->conn->error);
+            error_log(
+                "Failed to prepare PatientRecord insert statement: " .
+                    $this->conn->error
+            );
             return false;
         }
 
         // Clean data
-        $this->allergies = $this->allergies ? htmlspecialchars(strip_tags($this->allergies)) : null;
+        $this->allergies = $this->allergies
+            ? htmlspecialchars(strip_tags($this->allergies))
+            : null;
+
+        error_log(
+            "PatientRecord create - PatientID: {$this->patientID}, Height: {$this->height}, Weight: {$this->weight}, Allergies: {$this->allergies}"
+        );
 
         $stmt->bind_param(
             "iddss",
@@ -48,9 +57,14 @@ class PatientRecord
 
         if ($stmt->execute()) {
             $this->recordID = $this->conn->insert_id;
+            error_log(
+                "PatientRecord create successful, new ID: " . $this->recordID
+            );
             return true;
         } else {
-            error_log("Failed to execute PatientRecord insert: " . $stmt->error);
+            error_log(
+                "Failed to execute PatientRecord insert: " . $stmt->error
+            );
             return false;
         }
     }
@@ -107,8 +121,22 @@ class PatientRecord
 
         $stmt = $this->conn->prepare($query);
 
+        if (!$stmt) {
+            error_log(
+                "Failed to prepare PatientRecord update statement: " .
+                    $this->conn->error
+            );
+            return false;
+        }
+
         // Clean data
-        $this->allergies = $this->allergies ? htmlspecialchars(strip_tags($this->allergies)) : null;
+        $this->allergies = $this->allergies
+            ? htmlspecialchars(strip_tags($this->allergies))
+            : null;
+
+        error_log(
+            "PatientRecord update - RecordID: {$this->recordID}, Height: {$this->height}, Weight: {$this->weight}, Allergies: {$this->allergies}"
+        );
 
         $stmt->bind_param(
             "ddssi",
@@ -119,7 +147,15 @@ class PatientRecord
             $this->recordID
         );
 
-        return $stmt->execute();
+        if ($stmt->execute()) {
+            error_log("PatientRecord update successful");
+            return true;
+        } else {
+            error_log(
+                "Failed to execute PatientRecord update: " . $stmt->error
+            );
+            return false;
+        }
     }
 
     public function updateLastVisit($patientID, $visitDate = null)

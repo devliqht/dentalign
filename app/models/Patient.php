@@ -26,18 +26,22 @@ class Patient extends User
                 $this->patientTable .
                 " (PatientID) VALUES (?)";
             $stmt = $this->conn->prepare($patientQuery);
-            
+
             if (!$stmt) {
-                error_log("Failed to prepare patient query: " . $this->conn->error);
+                error_log(
+                    "Failed to prepare patient query: " . $this->conn->error
+                );
                 throw new Exception("Database error occurred");
             }
-            
+
             $stmt->bind_param("i", $this->userID);
 
             if (!$stmt->execute()) {
                 $error = $stmt->error;
                 error_log("Failed to create patient record: " . $error);
-                throw new Exception("Failed to create patient record: " . $error);
+                throw new Exception(
+                    "Failed to create patient record: " . $error
+                );
             }
 
             $this->patientID = $this->userID;
@@ -156,6 +160,39 @@ class Patient extends User
         }
 
         return null;
+    }
+
+    public function getAllPatientsWithRecords()
+    {
+        $query =
+            "SELECT 
+                p.PatientID,
+                u.UserID,
+                u.FirstName,
+                u.LastName,
+                u.Email,
+                u.CreatedAt as PatientCreatedAt,
+                pr.RecordID,
+                pr.Height,
+                pr.Weight,
+                pr.Allergies,
+                pr.CreatedAt as RecordCreatedAt,
+                pr.LastVisit,
+                COUNT(a.AppointmentID) as TotalAppointments,
+                MAX(a.DateTime) as LastAppointment
+            FROM " .
+            $this->patientTable .
+            " p
+            INNER JOIN " .
+            $this->table .
+            " u ON p.PatientID = u.UserID
+            LEFT JOIN PatientRecord pr ON p.PatientID = pr.PatientID
+            LEFT JOIN Appointment a ON p.PatientID = a.PatientID
+            GROUP BY p.PatientID, u.UserID, u.FirstName, u.LastName, u.Email, u.CreatedAt, pr.RecordID, pr.Height, pr.Weight, pr.Allergies, pr.CreatedAt, pr.LastVisit
+            ORDER BY u.LastName, u.FirstName";
+
+        $result = $this->conn->query($query);
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
 ?>

@@ -23,8 +23,11 @@ class Appointment
     public function create($useExistingTransaction = false)
     {
         error_log("=== CREATE METHOD DEBUG START ===");
-        error_log("useExistingTransaction: " . ($useExistingTransaction ? "true" : "false"));
-        
+        error_log(
+            "useExistingTransaction: " .
+                ($useExistingTransaction ? "true" : "false")
+        );
+
         if (!$useExistingTransaction) {
             $this->conn->begin_transaction();
             error_log("New transaction started in create()");
@@ -40,12 +43,18 @@ class Appointment
             (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
             ";
             error_log("Preparing SQL query: $query");
-            error_log("Parameters: PatientID={$this->patientID}, DoctorID={$this->doctorID}, DateTime={$this->dateTime}, Type={$this->appointmentType}");
-            
+            error_log(
+                "Parameters: PatientID={$this->patientID}, DoctorID={$this->doctorID}, DateTime={$this->dateTime}, Type={$this->appointmentType}"
+            );
+
             $stmt = $this->conn->prepare($query);
             if (!$stmt) {
-                error_log("FAIL: Failed to prepare statement: " . $this->conn->error);
-                throw new Exception("Failed to prepare appointment insert statement");
+                error_log(
+                    "FAIL: Failed to prepare statement: " . $this->conn->error
+                );
+                throw new Exception(
+                    "Failed to prepare appointment insert statement"
+                );
             }
             error_log("Statement prepared successfully");
 
@@ -61,7 +70,9 @@ class Appointment
 
             if (!$stmt->execute()) {
                 error_log("FAIL: Failed to execute statement: " . $stmt->error);
-                throw new Exception("Failed to create appointment: " . $stmt->error);
+                throw new Exception(
+                    "Failed to create appointment: " . $stmt->error
+                );
             }
             error_log("Appointment insert executed successfully");
 
@@ -71,7 +82,7 @@ class Appointment
             // Get or create patient record
             $patientRecord = new PatientRecord($this->conn);
             error_log("PatientRecord object created");
-            
+
             if (!$patientRecord->findByPatientID($this->patientID)) {
                 error_log("Patient record not found, attempting to create...");
                 // Patient record doesn't exist, create it
@@ -81,18 +92,22 @@ class Appointment
                 }
                 error_log("Patient record created successfully");
             } else {
-                error_log("Patient record found: RecordID=" . $patientRecord->recordID);
+                error_log(
+                    "Patient record found: RecordID=" . $patientRecord->recordID
+                );
             }
 
             // Note: AppointmentReport is automatically created by database trigger
             // No need to create it manually here
-            error_log("AppointmentReport will be created automatically by database trigger");
+            error_log(
+                "AppointmentReport will be created automatically by database trigger"
+            );
 
             if (!$useExistingTransaction) {
                 $this->conn->commit();
                 error_log("Transaction committed in create()");
             }
-            
+
             error_log("=== CREATE METHOD DEBUG END - SUCCESS ===");
             return true;
         } catch (Exception $e) {
@@ -200,17 +215,19 @@ class Appointment
         $reason
     ) {
         error_log("=== APPOINTMENT MODEL DEBUG START ===");
-        error_log("Input parameters: patientID=$patientID, doctorID=$doctorID, dateTime=$dateTime, type=$appointmentType");
-        
+        error_log(
+            "Input parameters: patientID=$patientID, doctorID=$doctorID, dateTime=$dateTime, type=$appointmentType"
+        );
+
         // Start transaction and check availability with lock to prevent race conditions
         $this->conn->begin_transaction();
         error_log("Transaction started");
-        
+
         try {
             // Set transaction timeout to prevent deadlocks
             $this->conn->query("SET SESSION innodb_lock_wait_timeout = 5");
             error_log("Lock timeout set");
-            
+
             if (!$this->checkDoctorAvailabilityWithLock($doctorID, $dateTime)) {
                 error_log("FAIL: Doctor not available with lock");
                 $this->conn->rollback();
@@ -226,8 +243,10 @@ class Appointment
             error_log("Appointment object properties set");
 
             $result = $this->create(true); // Use existing transaction
-            error_log("create() method result: " . ($result ? "SUCCESS" : "FAILED"));
-            
+            error_log(
+                "create() method result: " . ($result ? "SUCCESS" : "FAILED")
+            );
+
             if ($result) {
                 error_log("Committing transaction");
                 $this->conn->commit();
@@ -236,7 +255,7 @@ class Appointment
                 error_log("Rolling back transaction due to create() failure");
                 $this->conn->rollback();
             }
-            
+
             error_log("=== APPOINTMENT MODEL DEBUG END ===");
             return $result;
         } catch (Exception $e) {
@@ -355,9 +374,57 @@ class Appointment
         $this->conn->begin_transaction();
 
         try {
+            // Check if appointment exists first
+            $checkQuery =
+                "SELECT AppointmentID FROM " .
+                $this->table .
+                " WHERE AppointmentID = ?";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->bind_param("i", $appointmentID);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+
+            if ($checkResult->num_rows === 0) {
+                throw new Exception("Appointment not found");
+            }
+
             // Delete associated AppointmentReport first
             $appointmentReport = new AppointmentReport($this->conn);
             $appointmentReport->deleteByAppointmentID($appointmentID);
+
+            // Check for payment records and delete them first (due to FK constraint)
+            $paymentCheckQuery =
+                "SELECT COUNT(*) as count FROM Payments WHERE AppointmentID = ?";
+            $paymentStmt = $this->conn->prepare($paymentCheckQuery);
+            $paymentStmt->bind_param("i", $appointmentID);
+            $paymentStmt->execute();
+            $paymentResult = $paymentStmt->get_result();
+            $paymentCount = $paymentResult->fetch_assoc()["count"];
+
+            // Delete payment records first if they exist (due to foreign key constraint)
+            if ($paymentCount > 0) {
+                // First delete payment items
+                $deletePaymentItemsQuery = "DELETE pi FROM PaymentItems pi 
+                                          INNER JOIN Payments p ON pi.PaymentID = p.PaymentID 
+                                          WHERE p.AppointmentID = ?";
+                $deletePaymentItemsStmt = $this->conn->prepare(
+                    $deletePaymentItemsQuery
+                );
+                $deletePaymentItemsStmt->bind_param("i", $appointmentID);
+                $deletePaymentItemsStmt->execute();
+
+                // Then delete payment records
+                $deletePaymentQuery =
+                    "DELETE FROM Payments WHERE AppointmentID = ?";
+                $deletePaymentStmt = $this->conn->prepare($deletePaymentQuery);
+                $deletePaymentStmt->bind_param("i", $appointmentID);
+                if (!$deletePaymentStmt->execute()) {
+                    throw new Exception(
+                        "Failed to delete payment records: " .
+                            $deletePaymentStmt->error
+                    );
+                }
+            }
 
             // Delete the appointment
             $query = "DELETE FROM " . $this->table . " WHERE AppointmentID = ?";
@@ -365,7 +432,14 @@ class Appointment
             $stmt->bind_param("i", $appointmentID);
 
             if (!$stmt->execute()) {
-                throw new Exception("Failed to cancel appointment");
+                throw new Exception(
+                    "Failed to cancel appointment: " . $stmt->error
+                );
+            }
+
+            $affectedRows = $stmt->affected_rows;
+            if ($affectedRows === 0) {
+                throw new Exception("No appointment was deleted");
             }
 
             $this->conn->commit();
@@ -402,23 +476,165 @@ class Appointment
     public function getAppointmentById($appointmentID)
     {
         $query =
-            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+            "SELECT a.*, 
+                    ud.FirstName as DoctorFirstName, ud.LastName as DoctorLastName, d.Specialization,
+                    up.FirstName as PatientFirstName, up.LastName as PatientLastName, up.Email as PatientEmail
                   FROM " .
             $this->table .
             " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
-                  INNER JOIN USER u ON d.DoctorID = u.UserID
-                  WHERE a.AppointmentID = ?";
+                  INNER JOIN USER ud ON d.DoctorID = ud.UserID
+                  INNER JOIN USER up ON a.PatientID = up.UserID
+                  WHERE a.AppointmentID = ? LIMIT 1";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $appointmentID);
 
         if ($stmt->execute()) {
             $result = $stmt->get_result();
-            return $result->fetch_assoc();
+            if ($result->num_rows > 0) {
+                return $result->fetch_assoc();
+            }
         }
 
         return null;
+    }
+
+    public function getAppointmentsByDoctor($doctorID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ?
+                  ORDER BY a.DateTime DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $doctorID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getUpcomingAppointmentsByDoctor($doctorID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ? AND a.DateTime >= NOW()
+                  ORDER BY a.DateTime ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $doctorID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getTodaysAppointmentsByDoctor($doctorID)
+    {
+        // Only get today's appointments that are still in the future
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ? AND DATE(a.DateTime) = CURDATE() AND a.DateTime >= NOW()
+                  ORDER BY a.DateTime ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $doctorID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getAppointmentHistoryByDoctor($doctorID)
+    {
+        // Get all past appointments (appointments that are before current date and time)
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ? AND a.DateTime < NOW()
+                  ORDER BY a.DateTime DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $doctorID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getAppointmentsByDoctorAndDateRange(
+        $doctorID,
+        $startDate,
+        $endDate
+    ) {
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ? AND DATE(a.DateTime) BETWEEN ? AND ?
+                  ORDER BY a.DateTime ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("iss", $doctorID, $startDate, $endDate);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getAppointmentsByDoctorAndDate($doctorID, $date)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ? AND DATE(a.DateTime) = ?
+                  ORDER BY a.DateTime ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("is", $doctorID, $date);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
     }
 }
 
