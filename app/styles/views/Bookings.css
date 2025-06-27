@@ -69,3 +69,29 @@
         margin: 0 auto;
     }
 } 
+
+.schedule-section {
+    min-height: 400px;
+}
+
+.calendar-day.has-appointments {
+    font-weight: 600;
+}
+
+.schedule-section::-webkit-scrollbar {
+    width: 6px;
+}
+
+.schedule-section::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.schedule-section::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.schedule-section::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
