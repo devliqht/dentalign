@@ -40,10 +40,10 @@
 
     <div class="px-4 space-y-6">
         <!-- Appointment Information Card -->
-        <div class="glass-card rounded-l-none rounded-r-2xl  shadow-md border-2 border-gray-200 border-l-4 border-l-blue-500/70 p-6">
+        <div class="glass-card rounded-l-none rounded-r-2xl shadow-sm border-2 border-gray-200 border-l-4 border-l-nhd-blue/70 p-6">
         <div class="text-center mb-4">
                 <h3 class="text-xl font-semibold text-nhd-blue mb-4 font-family-sans">Appointment ID</h3>
-                <div class="glass-card bg-white border-nhd-blue/20 border-1 text-nhd-blue px-6 py-4 rounded-2xl inline-block">
+                <div class="glass-card bg-white border-nhd-blue/20 border-1 text-nhd-blue px-6 py-4 rounded-2xl inline-block shadow-sm">
                     <span class="text-4xl font-bold font-mono tracking-wider">#<?php echo str_pad(
                         $appointment["AppointmentID"],
                         6,
@@ -52,7 +52,7 @@
                     ); ?></span>
                 </div>
             </div>
-            <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni">Appointment Information</h3>
+            <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni tracking-tighter">Appointment Information</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-4">
@@ -131,13 +131,13 @@
         </div>
 
         <!-- Medical Report Card -->
-        <div class="glass-card rounded-l-none rounded-r-2xl shadow-md border-l-4 border-l-green-500/70 p-6 border-2 border-gray-200">
-            <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni">Medical Report</h3>
+        <div class="glass-card rounded-l-none rounded-r-2xl shadow-sm border-l-4 border-l-green-500/70 p-6 border-2 border-gray-200">
+            <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni tracking-tighter">Medical Report</h3>
             
             <?php if ($appointmentReport): ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     <!-- Vital Signs -->
-                    <div class="glass-card bg-blue-50/50 border-gray-200 border-2 rounded-2xl p-4 shadow-md">
+                    <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 shadow-md">
                         <h4 class="text-lg font-medium text-nhd-brown mb-3">Vital Signs</h4>
                         <div class="space-y-3">
                             <div>
@@ -190,7 +190,7 @@
 
                     <!-- Patient Physical Info -->
                     <?php if ($patientRecord): ?>
-                    <div class="glass-card bg-green-50/50 border-gray-200 border-2 rounded-2xl p-4 shadow-md">
+                    <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 shadow-md">
                         <h4 class="text-lg font-medium text-nhd-brown mb-3">Physical Information</h4>
                         <div class="space-y-3">
                             <div>
@@ -234,7 +234,7 @@
                     <?php endif; ?>
 
                     <!-- Report Details -->
-                    <div class="glass-card bg-yellow-50/50 border-gray-200 border-2 rounded-2xl p-4 shadow-md">
+                    <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 shadow-md">
                         <h4 class="text-lg font-medium text-nhd-brown mb-3">Report Information</h4>
                         <div class="space-y-3">
                             <div>
@@ -282,7 +282,7 @@
 
                 <!-- Allergies Section -->
                 <?php if ($patientRecord && $patientRecord["allergies"]): ?>
-                <div class="glass-card bg-red-50/50 border-gray-200 border-2 rounded-2xl p-4 mt-4 shadow-md">
+                <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 mt-4 shadow-md">
                     <h4 class="text-lg font-medium text-red-800 mb-3">⚠️ Known Allergies</h4>
                     <p class="text-red-900">
                         <?php echo nl2br(
@@ -312,12 +312,12 @@
         </div>
 
         <!-- Payment Information Section -->
-        <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-nhd-brown/70 p-6 bg-gradient-to-r from-nhd-brown/5 to-transparent">
+        <div class="glass-card bg-white/80 rounded-2xl shadow-md border-2 border-nhd-brown/20 p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-semibold text-nhd-brown mb-2 font-family-bodoni">Payment Information</h3>
+                    <h3 class="text-xl font-semibold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Payment Information</h3>
                     <div class="flex items-center space-x-4">
-                        <div class="glass-card bg-nhd-brown/10 text-nhd-brown px-4 py-2 rounded-lg">
+                        <div class="glass-card bg-nhd-brown/10 shadow-md text-nhd-brown px-4 py-2 rounded-lg">
                             <span class="text-xs font-medium uppercase tracking-wider block">Payment ID</span>
                             <span class="text-2xl font-bold font-mono"><?php if (
                                 $appointmentPayment
@@ -330,13 +330,13 @@
                         </div>
                         <div>
                             <span class="text-sm text-gray-500 block">Status</span>
-                            <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full 
+                            <span class="inline-block glass-card shadow-md px-3 py-1 text-sm font-medium rounded-full 
                                 <?php if ($appointmentPayment): ?>
                                     <?php echo strtolower(
                                         $appointmentPayment["Status"]
                                     ) === "paid"
-                                        ? "bg-green-100/40 text-green-800"
-                                        : "bg-yellow-100/40 text-yellow-800"; ?>">
+                                        ? "bg-green-100/40 text-green-800 border-green-100"
+                                        : "bg-yellow-100/40 text-yellow-800 border-yellow-400"; ?>">
                                     <?php echo htmlspecialchars(
                                         $appointmentPayment["Status"]
                                     ); ?>
@@ -371,7 +371,7 @@
             </div>
             <?php if (!$appointmentPayment): ?>
                 <div class="mt-4 pt-4 border-t border-gray-200">
-                    <div class="glass-card bg-yellow-50/50 rounded-xl p-4">
+                    <div class="glass-card bg-nhd-brown/15 shadow-md border-1 rounded-xl p-4">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -397,7 +397,7 @@
             <!-- General actions -->
             <div class="flex flex-col sm:flex-row gap-3">
                 <a href="<?php echo BASE_URL; ?>/patient/bookings" 
-                   class="flex-1 px-6 py-3 glass-card bg-gray-100/80 text-gray-700 rounded-2xl hover:bg-gray-200/80 transition-colors font-medium text-center">
+                   class="flex-1 px-6 py-3 glass-card bg-gray-100/80 text-gray-700 shadow-sm border-gray-200 border-1 rounded-2xl hover:bg-gray-200/80 transition-colors font-medium text-center">
                     Back to Bookings
                 </a>
                 
