@@ -3,7 +3,7 @@
 class Payment
 {
     protected $conn;
-    protected $table = "payments";
+    protected $table = "Payments";
 
     public $paymentID;
     public $appointmentID;

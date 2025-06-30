@@ -121,7 +121,7 @@
                 </div>
 
                 <!-- Appointment History List -->
-                <div class="glass-card bg-white/60 rounded-2xl shadow-lg border border-gray-200/50 p-6">
+                <div class="bg-white/60 rounded-2xl border border-gray-200/50">
                     <h3 class="text-2xl font-semibold text-nhd-brown mb-6">Completed Appointments</h3>
                     
                     <?php if (!empty($appointmentHistory)): ?>

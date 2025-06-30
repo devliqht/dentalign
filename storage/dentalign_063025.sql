@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 24, 2025 at 09:11 AM
+-- Generation Time: Jun 30, 2025 at 05:46 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -43,10 +43,12 @@ CREATE TABLE `Appointment` (
 
 INSERT INTO `Appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`, `AppointmentType`, `Reason`, `CreatedAt`) VALUES
 (1, 1, 2, '2025-06-22 08:00:00', 'Consultation', 'Lets gooo hello world', '2025-06-20 16:00:18'),
-(6, 1, 2, '2025-06-26 10:00:00', 'Consultation', 'ajgfahbfafajfz', '2025-06-23 07:32:14'),
-(7, 1, 3, '2025-06-26 09:00:00', 'Follow-up', 'sdadsadadaad', '2025-06-23 09:13:38'),
 (8, 1, 3, '2025-06-26 10:00:00', 'Cleaning', 'asgagsagagasga', '2025-06-23 11:54:20'),
-(19, 1, 3, '2025-06-26 11:00:00', 'Consultation', 'sjonfasiufuiafsaf', '2025-06-24 06:44:35');
+(22, 1, 3, '2025-06-27 08:00:00', 'Consultation', 'hello world hehehe', '2025-06-25 13:46:50'),
+(23, 1, 3, '2025-06-27 09:00:00', 'Cleaning', 'second book of the day lets go', '2025-06-25 13:47:11'),
+(24, 1, 3, '2025-06-30 08:00:00', 'Consultation', 'This ia atestetest', '2025-06-27 14:44:47'),
+(25, 1, 3, '2025-07-07 09:00:00', 'Cleaning', 'Hello worldd', '2025-06-27 14:45:26'),
+(26, 1, 3, '2025-06-29 09:00:00', 'Cleaning', 'sdgdahdasjndsjsj', '2025-06-27 14:54:46');
 
 --
 -- Triggers `Appointment`
@@ -98,10 +100,12 @@ CREATE TABLE `AppointmentReport` (
 
 INSERT INTO `AppointmentReport` (`AppointmentReportID`, `PatientRecordID`, `AppointmentID`, `BloodPressure`, `PulseRate`, `Temperature`, `RespiratoryRate`, `GeneralAppearance`, `CreatedAt`) VALUES
 (1, 1, 1, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
-(2, 1, 6, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
-(3, 1, 7, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
 (4, 1, 8, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
-(28, 1, 19, NULL, NULL, NULL, NULL, NULL, '2025-06-24 06:44:35');
+(31, 1, 22, NULL, NULL, NULL, NULL, NULL, '2025-06-25 13:46:50'),
+(32, 1, 23, '120/440', 90, 98.6, 16, 'Amazing so depressed', '2025-06-25 13:47:11'),
+(33, 1, 24, '', 0, 0.0, 0, '', '2025-06-27 14:44:47'),
+(34, 1, 25, NULL, NULL, NULL, NULL, NULL, '2025-06-27 14:45:26'),
+(35, 1, 26, '', 0, 0.0, 0, 'efsdgsdgsg', '2025-06-27 14:54:46');
 
 -- --------------------------------------------------------
 
@@ -177,9 +181,6 @@ CREATE TABLE `PATIENT` (
 INSERT INTO `PATIENT` (`PatientID`) VALUES
 (1),
 (5),
-(7),
-(8),
-(10),
 (11);
 
 --
@@ -214,11 +215,8 @@ CREATE TABLE `PatientRecord` (
 --
 
 INSERT INTO `PatientRecord` (`RecordID`, `PatientID`, `Height`, `Weight`, `Allergies`, `CreatedAt`, `LastVisit`) VALUES
-(1, 1, NULL, NULL, NULL, '2025-06-24 00:31:51', NULL),
-(2, 5, NULL, NULL, NULL, '2025-06-24 00:31:51', NULL),
-(16, 7, NULL, NULL, NULL, '2025-06-24 05:24:27', NULL),
-(18, 8, NULL, NULL, NULL, '2025-06-24 05:25:03', NULL),
-(27, 10, NULL, NULL, NULL, '2025-06-24 05:31:45', NULL),
+(1, 1, 172.00, 70.00, 'Nothing', '2025-06-24 00:31:51', NULL),
+(2, 5, 160.00, 58.00, NULL, '2025-06-24 00:31:51', NULL),
 (28, 11, NULL, NULL, NULL, '2025-06-24 05:32:47', NULL);
 
 -- --------------------------------------------------------
@@ -244,10 +242,8 @@ CREATE TABLE `PaymentItems` (
 
 INSERT INTO `PaymentItems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`) VALUES
 (1, 2, 'Consultation Fee', 75.00, 1, 75.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
-(2, 3, 'Consultation Fee', 75.00, 1, 75.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
 (4, 5, 'Consultation Fee', 50.00, 1, 50.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
-(5, 5, 'Professional Cleaning', 120.00, 1, 120.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
-(6, 4, 'Follow-up - Standard Fee', 95.00, 1, 95.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16');
+(5, 5, 'Professional Cleaning', 120.00, 1, 120.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16');
 
 -- --------------------------------------------------------
 
@@ -271,8 +267,6 @@ CREATE TABLE `Payments` (
 
 INSERT INTO `Payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `UpdatedBy`, `UpdatedAt`, `Notes`) VALUES
 (2, 1, 1, 'Paid', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Consultation appointment'),
-(3, 6, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Consultation appointment'),
-(4, 7, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Follow-up appointment'),
 (5, 8, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Cleaning appointment');
 
 -- --------------------------------------------------------
@@ -311,14 +305,11 @@ CREATE TABLE `USER` (
 --
 
 INSERT INTO `USER` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `UserType`, `PasswordHash`) VALUES
-(1, 'Matt Errons', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$vYsisQqh.aCDiV8gixUEV.VhZCUnT4b2Ck9vaqejhG6QAQz0DxEMe'),
+(1, 'Matt Erron', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$vYsisQqh.aCDiV8gixUEV.VhZCUnT4b2Ck9vaqejhG6QAQz0DxEMe'),
 (2, 'Matthew Angelo', 'Lumayno', 'matthew.lumayno@gmail.com', '2025-06-19 03:09:10', 'ClinicStaff', '$2y$10$iBfRH9IIaeupUaFEJyOESOG7IhjejpZIJMhUhB0hAzNY0d0qemE9W'),
 (3, 'Jeane ', 'Diputado', 'jeane@gmail.com', '2025-06-21 06:20:13', 'ClinicStaff', '$2y$10$xuTwNTGDGGni2x919pFvXe3l8gEGE3mf.DTIK60goXpQGk2/AFgF6'),
 (4, 'Joseph Gabriel', 'Pascua', 'josephpascua@gmail.com', '2025-06-22 16:38:09', 'ClinicStaff', '$2y$10$MZijGj8xMmoofv78ub.uN.stPpzpjYOs4kTV6IARnNlXs5jklQ7EK'),
 (5, 'Simon Gabriel', 'Gementiza', 'simongementiza@gmail.com', '2025-06-23 03:41:26', 'Patient', '$2y$10$.q/KB313P83140gDwkIWtOm23/32TOmMbpucSlGZ209p0jtUkik/O'),
-(7, 'Simple', 'Test', 'simple_test1750742666@example.com', '2025-06-24 05:24:27', 'Patient', '$2y$12$3rXzNoKfblNK60bQLivWxOLDxQYHTbhMUr8kH01rb8FuGHS15Gqie'),
-(8, 'Simple', 'Test', 'simple_test1750742702@example.com', '2025-06-24 05:25:03', 'Patient', '$2y$12$ZlZERo9FZhtwBZRiEf5AoeeyfbPfFPP5yRTVfHTSDoGSzz8zqj5.u'),
-(10, 'Full', 'Test', 'fulltest1750743104@example.com', '2025-06-24 05:31:45', 'Patient', '$2y$12$93UD311SBR540KkyyYJmX.0jyaPPffuK9Z8aJ9qeLxoRe4QYCSM5S'),
 (11, 'Jemuel', 'Valencia', 'jemuelvalencia@gmail.com', '2025-06-24 05:32:47', 'Patient', '$2y$10$LRry2Qi/j7ytdAxaDrWN2.wlhAlaEB3t/FaEsQKGC2Bx/cqn2X6vi');
 
 --
@@ -413,13 +404,13 @@ ALTER TABLE `USER`
 -- AUTO_INCREMENT for table `Appointment`
 --
 ALTER TABLE `Appointment`
-  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `AppointmentReport`
 --
 ALTER TABLE `AppointmentReport`
-  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `Messages`
