@@ -40,7 +40,9 @@ class PatientController extends Controller
             "hideFooter" => false,
             "bodyClass" =>
                 "bg-white bg-[radial-gradient(#e4e9f5_1px,transparent_2px)] [background-size:16px_16px]",
+            "showLoading" => true
         ];
+
 
         $this->view("pages/patient/Dashboard", $data, $layoutConfig);
     }

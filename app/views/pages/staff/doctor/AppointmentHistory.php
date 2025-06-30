@@ -77,7 +77,7 @@
                     }
                     ?>
                     
-                    <div class="glass-card bg-white/60 rounded-2xl p-6 shadow-lg border-2 border-gray-200">
+                    <div class="glass-card bg-white/60 rounded-2xl p-6 shadow-sm border-2 border-gray-200">
                         <div class="flex items-center">
                             <div class="bg-blue-100 p-3 rounded-full">
                                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +91,7 @@
                         </div>
                     </div>
                     
-                    <div class="glass-card bg-white/60 rounded-2xl p-6 shadow-lg border-2 border-gray-200">
+                    <div class="glass-card bg-white/60 rounded-2xl p-6 shadow-sm border-2 border-gray-200">
                         <div class="flex items-center">
                             <div class="bg-green-100 p-3 rounded-full">
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     
-                    <div class="glass-card bg-white/60 rounded-2xl p-6 shadow-lg border-2 border-gray-200">
+                    <div class="glass-card bg-white/60 rounded-2xl p-6 shadow-sm border-2 border-gray-200">
                         <div class="flex items-center">
                             <div class="bg-purple-100 p-3 rounded-full">
                                 <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@
                                 $appointmentHistory
                                 as $appointment
                             ): ?>
-                                <div class="glass-card bg-white/80 rounded-2xl border-2 border-gray-200 p-6 hover:shadow-lg transition-all duration-300">
+                                <div class="glass-card bg-white/80 rounded-2xl border-2 border-gray-200 p-6 hover:shadow-md shadow-sm transition-all duration-300">
                                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                                         <!-- Left side - Appointment details -->
                                         <div class="flex-1">

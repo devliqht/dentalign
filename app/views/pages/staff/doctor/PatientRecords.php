@@ -29,7 +29,7 @@
     </div>
 
     <!-- Search and Filter Section -->
-    <div class="mb-6 glass-card rounded-2xl p-4">
+    <div class="mb-6 glass-card shadow-sm border-gray-200 border-1 rounded-2xl p-4">
         <div class="flex flex-col md:flex-row gap-4 items-center">
             <div class="flex-1">
                 <div class="relative">
@@ -72,7 +72,7 @@
 
 <!-- Patient Detail Modal -->
 <div id="patient-detail-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="glass-card bg-gray-100/85 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+    <div class="glass-card bg-white/85 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-nhd-brown">Patient Details</h2>

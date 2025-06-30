@@ -188,7 +188,7 @@ function renderPatientDetail(data) {
                                 ${appointments
                                   .map(
                                     (appointment) => `
-                                    <div class="glass-card rounded-xl p-6">
+                                    <div class="glass-card shadow-md rounded-xl p-6">
                                         <div class="flex justify-between items-start mb-4">
                                             <div>
                                                 <h4 class="font-semibold text-gray-900">
@@ -236,23 +236,23 @@ function renderPatientDetail(data) {
                                         ${
                                           appointment.report
                                             ? `
-                                            <div class="bg-blue-50 rounded-xl p-4 mt-4">
-                                                <h5 class="font-medium text-blue-900 mb-3">Appointment Report</h5>
+                                            <div class="bg-nhd-blue/5 rounded-xl p-4 mt-4">
+                                                <h5 class="font-medium text-nhd-blue mb-3">Appointment Report</h5>
                                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                                     <div>
-                                                        <span class="text-blue-700">Blood Pressure:</span>
+                                                        <span class="text-nhd-blue">Blood Pressure:</span>
                                                         <p class="font-medium">${appointment.report.BloodPressure || "Not recorded"}</p>
                                                     </div>
                                                     <div>
-                                                        <span class="text-blue-700">Pulse Rate:</span>
+                                                        <span class="text-nhd-blue">Pulse Rate:</span>
                                                         <p class="font-medium">${appointment.report.PulseRate ? appointment.report.PulseRate + " bpm" : "Not recorded"}</p>
                                                     </div>
                                                     <div>
-                                                        <span class="text-blue-700">Temperature:</span>
+                                                        <span class="text-nhd-blue">Temperature:</span>
                                                         <p class="font-medium">${appointment.report.Temperature ? appointment.report.Temperature + "°C" : "Not recorded"}</p>
                                                     </div>
                                                     <div>
-                                                        <span class="text-blue-700">Respiratory:</span>
+                                                        <span class="text-nhd-blue">Respiratory:</span>
                                                         <p class="font-medium">${appointment.report.RespiratoryRate ? appointment.report.RespiratoryRate + " /min" : "Not recorded"}</p>
                                                     </div>
                                                 </div>

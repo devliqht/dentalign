@@ -14,7 +14,7 @@
             </div>
             
             <div id="modalContent" class="hidden">
-                <div class="glass-card bg-gray-50/50 border-gray-200 border-2 rounded-2xl p-6 mb-6">
+                <div class="glass-card bg-gray-50/50 border-gray-200 shadow-sm border-2 rounded-2xl p-6 mb-6">
                     <h4 class="text-lg font-semibold text-nhd-blue mb-4">Appointment Information</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
@@ -41,7 +41,7 @@
                 </div>
                 
                 <!-- Medical Report Form -->
-                <div class="glass-card bg-white/50 border-gray-200 border-2 rounded-2xl p-6">
+                <div class="glass-card bg-white/50 border-gray-200 shadow-sm border-2 rounded-2xl p-6">
                     <h4 class="text-lg font-semibold text-nhd-blue mb-4">Medical Report</h4>
                     <form id="appointmentReportForm">
                         <input type="hidden" id="reportAppointmentId" name="appointmentId">

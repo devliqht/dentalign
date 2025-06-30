@@ -4,10 +4,10 @@
         <div class="w-full max-w-4xl mx-auto">
             
             <div class="text-center mb-12">
-                <h1 class="text-2xl md:lg:text-5xl font-family-bodoni font-bold text-nhd-blue mb-4" style="text-shadow: 1px 1px 4px rgba(20,62,121,0.18), 0 2px 8px rgba(0,0,0,0.10);">
+                <h1 class="text-2xl md:lg:text-5xl font-family-bodoni font-bold text-nhd-blue mb-4 tracking-tighter" style="text-shadow: 1px 1px 4px rgba(20,62,121,0.18), 0 2px 8px rgba(0,0,0,0.10);">
                     Welcome to North Hill Dental
                 </h1>
-                <p class="bg-white/70 backdrop-blur-sm text-xl md:lg:text-3xl text-nhd-green italic font-family-bodoni max-w-2xl mx-auto leading-relaxed" style="text-shadow: 1px 1px 4px rgba(141,167,51,0.18), 0 2px 8px rgba(0,0,0,0.10);">
+                <p class="bg-white/70 backdrop-blur-sm text-xl md:lg:text-3xl text-nhd-green italic font-family-sans max-w-2xl mx-auto leading-relaxed" style="text-shadow: 1px 1px 4px rgba(141,167,51,0.18), 0 2px 8px rgba(0,0,0,0.10);">
                     where your smile matters.
                 </p>
             </div>
@@ -15,7 +15,7 @@
                 <div class="w-full max-w-md">
                     <div class="bg-white/40 glass-card rounded-2xl p-6 border">
                         <div class="text-center mb-6">
-                            <h2 class="text-2xl font-family-bodoni font-semibold text-nhd-blue mb-2">
+                            <h2 class="text-2xl font-family-sans font-semibold text-nhd-blue mb-2">
                                 Sign In to Your Account
                             </h2>
                             <p class="text-sm text-neutral-600">
@@ -37,16 +37,10 @@
                             ); ?>">
                             
                             <div class="form-group">
-                                <label for="email" class="text-sm font-medium text-neutral-700 mb-1">Email Address</label>
                                 <input type="email" id="email" name="email" placeholder="Enter your email" required />
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="password" class="text-sm font-medium text-neutral-700 mb-1">Password</label>
                                 <input type="password" id="password" name="password" placeholder="Enter your password" required />
                             </div>
-                            
-                            <button type="submit">
+                            <button type="submit" class="glass-card bg-nhd-blue/80 text-nhd-pale w-full">
                                 Sign In
                             </button>
                         </form>

@@ -1,10 +1,5 @@
 <div class="px-4 pb-8">
     <div class="mb-6">
-        <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">
-            Dr. <?php echo htmlspecialchars(
-                $doctor["firstName"] . " " . $doctor["lastName"]
-            ); ?>'s Schedule
-        </h2>
         <p class="text-gray-600 mb-2">
             <?php echo htmlspecialchars($doctor["specialization"]); ?> • 
             <?php echo date("l, F j, Y"); ?>
@@ -43,7 +38,7 @@
             </button>
         </div>
         
-        <div class="glass-card bg-white/60 px-4 py-2 rounded-2xl">
+        <div class="glass-card bg-white/60 border-1 border-gray-200 shadow-md px-4 py-2 rounded-2xl">
             <span class="text-sm font-medium text-gray-700">Selected Date:</span>
             <span id="selected-date-display" class="text-sm font-bold text-nhd-brown ml-2"><?php echo date(
                 "l, F j, Y",

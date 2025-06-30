@@ -1,8 +1,6 @@
 <div class="pb-8">
     <div class="px-4">
-        <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">My Bookings <?php echo $user[
-            "user_name"
-        ]; ?></h2>
+        <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">My Bookings</h2>
         <p class="text-gray-600">View and manage all your dental appointments.</p>
     </div> 
     <div class="flex justify-between items-center mb-4 p-4">
@@ -36,14 +34,13 @@
         <?php if (!empty($upcomingAppointments)): ?>
             <div class="space-y-4 p-6 glass-card m-4">
                 <?php foreach ($upcomingAppointments as $appointment): ?>
-                    <div class="glass-card rounded-2xl shadow-md border-2 border-gray-400/70 hover:border-green-600 p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group"
+                    <div class="glass-card rounded-2xl shadow-md border-1 border-gray-400/70 hover:border-green-600 p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-[1.01] group"
                          onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
 ]; ?>/<?php echo $appointment["AppointmentID"]; ?>')">
                         
-                        <!-- Appointment ID Header - EMPHASIZED -->
                         <div class="flex items-center justify-between mb-3">
-                            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg">
+                            <div class="glass-card text-nhd-blue border-nhd-blue/20 border-1 px-3 py-2 rounded-2xl">
                                 <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
                                 <span class="text-lg font-bold font-mono">#<?php echo str_pad(
                                     $appointment["AppointmentID"],
@@ -202,9 +199,8 @@
     "id"
 ]; ?>/<?php echo $appointment["AppointmentID"]; ?>')">
                         
-                        <!-- Appointment ID Header - EMPHASIZED -->
                         <div class="flex items-center justify-between mb-3">
-                            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg">
+                            <div class="glass-card text-nhd-blue border-nhd-blue/20 border-1 px-3 py-2 rounded-2xl">
                                 <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
                                 <span class="text-lg font-bold font-mono">#<?php echo str_pad(
                                     $appointment["AppointmentID"],

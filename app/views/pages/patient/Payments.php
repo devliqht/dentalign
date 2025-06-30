@@ -11,11 +11,11 @@
     <div class="px-4 mb-6">
         <div class="flex space-x-2">
             <button onclick="showPaymentSection('all')" id="all-payments-btn" 
-                    class="glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-white transition-colors">
+                    class="glass-card bg-gray-200/80 px-4 py-2 rounded-2xl text-gray-700 transition-colors hover:bg-gray-300/80">
                 All Payments
             </button>
             <button onclick="showPaymentSection('pending')" id="pending-payments-btn" 
-                    class="glass-card bg-gray-200/80 px-4 py-2 rounded-2xl text-gray-700 transition-colors hover:bg-gray-300/80">
+                    class="glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-white transition-colors">
                 Pending
             </button>
             <button onclick="showPaymentSection('paid')" id="paid-payments-btn" 
@@ -53,7 +53,10 @@
                 <div id="pending-content" class="space-y-4">
                     <?php if (!empty($pendingPayments)): ?>
                         <?php foreach ($pendingPayments as $payment): ?>
-                            <?php include "app/views/components/PaymentCardTemplate.php"; ?>
+                            <?php 
+                            $sectionPrefix = 'pending';
+                            include "app/views/components/PaymentCardTemplate.php"; 
+                            ?>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="glass-card bg-yellow-50/50 rounded-2xl p-6 text-center">
@@ -81,7 +84,10 @@
                 <div id="paid-content" class="space-y-4">
                     <?php if (!empty($paidPayments)): ?>
                         <?php foreach ($paidPayments as $payment): ?>
-                            <?php include "app/views/components/PaymentCardTemplate.php"; ?>
+                            <?php 
+                            $sectionPrefix = 'paid';
+                            include "app/views/components/PaymentCardTemplate.php"; 
+                            ?>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="glass-card bg-green-50/50 rounded-2xl p-6 text-center">
@@ -98,7 +104,10 @@
             <div id="all-section" class="payment-section" style="display: none;">
                 <div class="space-y-4">
                     <?php foreach ($payments as $payment): ?>
-                        <?php include "app/views/components/PaymentCardTemplate.php"; ?>
+                        <?php 
+                        $sectionPrefix = 'all';
+                        include "app/views/components/PaymentCardTemplate.php"; 
+                        ?>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -225,16 +234,21 @@ function printInvoice(paymentId) {
     }, 1000);
 }
 
-function togglePaymentCard(paymentId) {
-    const content = document.getElementById('payment-content-' + paymentId);
-    const icon = document.getElementById('expand-icon-' + paymentId);
+function togglePaymentCard(uniqueId) {
+    const content = document.getElementById('payment-content-' + uniqueId);
+    const icon = document.getElementById('expand-icon-' + uniqueId);
+    
+    if (!content) {
+        console.error('Payment content element not found for ID:', uniqueId);
+        return;
+    }
     
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
+        if (icon) icon.style.transform = 'rotate(180deg)';
     } else {
         content.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
+        if (icon) icon.style.transform = 'rotate(0deg)';
     }
 }
 

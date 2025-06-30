@@ -1,5 +1,5 @@
 <div class="sidebar-container " id="sidebar-container">
-    <div class="glass-card h-full">
+    <div class="glass-card h-full shadow-none rounded-l-none border-r-2 border-gray-200 shadow-sm">
         <div class="flex items-center p-4">
             <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="North Hill Dental Logo" class="w-10 h-10 rounded-full mr-3" />
             <h2 class="text-lg font-family-bodoni font-bold tracking-tight text-nhd-blue">North Hill Dental</h2>

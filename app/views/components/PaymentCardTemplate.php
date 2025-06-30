@@ -6,7 +6,7 @@ switch (strtolower($payment["Status"])) {
         $statusClass = "bg-green-100/40 text-green-800 border-l-green-500/70";
         break;
     case "pending":
-        $statusClass = "bg-gray-200/40 text-yellow-800 border-l-yellow-500/70";
+        $statusClass = "bg-white/40 text-yellow-800 border-l-yellow-500/70";
         break;
     case "overdue":
         $statusClass = "bg-red-100/40 text-red-800 border-l-red-500/70";
@@ -17,12 +17,15 @@ switch (strtolower($payment["Status"])) {
     default:
         $statusClass = "bg-blue-100/40 text-blue-800 border-l-blue-500/70";
 }
+
+// Create unique identifiers for this section
+$paymentId = $payment["PaymentID"] ?? $payment["AppointmentID"];
+$sectionPrefix = $sectionPrefix ?? 'default';
+$uniqueId = $sectionPrefix . '-' . $paymentId;
 ?>
 
-<div class="glass-card rounded-2xl shadow-md border-l-4 border-gray-200 <?php echo $statusClass; ?> p-6 hover:shadow-md transition-all duration-300">
-    <div class="flex items-center justify-between cursor-pointer" onclick="togglePaymentCard(<?php echo $payment[
-        "PaymentID"
-    ] ?? $payment["AppointmentID"]; ?>)">
+<div class="glass-card rounded-2xl shadow-sm border-l-4 border-gray-200 <?php echo $statusClass; ?> p-6 hover:shadow-md transition-all duration-300">
+    <div class="flex items-center justify-between cursor-pointer" onclick="togglePaymentCard('<?php echo $uniqueId; ?>')">
         <div class="flex items-center space-x-4">
             <!-- Payment ID -->
             <div class="glass-card bg-white/10 text-nhd-brown px-3 py-2 rounded-lg shadow-sm border-gray-200">
@@ -38,7 +41,7 @@ switch (strtolower($payment["Status"])) {
             </div>
             
             <!-- Appointment ID -->
-            <div class="glass-card bg-blue-100/60 text-blue-800 px-3 py-2 rounded-lg shadow-sm">
+            <div class="glass-card bg-white text-nhd-blue border-1 border-nhd-blue/20 px-3 py-2 rounded-lg shadow-sm">
                 <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
                 <span class="text-lg font-bold font-mono">#<?php echo str_pad(
                     $payment["AppointmentID"],
@@ -77,20 +80,14 @@ switch (strtolower($payment["Status"])) {
             
             <!-- Expand/Collapse Button -->
             <div class="glass-card bg-gray-100/60 hover:bg-gray-200/60 rounded-full p-2 transition-colors">
-                <svg id="expand-icon-<?php echo $payment["PaymentID"] ??
-                    $payment[
-                        "AppointmentID"
-                    ]; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="expand-icon-<?php echo $uniqueId; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </div>
         </div>
     </div>
 
-    <div id="payment-content-<?php echo $payment["PaymentID"] ??
-        $payment[
-            "AppointmentID"
-        ]; ?>" class="hidden mt-6 pt-6 border-t border-gray-200">
+    <div id="payment-content-<?php echo $uniqueId; ?>" class="hidden mt-6 pt-6 border-t border-gray-200">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div class="mb-4 lg:mb-0">
                 <h3 class="text-2xl font-semibold text-nhd-brown mb-2 font-family-bodoni">
@@ -117,7 +114,7 @@ switch (strtolower($payment["Status"])) {
 
         <!-- Payment Breakdown -->
         <?php if (!empty($payment["items"])): ?>
-            <div class="glass-card bg-gray-50/50 rounded-xl p-4 mb-4">
+            <div class="glass-card bg-white border-2 border-gray-200 shadow-sm rounded-xl p-4 mb-4">
                 <h4 class="text-lg font-medium text-nhd-brown mb-3">Payment Breakdown</h4>
                 <div class="space-y-3">
                     <?php foreach ($payment["items"] as $item): ?>
@@ -157,7 +154,7 @@ switch (strtolower($payment["Status"])) {
                 </div>
             </div>
         <?php else: ?>
-            <div class="glass-card bg-yellow-50/50 rounded-xl p-4 mb-4">
+            <div class="glass-card bg-white border-1 border-gray-200 shadow-sm rounded-xl p-4 mb-4">
                 <p class="text-yellow-800 text-center">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -173,7 +170,7 @@ switch (strtolower($payment["Status"])) {
 
         <!-- Reason for Visit -->
         <?php if (!empty($payment["Reason"])): ?>
-            <div class="glass-card bg-blue-50/50 rounded-xl p-4 mb-4">
+            <div class="glass-card bg-white border-1 border-gray-200 shadow-sm rounded-xl p-4 mb-4">
                 <h4 class="text-lg font-medium text-nhd-brown mb-2">Reason for Visit</h4>
                 <p class="text-gray-700"><?php echo nl2br(
                     htmlspecialchars($payment["Reason"])
@@ -214,18 +211,17 @@ switch (strtolower($payment["Status"])) {
                     Print Invoice
                 </button>
             <?php else: ?>
-                <div class="flex-1 px-6 py-3 glass-card bg-gray-100/40 text-gray-500 rounded-2xl text-center">
+                <div class="flex-1 px-6 py-3 glass-card bg-white text-yellow-500 shadow-sm border-yellow-400 border-2 rounded-2xl text-center">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                     </svg>
                     Invoice pending
                 </div>
             <?php endif; ?>
-            <!-- FIXED ROUTING: Now uses the correct bookings route -->
             <a href="<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
 ] ?? 1; ?>/<?php echo $payment["AppointmentID"]; ?>" 
-               class="flex-1 px-6 py-3 glass-card bg-gray-100/80 text-gray-700 rounded-2xl hover:bg-gray-200/80 transition-colors font-medium text-center">
+               class="flex-1 px-6 py-3 glass-card bg-nhd-blue/80 text-white hover:bg-nhd-blue/90 rounded-2xl transition-colors font-medium text-center">
                 View Appointment
             </a>
         </div>

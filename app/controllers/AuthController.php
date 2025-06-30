@@ -40,7 +40,7 @@ class AuthController extends Controller
             "hideHeader" => true,
             "hideFooter" => false,
             "bodyClass" =>
-                "bg-[url('/dentalign/public/bg.png')] bg-opacity-40 bg-cover bg-center",
+                "bg-[url('/dentalign/public/low.svg')]",
         ];
 
         unset($_SESSION["error"]);

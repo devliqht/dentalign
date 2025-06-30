@@ -39,11 +39,11 @@
     </div>
 
     <div class="px-4 space-y-6">
-        <!-- Appointment ID Section - EMPHASIZED -->
-        <div class="glass-card rounded-2xl shadow-md border-l-4 border-l-blue-500/70 p-6 bg-gradient-to-r from-blue-100/30 to-transparent">
-            <div class="text-center">
-                <h3 class="text-xl font-semibold text-blue-800 mb-4 font-family-bodoni">Appointment ID</h3>
-                <div class="glass-card bg-blue-100/60 text-blue-800 px-6 py-4 rounded-2xl inline-block">
+        <!-- Appointment Information Card -->
+        <div class="glass-card rounded-l-none rounded-r-2xl  shadow-md border-2 border-gray-200 border-l-4 border-l-blue-500/70 p-6">
+        <div class="text-center mb-4">
+                <h3 class="text-xl font-semibold text-nhd-blue mb-4 font-family-sans">Appointment ID</h3>
+                <div class="glass-card bg-white border-nhd-blue/20 border-1 text-nhd-blue px-6 py-4 rounded-2xl inline-block">
                     <span class="text-4xl font-bold font-mono tracking-wider">#<?php echo str_pad(
                         $appointment["AppointmentID"],
                         6,
@@ -51,18 +51,7 @@
                         STR_PAD_LEFT
                     ); ?></span>
                 </div>
-                <div class="mt-4">
-                    <span class="inline-block glass-card px-4 py-2 text-sm font-medium rounded-full bg-blue-100/40 text-blue-800">
-                        <?php echo htmlspecialchars(
-                            $appointment["AppointmentType"]
-                        ); ?>
-                    </span>
-                </div>
             </div>
-        </div>
-
-        <!-- Appointment Information Card -->
-        <div class="glass-card rounded-l-none rounded-r-2xl  shadow-md border-2 border-gray-200 border-l-4 border-l-blue-500/70 p-6">
             <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni">Appointment Information</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -118,11 +107,11 @@
                         <?php if (
                             strtotime($appointment["DateTime"]) > time()
                         ): ?>
-                            <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full bg-green-100/40 text-green-800">
+                            <span class="inline-block glass-card border-green-100/40 border-1 shadow-md px-3 py-1 text-sm font-medium rounded-full bg-green-100/40 text-green-800">
                                 Upcoming
                             </span>
                         <?php else: ?>
-                            <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full bg-gray-100/40 text-gray-800">
+                            <span class="inline-block glass-card px-3 py-1 bg-nhd-green/70 text-black border-green-100/40 border-1 shadow-md text-sm font-medium rounded-full">
                                 Completed
                             </span>
                         <?php endif; ?>
