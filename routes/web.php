@@ -29,10 +29,11 @@ $router->group("GET", "PatientController", [
     "patient/book-appointment" => "bookAppointment",
     "patient/get-timeslots" => "getTimeslots",
     "patient/get-payment-details" => "getPaymentDetails",
+    "patient/get-dental-chart-data" => "getDentalChartData",
     "patient/test-route" => "testRoute",
     "patient/debug-payments" => "debugPayments",
     "patient/payments" => "payments",
-    "patient/results" => "results",
+    "patient/dental-chart" => "dentalchart",
     "patient/profile" => "profile",
 ]);
 
@@ -47,10 +48,13 @@ $router->group("POST", "PatientController", [
 $router->group("GET", "DoctorController", [
     "doctor/dashboard" => "dashboard",
     "doctor/schedule" => "schedule",
+    "doctor/get-week-data" => "getWeekData",
     "doctor/appointment-history" => "appointmentHistory",
     "doctor/patient-records" => "patientRecords",
     "doctor/get-patient-details" => "getPatientDetails",
     "doctor/get-appointment-report" => "getAppointmentReport",
+    "doctor/get-dental-chart" => "getDentalChart",
+    "doctor/dental-chart-edit/{patient_id}" => "dentalChartEdit",
     "doctor/inbox" => "inbox",
     "staff/profile" => "profile",
 ]);
@@ -60,7 +64,13 @@ $router->group("POST", "DoctorController", [
     "doctor/patient-records" => "updatePatientRecord",
     "doctor/update-patient-record-data" => "updatePatientRecordData",
     "doctor/update-appointment-report" => "updateAppointmentReport",
+    "doctor/update-dental-chart-item" => "updateDentalChartItem",
     "staff/profile" => "updateProfile",
+]);
+
+// Search functionality
+$router->group("POST", "SearchController", [
+    "search" => "search",
 ]);
 
 $url = $_GET["url"] ?? "";
