@@ -8,11 +8,9 @@ class AppointmentReport
     public $appointmentReportID;
     public $patientRecordID;
     public $appointmentID;
-    public $bloodPressure;
-    public $pulseRate;
-    public $temperature;
-    public $respiratoryRate;
-    public $generalAppearance;
+    public $oralNotes;
+    public $diagnosis;
+    public $xrayImages;
     public $createdAt;
 
     public function __construct($db)
@@ -28,8 +26,8 @@ class AppointmentReport
             "INSERT INTO " .
             $this->table .
             " 
-                  (PatientRecordID, AppointmentID, BloodPressure, PulseRate, Temperature, RespiratoryRate, GeneralAppearance) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?)";
+                  (PatientRecordID, AppointmentID, OralNotes, Diagnosis, XrayImages) 
+                  VALUES (?, ?, ?, ?, ?)";
 
         error_log("SQL Query: $query");
         error_log(
@@ -47,25 +45,17 @@ class AppointmentReport
         }
         error_log("Statement prepared successfully");
 
-        // Clean data
-        $this->bloodPressure = htmlspecialchars(
-            strip_tags($this->bloodPressure)
-        );
-        $this->generalAppearance = htmlspecialchars(
-            strip_tags($this->generalAppearance)
-        );
+        $this->oralNotes = htmlspecialchars(strip_tags($this->oralNotes));
+        $this->diagnosis = htmlspecialchars(strip_tags($this->diagnosis));
 
         $stmt->bind_param(
-            "iisidis",
+            "iisss",
             $this->patientRecordID,
             $this->appointmentID,
-            $this->bloodPressure,
-            $this->pulseRate,
-            $this->temperature,
-            $this->respiratoryRate,
-            $this->generalAppearance
+            $this->oralNotes,
+            $this->diagnosis,
+            $this->xrayImages
         );
-        error_log("Parameters bound successfully");
 
         if ($stmt->execute()) {
             $this->appointmentReportID = $this->conn->insert_id;
@@ -94,11 +84,9 @@ class AppointmentReport
 
         $this->appointmentID = $appointmentID;
         $this->patientRecordID = $patientRecordID;
-        $this->bloodPressure = null;
-        $this->pulseRate = null;
-        $this->temperature = null;
-        $this->respiratoryRate = null;
-        $this->generalAppearance = null;
+        $this->oralNotes = null;
+        $this->diagnosis = null;
+        $this->xrayImages = null;
 
         error_log("Properties set, calling create()");
         $result = $this->create();
@@ -111,7 +99,7 @@ class AppointmentReport
     public function findByAppointmentID($appointmentID)
     {
         $query =
-            "SELECT AppointmentReportID, PatientRecordID, AppointmentID, BloodPressure, PulseRate, Temperature, RespiratoryRate, GeneralAppearance, CreatedAt 
+            "SELECT AppointmentReportID, PatientRecordID, AppointmentID, OralNotes, Diagnosis, XrayImages, CreatedAt 
                   FROM " .
             $this->table .
             " 
@@ -128,11 +116,9 @@ class AppointmentReport
             $this->appointmentReportID = $row["AppointmentReportID"];
             $this->patientRecordID = $row["PatientRecordID"];
             $this->appointmentID = $row["AppointmentID"];
-            $this->bloodPressure = $row["BloodPressure"];
-            $this->pulseRate = $row["PulseRate"];
-            $this->temperature = $row["Temperature"];
-            $this->respiratoryRate = $row["RespiratoryRate"];
-            $this->generalAppearance = $row["GeneralAppearance"];
+            $this->oralNotes = $row["OralNotes"];
+            $this->diagnosis = $row["Diagnosis"];
+            $this->xrayImages = $row["XrayImages"];
             $this->createdAt = $row["CreatedAt"];
             return true;
         }
@@ -146,26 +132,19 @@ class AppointmentReport
             "UPDATE " .
             $this->table .
             " 
-                  SET BloodPressure = ?, PulseRate = ?, Temperature = ?, RespiratoryRate = ?, GeneralAppearance = ? 
+                  SET OralNotes = ?, Diagnosis = ?, XrayImages = ?
                   WHERE AppointmentReportID = ?";
 
         $stmt = $this->conn->prepare($query);
 
-        // Clean data
-        $this->bloodPressure = htmlspecialchars(
-            strip_tags($this->bloodPressure)
-        );
-        $this->generalAppearance = htmlspecialchars(
-            strip_tags($this->generalAppearance)
-        );
+        $this->oralNotes = htmlspecialchars(strip_tags($this->oralNotes));
+        $this->diagnosis = htmlspecialchars(strip_tags($this->diagnosis));
 
         $stmt->bind_param(
-            "sidisi",
-            $this->bloodPressure,
-            $this->pulseRate,
-            $this->temperature,
-            $this->respiratoryRate,
-            $this->generalAppearance,
+            "sssi",
+            $this->oralNotes,
+            $this->diagnosis,
+            $this->xrayImages,
             $this->appointmentReportID
         );
 
