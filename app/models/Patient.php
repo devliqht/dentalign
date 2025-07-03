@@ -194,5 +194,43 @@ class Patient extends User
         $result = $this->conn->query($query);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function searchPatients($query)
+    {
+        $searchTerm = "%" . $query . "%";
+
+        $sql =
+            "SELECT 
+                    p.PatientID,
+                    u.FirstName,
+                    u.LastName,
+                    u.Email
+                FROM " .
+            $this->patientTable .
+            " p
+                INNER JOIN " .
+            $this->table .
+            " u ON p.PatientID = u.UserID
+                WHERE 
+                    u.FirstName LIKE ? OR 
+                    u.LastName LIKE ? OR 
+                    CONCAT(u.FirstName, ' ', u.LastName) LIKE ? OR
+                    u.Email LIKE ?
+                ORDER BY u.LastName, u.FirstName
+                LIMIT 10";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param(
+            "ssss",
+            $searchTerm,
+            $searchTerm,
+            $searchTerm,
+            $searchTerm
+        );
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
 }
 ?>

@@ -79,7 +79,6 @@ class Appointment
             $this->appointmentID = $this->conn->insert_id;
             error_log("Appointment ID: " . $this->appointmentID);
 
-            // Get or create patient record
             $patientRecord = new PatientRecord($this->conn);
             error_log("PatientRecord object created");
 
@@ -242,7 +241,7 @@ class Appointment
             $this->reason = $reason;
             error_log("Appointment object properties set");
 
-            $result = $this->create(true); // Use existing transaction
+            $result = $this->create(true);
             error_log(
                 "create() method result: " . ($result ? "SUCCESS" : "FAILED")
             );
@@ -635,6 +634,61 @@ class Appointment
         }
 
         return [];
+    }
+
+    public function searchAppointmentsByPatient($patientID, $query)
+    {
+        $searchTerm = "%" . $query . "%";
+
+        $sql =
+            "SELECT 
+                    a.AppointmentID,
+                    a.DateTime,
+                    a.AppointmentType,
+                    a.Reason,
+                    DATE(a.DateTime) as AppointmentDate,
+                    TIME(a.DateTime) as AppointmentTime,
+                    ud.FirstName as DoctorFirstName, 
+                    ud.LastName as DoctorLastName, 
+                    d.Specialization
+                FROM " .
+            $this->table .
+            " a
+                INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
+                INNER JOIN USER ud ON d.DoctorID = ud.UserID
+                WHERE a.PatientID = ? AND (
+                    CAST(a.AppointmentID AS CHAR) LIKE ? OR
+                    a.AppointmentType LIKE ? OR
+                    a.Reason LIKE ? OR
+                    CONCAT(ud.FirstName, ' ', ud.LastName) LIKE ? OR
+                    d.Specialization LIKE ?
+                )
+                ORDER BY a.DateTime DESC
+                LIMIT 10";
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            error_log("SQL prepare failed: " . $this->conn->error);
+            return [];
+        }
+
+        $stmt->bind_param(
+            "isssss",
+            $patientID,
+            $searchTerm,
+            $searchTerm,
+            $searchTerm,
+            $searchTerm,
+            $searchTerm
+        );
+
+        if (!$stmt->execute()) {
+            error_log("SQL execute failed: " . $stmt->error);
+            return [];
+        }
+
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
 
