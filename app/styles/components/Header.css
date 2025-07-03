@@ -1,18 +1,17 @@
 .header-component {
     position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 30;
+    width: calc(100% - 16rem);
+    z-index: 40;
+    margin-left: 16rem;
 }
 
 .header-action-btn {
     display: flex;
     align-items: center;
     padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
     color: var(--color-nhd-blue);
     background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(61, 61, 61, 0.255);
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
@@ -43,10 +42,47 @@
     transform: translateY(-1px);
 }
 
+@media (max-width: 1024px) {
+    .header-component {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-component .flex-1 {
+        max-width: 250px;
+    }
+    
+    .header-component #global-search {
+        font-size: 14px;
+        padding: 8px 10px 8px 36px;
+    }
+    
+    .header-component #global-search::placeholder {
+        font-size: 13px;
+    }
+}
+
 @media (max-width: 640px) {
     .header-component {
         top: 0.5rem;
         right: 0.5rem;
+        width: 100%;
+        margin-left: 0;
+    }
+    
+    .header-component .flex-1 {
+        max-width: 200px;
+    }
+    
+    .header-component #global-search {
+        font-size: 13px;
+        padding: 6px 8px 6px 32px;
+    }
+    
+    .header-component #global-search::placeholder {
+        content: "Search...";
     }
     
     .glass-header {
@@ -58,5 +94,19 @@
         padding: 0.5rem;
         min-width: 2.5rem;
         justify-content: center;
+    }
+    
+    .header-action-btn span {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-component .flex-1 {
+        max-width: 150px;
+    }
+    
+    .header-component #global-search::placeholder {
+        content: "Search...";
     }
 }
