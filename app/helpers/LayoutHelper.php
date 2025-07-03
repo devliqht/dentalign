@@ -31,6 +31,7 @@ class LayoutHelper
         $hideHeader = $layoutConfig["hideHeader"] ?? false;
         $hideGuestHeader = $layoutConfig["hideGuestHeader"] ?? false;
         $hideFooter = $layoutConfig["hideFooter"] ?? false;
+        $hideSidebar = $layoutConfig["hideSidebar"] ?? false;
         $navigation = $layoutConfig["navigation"] ?? null;
         $additionalHead = $layoutConfig["additionalHead"] ?? null;
         $additionalScripts = $layoutConfig["additionalScripts"] ?? null;
