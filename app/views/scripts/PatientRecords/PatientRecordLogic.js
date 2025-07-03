@@ -333,6 +333,11 @@ async function createPatientRecord(patientId) {
   editPatientRecord(null, patientId);
 }
 
+// Navigate to dental chart editing
+function editDentalChart(patientId) {
+  window.location.href = `${window.BASE_URL}/doctor/dental-chart-edit/${patientId}`;
+}
+
 function closePatientDetail() {
   document.getElementById("patient-detail-modal").classList.add("hidden");
   currentPatientData = null;

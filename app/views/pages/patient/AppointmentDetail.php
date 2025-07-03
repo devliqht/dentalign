@@ -141,50 +141,33 @@
                         <h4 class="text-lg font-medium text-nhd-brown mb-3">Vital Signs</h4>
                         <div class="space-y-3">
                             <div>
-                                <label class="text-sm font-medium text-gray-500">Blood Pressure</label>
+                                <label class="text-sm font-medium text-gray-500">Diagnosis</label>
                                 <p class="text-gray-900 font-medium">
-                                    <?php echo $appointmentReport[
-                                        "BloodPressure"
-                                    ]
+                                    <?php echo $appointmentReport["Diagnosis"]
                                         ? htmlspecialchars(
-                                            $appointmentReport["BloodPressure"]
+                                            $appointmentReport["Diagnosis"]
                                         )
                                         : "Not recorded"; ?>
                                 </p>
                             </div>
                             
                             <div>
-                                <label class="text-sm font-medium text-gray-500">Pulse Rate</label>
+                                <label class="text-sm font-medium text-gray-500">Oral Notes</label>
                                 <p class="text-gray-900 font-medium">
-                                    <?php echo $appointmentReport["PulseRate"]
-                                        ? $appointmentReport["PulseRate"] .
-                                            " bpm"
+                                    <?php echo $appointmentReport["OralNotes"]
+                                        ? $appointmentReport["OralNotes"] . ""
                                         : "Not recorded"; ?>
                                 </p>
                             </div>
                             
                             <div>
-                                <label class="text-sm font-medium text-gray-500">Temperature</label>
+                                <label class="text-sm font-medium text-gray-500">X-Ray Images (if Applicable)</label>
                                 <p class="text-gray-900 font-medium">
-                                    <?php echo $appointmentReport["Temperature"]
-                                        ? $appointmentReport["Temperature"] .
-                                            "°C"
+                                    <?php echo $appointmentReport["XrayImages"]
+                                        ? $appointmentReport["XrayImages"] . ""
                                         : "Not recorded"; ?>
                                 </p>
-                            </div>
-                            
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">Respiratory Rate</label>
-                                <p class="text-gray-900 font-medium">
-                                    <?php echo $appointmentReport[
-                                        "RespiratoryRate"
-                                    ]
-                                        ? $appointmentReport[
-                                                "RespiratoryRate"
-                                            ] . " /min"
-                                        : "Not recorded"; ?>
-                                </p>
-                            </div>
+                            </div>  
                         </div>
                     </div>
 

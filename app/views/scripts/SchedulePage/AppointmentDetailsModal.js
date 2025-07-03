@@ -64,13 +64,9 @@ function populateModal(appointment, report) {
 
   document.getElementById("reportAppointmentId").value =
     appointment.AppointmentID;
-  document.getElementById("bloodPressure").value = report.BloodPressure || "";
-  document.getElementById("pulseRate").value = report.PulseRate || "";
-  document.getElementById("temperature").value = report.Temperature || "";
-  document.getElementById("respiratoryRate").value =
-    report.RespiratoryRate || "";
-  document.getElementById("generalAppearance").value =
-    report.GeneralAppearance || "";
+  document.getElementById("oralNotes").value = report.oralNotes || "";
+  document.getElementById("diagnosis").value = report.diagnosis || "";
+  document.getElementById("xrayImages").value = report.xrayImages || "";
 }
 
 function showModalContent() {
@@ -109,11 +105,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const formData = new FormData(form);
       const data = {
         appointmentId: formData.get("appointmentId"),
-        bloodPressure: formData.get("bloodPressure"),
-        pulseRate: formData.get("pulseRate"),
-        temperature: formData.get("temperature"),
-        respiratoryRate: formData.get("respiratoryRate"),
-        generalAppearance: formData.get("generalAppearance"),
+        oralNotes: formData.get("oralNotes"),
+        diagnosis: formData.get("diagnosis"),
+        xrayImages: formData.get("xrayImages"),
       };
 
       try {

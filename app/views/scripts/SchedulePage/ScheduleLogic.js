@@ -149,20 +149,32 @@ function formatTime(datetime) {
   });
 }
 
+// Flag to track if calendar event listeners have been set up
+let calendarEventListenersAdded = false;
+
 function initializeCalendar() {
   renderCalendar();
   updateSelectedDateDisplay();
   loadAppointmentsForDate(selectedDate);
 
-  document.getElementById("prev-month").addEventListener("click", function () {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
-  });
+  // Only add event listeners once
+  if (!calendarEventListenersAdded) {
+    document
+      .getElementById("prev-month")
+      .addEventListener("click", function () {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+      });
 
-  document.getElementById("next-month").addEventListener("click", function () {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar();
-  });
+    document
+      .getElementById("next-month")
+      .addEventListener("click", function () {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+      });
+
+    calendarEventListenersAdded = true;
+  }
 }
 
 function renderCalendar() {
@@ -325,5 +337,13 @@ function loadAppointmentsForDate(date) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  showSection("today");
+  // Check if there's a hash in the URL to determine which section to show
+  const hash = window.location.hash.substring(1); // Remove the #
+  const validSections = ["today", "calendar", "week", "upcoming"];
+
+  if (hash && validSections.includes(hash)) {
+    showSection(hash);
+  } else {
+    showSection("today");
+  }
 });

@@ -49,60 +49,35 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Vital Signs -->
                             <div class="space-y-4">
-                                <h5 class="text-base font-medium text-gray-800 border-b border-gray-200 pb-2">Vital Signs</h5>
+                                <h5 class="text-base font-medium text-gray-800 border-b border-gray-200 pb-2">Appointment Notes</h5>
                                 
                                 <div>
-                                    <label for="bloodPressure" class="block text-sm font-medium text-gray-700 mb-1">Blood Pressure</label>
-                                    <input type="text" 
-                                           id="bloodPressure" 
-                                           name="bloodPressure" 
-                                           placeholder="e.g., 120/80 mmHg"
+                                    <label for="diagnosis" class="block text-sm font-medium text-gray-700 mb-1">Diagnosis</label>
+                                    <input rows="6" 
+                                           id="diagnosis" 
+                                           name="diagnosis" 
+                                           placeholder="Diagnosis here..."
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
                                 </div>
                                 
                                 <div>
-                                    <label for="pulseRate" class="block text-sm font-medium text-gray-700 mb-1">Pulse Rate (BPM)</label>
-                                    <input type="number" 
-                                           id="pulseRate" 
-                                           name="pulseRate" 
-                                           placeholder="e.g., 72"
-                                           min="30" 
-                                           max="200"
+                                    <label for="xrayImages" class="block text-sm font-medium text-gray-700 mb-1">X-Ray Images</label>
+                                    <input rows="1" 
+                                           id="xrayImages" 
+                                           name="xrayImages" 
+                                           placeholder="Link to file..."
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
                                 </div>
                                 
-                                <div>
-                                    <label for="temperature" class="block text-sm font-medium text-gray-700 mb-1">Temperature (°F)</label>
-                                    <input type="number" 
-                                           id="temperature" 
-                                           name="temperature" 
-                                           placeholder="e.g., 98.6"
-                                           step="0.1"
-                                           min="90" 
-                                           max="110"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
-                                </div>
-                                
-                                <div>
-                                    <label for="respiratoryRate" class="block text-sm font-medium text-gray-700 mb-1">Respiratory Rate (breaths/min)</label>
-                                    <input type="number" 
-                                           id="respiratoryRate" 
-                                           name="respiratoryRate" 
-                                           placeholder="e.g., 16"
-                                           min="5" 
-                                           max="50"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
-                                </div>
                             </div>
                             
-                            <!-- General Assessment -->
                             <div class="space-y-4">
-                                <h5 class="text-base font-medium text-gray-800 border-b border-gray-200 pb-2">General Assessment</h5>
+                                <h5 class="text-base font-medium text-gray-800 border-b border-gray-200 pb-2">Notes</h5>
                                 
                                 <div>
-                                    <label for="generalAppearance" class="block text-sm font-medium text-gray-700 mb-1">General Appearance & Notes</label>
-                                    <textarea id="generalAppearance" 
-                                              name="generalAppearance" 
+                                    <label for="oralNotes" class="block text-sm font-medium text-gray-700 mb-1">General Appearance & Notes</label>
+                                    <textarea id="oralNotes" 
+                                              name="oralNotes" 
                                               rows="6"
                                               placeholder="Patient appearance, behavior, complaints, diagnosis, treatment plan, medications prescribed, follow-up instructions, etc."
                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"></textarea>
