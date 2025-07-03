@@ -1,31 +1,8 @@
 <div class="sidebar-container " id="sidebar-container">
-    <div class="glass-card h-full shadow-none rounded-l-none border-r-2 border-gray-200 shadow-sm">
-        <div class="flex items-center p-4">
-            <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="North Hill Dental Logo" class="w-10 h-10 rounded-full mr-3" />
+    <div class="h-full border-r-1 border-gray-200 bg-white shadow-sm">
+        <div class="flex items-center p-6 pb-4 border-b-1 border-gray-200">
+            <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="North Hill Dental Logo" class="w-10 h-10 rounded-full mr-1" />
             <h2 class="text-lg font-family-bodoni font-bold tracking-tight text-nhd-blue">North Hill Dental</h2>
-        </div>
-
-        <!-- User info -->
-        <div class="p-4">
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-nhd-blue rounded-full flex items-center justify-center text-white font-semibold">
-                    <?php echo strtoupper(
-                        substr($_SESSION["user_name"], 0, 1)
-                    ); ?>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars(
-                        $_SESSION["user_name"]
-                    ); ?></p>
-                    <p class="text-xs text-gray-500"><?php
-                    $displayType = $_SESSION["user_type"] ?? "User";
-                    if ($displayType === "ClinicStaff") {
-                        $displayType = "Doctor";
-                    }
-                    echo htmlspecialchars($displayType);
-                    ?></p>
-                </div>
-            </div>
         </div>
 
         <!-- Navigation -->
@@ -60,9 +37,9 @@
                         "label" => "Payments",
                     ],
                     [
-                        "url" => "/patient/results",
+                        "url" => "/patient/dental-chart",
                         "icon" => "document-text",
-                        "label" => "Results",
+                        "label" => "Dental Chart",
                     ],
                     [
                         "url" => "/patient/profile",
@@ -133,11 +110,12 @@
 
                     $isActive = $currentPath === $item["url"];
                     $activeClass = $isActive
-                        ? "bg-nhd-blue/85 glass-card text-white shadow-xl"
+                        ? "bg-nhd-blue/85 glass-card text-white shadow-xl rounded-xl"
                         : "text-gray-700 hover:bg-nhd-blue/20";
                     ?>
+                    
                     <a href="<?php echo BASE_URL . $item["url"]; ?>" 
-                        class="group flex items-center p-4 text-sm font-medium rounded-3xl transition-all duration-200 <?php echo $activeClass; ?>">
+                        class="group flex items-center p-4 text-sm font-medium rounded-xl transition-all duration-200 <?php echo $activeClass; ?>">
                         <svg class="<?php echo $isActive
                             ? "text-nhd-pale"
                             : "text-gray-600 group-hover:text-gray-500"; ?> mr-3 flex-shrink-0 h-5 w-5" 
@@ -149,8 +127,6 @@
                 <?php
                 endforeach; ?>
             </div>
-
-
         </nav>
     </div>
 </div>

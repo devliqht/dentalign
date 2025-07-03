@@ -20,8 +20,8 @@ switch (strtolower($payment["Status"])) {
 
 // Create unique identifiers for this section
 $paymentId = $payment["PaymentID"] ?? $payment["AppointmentID"];
-$sectionPrefix = $sectionPrefix ?? 'default';
-$uniqueId = $sectionPrefix . '-' . $paymentId;
+$sectionPrefix = $sectionPrefix ?? "default";
+$uniqueId = $sectionPrefix . "-" . $paymentId;
 ?>
 
 <div class="glass-card rounded-2xl shadow-sm border-l-4 border-gray-200 <?php echo $statusClass; ?> p-6 hover:shadow-md transition-all duration-300">
