@@ -53,9 +53,9 @@
                 <div id="pending-content" class="space-y-4">
                     <?php if (!empty($pendingPayments)): ?>
                         <?php foreach ($pendingPayments as $payment): ?>
-                            <?php 
-                            $sectionPrefix = 'pending';
-                            include "app/views/components/PaymentCardTemplate.php"; 
+                            <?php
+                            $sectionPrefix = "pending";
+                            include "app/views/components/PaymentCardTemplate.php";
                             ?>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -84,9 +84,9 @@
                 <div id="paid-content" class="space-y-4">
                     <?php if (!empty($paidPayments)): ?>
                         <?php foreach ($paidPayments as $payment): ?>
-                            <?php 
-                            $sectionPrefix = 'paid';
-                            include "app/views/components/PaymentCardTemplate.php"; 
+                            <?php
+                            $sectionPrefix = "paid";
+                            include "app/views/components/PaymentCardTemplate.php";
                             ?>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -104,16 +104,16 @@
             <div id="all-section" class="payment-section" style="display: none;">
                 <div class="space-y-4">
                     <?php foreach ($payments as $payment): ?>
-                        <?php 
-                        $sectionPrefix = 'all';
-                        include "app/views/components/PaymentCardTemplate.php"; 
+                        <?php
+                        $sectionPrefix = "all";
+                        include "app/views/components/PaymentCardTemplate.php";
                         ?>
                     <?php endforeach; ?>
                 </div>
             </div>
 
         <?php else: ?>
-            <div class="glass-card rounded-2xl shadow-md p-8 text-center">
+            <div class="glass-card rounded-2xl shadow-md p-8 text-center shadow-none border-1 border-gray-200">
                 <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>

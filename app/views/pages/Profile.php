@@ -1,10 +1,10 @@
-<div class="max-w-4xl mx-auto px-4">
+<div class="mx-auto px-4">
     <div class="mb-8">
         <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Profile Settings</h2>
         <p class="text-gray-600 mb-4">Manage your account information and security settings.</p>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="glass-card p-6 rounded-2xl border-gray-200 border-2 shadow-md">
+        <div class="glass-card p-6 rounded-2xl border-gray-200 border-1 shadow-sm">
             <div class="flex items-center mb-6">
                 <div class="w-16 h-16 bg-nhd-blue rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
                     <?php echo strtoupper(
@@ -54,7 +54,7 @@
         </div>
 
         <!-- Update Profile Form -->
-        <div class="glass-card p-6 rounded-2xl border-gray-200 border-2 shadow-md">
+        <div class="glass-card p-6 rounded-2xl border-gray-200 border-1 shadow-sm">
             <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-bodoni">Update Profile Information</h3>
             
             <form method="POST" action="<?php echo BASE_URL; ?>/<?php echo $user[
@@ -95,7 +95,7 @@
     <!-- Medical Information Section (For Patients Only) -->
     <?php if ($user["type"] === "Patient"): ?>
     <div class="mt-8">
-        <div class="glass-card p-6 rounded-2xl">
+        <div class="glass-card p-6 rounded-2xl shadow-none border-1 border-gray-200">
             <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-bodoni">Medical Information</h3>
             
             <?php if ($patientRecord): ?>
@@ -236,9 +236,9 @@
                 </div>
 
                 <!-- Additional Notes -->
-                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h5 class="text-sm font-medium text-blue-800 mb-2">📋 Note</h5>
-                    <p class="text-sm text-blue-700">
+                <div class="mt-6 p-4 bg-nhd-blue/10 border border-nhd-blue/50 rounded-lg">
+                    <h5 class="text-sm font-medium text-nhd-blue mb-2">📋 Note</h5>
+                    <p class="text-sm text-nhd-blue">
                         Medical measurements and information are updated by healthcare providers during your appointments. 
                         If you notice any inaccuracies, please contact your doctor.
                     </p>
@@ -268,7 +268,7 @@
 
     <!-- Change Password Section -->
     <div class="mt-8">
-        <div class="glass-card p-6 rounded-2xl">
+        <div class="glass-card p-6 rounded-2xl shadow-none border-1 border-gray-200">
             <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-bodoni">Change Password</h3>
             
             <form method="POST" action="<?php echo BASE_URL; ?>/<?php echo $user[

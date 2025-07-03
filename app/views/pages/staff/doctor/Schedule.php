@@ -1,5 +1,8 @@
 <div class="px-4 pb-8">
     <div class="mb-6">
+        <h1 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">
+            Appointment Schedule
+        </h1>
         <p class="text-gray-600 mb-2">
             <?php echo htmlspecialchars($doctor["specialization"]); ?> • 
             <?php echo date("l, F j, Y"); ?>
@@ -24,16 +27,13 @@
 
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
         <div class="flex space-x-2">
-            <button onclick="showSection('today')" id="today-btn" class="glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-white font-medium transition-all duration-200">
+            <button onclick="showSection('today')" id="today-btn" class="glass-card bg-nhd-blue/80 px-3 py-2 text-sm rounded-2xl text-white font-medium transition-all duration-200">
                 Today's Schedule
             </button>
-            <button onclick="showSection('calendar')" id="calendar-btn" class="glass-card bg-gray-200/80 px-4 py-2 rounded-2xl text-gray-700 font-medium transition-all duration-200">
+            <button onclick="showSection('calendar')" id="calendar-btn" class="glass-card bg-gray-200/80 px-3 py-2 text-sm rounded-2xl text-gray-700 font-medium transition-all duration-200">
                 Calendar View
             </button>
-            <button onclick="showSection('week')" id="week-btn" class="glass-card bg-gray-200/80 px-4 py-2 rounded-2xl text-gray-700 font-medium transition-all duration-200">
-                Week View
-            </button>
-            <button onclick="showSection('upcoming')" id="upcoming-btn" class="glass-card bg-gray-200/80 px-4 py-2 rounded-2xl text-gray-700 font-medium transition-all duration-200">
+            <button onclick="showSection('upcoming')" id="upcoming-btn" class="glass-card bg-gray-200/80 px-3 py-2 text-sm rounded-2xl text-gray-700 font-medium transition-all duration-200">
                 All Upcoming
             </button>
         </div>
@@ -52,9 +52,6 @@
 
     <!-- Calendar View Section -->
     <?php include "app/views/components/SchedulePage/CalendarView.php"; ?>
-
-    <!-- Week View Section -->
-    <?php include "app/views/components/SchedulePage/WeekView.php"; ?>
 
     <!-- Upcoming Appointments Section -->
     <?php include "app/views/components/SchedulePage/UpcomingAppointments.php"; ?>

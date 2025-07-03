@@ -4,7 +4,7 @@
         <p class="text-gray-600">Schedule your dental appointment with one of our experienced doctors.</p>
     </div>
 
-    <div class="glass-card rounded-2xl p-6">
+    <div>
         <form method="POST" action="<?php echo BASE_URL; ?>/patient/book-appointment" class="space-y-6" id="appointment-form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
                 $csrf_token
@@ -12,14 +12,14 @@
             
             <!-- Doctor Selection -->
             <div class="form-group">
-                <label class="block text-2xl font-medium tracking-tight font-family-bodoni text-gray-700 mb-4 text-shadow-sm">Select Your Doctor</label>
+                <label class="block text-2xl font-bold tracking-tight font-family-sans text-nhd-brown">Select Your Doctor</label>
                 <input type="hidden" id="doctor_id" name="doctor_id" value="<?php echo htmlspecialchars(
                     $selectedDoctorId
                 ); ?>">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <?php foreach ($doctors as $doctor): ?>
-                        <div class="doctor-card relative flex flex-col flex-end justify-end border glass-card rounded-2xl p-4 cursor-pointer transition-all duration-300 hover:shadow-lg group <?php echo $selectedDoctorId ==
+                        <div class="doctor-card shadow-sm border-gray-300 border-1 relative flex flex-col flex-end justify-end glass-card rounded-2xl p-4 cursor-pointer transition-all duration-100 hover:shadow-md group <?php echo $selectedDoctorId ==
                         $doctor["UserID"]
                             ? "selected border-nhd-brown shadow-lg"
                             : ""; ?>" 
@@ -65,7 +65,7 @@
 
             <!-- Date & Time Selection -->
             <div class="form-group">
-                <label class="block text-2xl font-medium tracking-tight font-family-bodoni text-gray-700 mb-4 text-shadow-sm">Select Appointment Date & Time</label>
+                <label class="block text-2xl font-bold tracking-tight font-family-sans text-nhd-brown">Select Appointment Date & Time</label>
                 <input type="hidden" id="appointment_date" name="appointment_date" value="<?php echo htmlspecialchars(
                     $selectedDate
                 ); ?>">
@@ -77,13 +77,13 @@
                         <h3 class="text-base font-medium text-gray-800 mb-3">Choose Date</h3>
                         <div class="w-[320px] glass-card border border-gray-200 rounded-xl shadow-sm p-4">
                             <div class="flex items-center justify-between mb-4">
-                                <button type="button" id="prev-month" class="glass-card bg-nhd-blue/80">
+                                <button type="button" id="prev-month" class="glass-card bg-nhd-blue/80 text-white">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                                     </svg>
                                 </button>
                                 <h3 id="calendar-month-year" class="text-lg font-semibold text-gray-800"></h3>
-                                <button type="button" id="next-month" class="glass-card bg-nhd-blue/80">
+                                <button type="button" id="next-month" class="glass-card bg-nhd-blue/80 text-white">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
@@ -107,7 +107,7 @@
                             </div>
                             
                             <!-- Selected Date Display -->
-                            <div class="mt-4 p-3 glass-card rounded-2xl">
+                            <div class="mt-4 p-3 glass-card rounded-2xl shadow-none border-1 border-gray-200">
                                 <p class="text-sm text-gray-600">Selected Date:</p>
                                 <p id="selected-date-display" class="text-base font-medium text-nhd-brown">No date selected</p>
                             </div>
@@ -130,7 +130,7 @@
                              </div>
                             
                             <!-- Selected Time Display -->
-                            <div class="mt-4 p-3 glass-card rounded-2xl">
+                            <div class="mt-4 p-3 glass-card border-gray-200 border-1 shadow-none rounded-2xl">
                                 <p class="text-sm text-gray-600">Selected Time:</p>
                                 <p id="selected-time-display" class="text-base font-medium text-nhd-brown">No time selected</p>
                             </div>
@@ -146,7 +146,7 @@
                             
                             <div id="appointment-types-container" class="flex flex-wrap gap-3 w-full">
                                 <!-- Consultation -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Consultation">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@
                                 </div>
                                 
                                 <!-- Cleaning -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Cleaning">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@
                                 </div>
                                 
                                 <!-- Filling -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Filling">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@
                                 </div>
                                 
                                 <!-- Root Canal -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Root Canal">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@
                                 </div>
                                 
                                 <!-- Extraction -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Extraction">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,7 +201,7 @@
                                 </div>
                                 
                                 <!-- Orthodontics -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Orthodontics">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,7 +212,7 @@
                                 </div>
                                 
                                 <!-- Emergency -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Emergency">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +223,7 @@
                                 </div>
                                 
                                 <!-- Follow-up -->
-                                <div class="appointment-type-card glass-card px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none cursor-pointer" 
+                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
                                      data-type="Follow-up">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,7 +235,7 @@
                             </div>
                             
                             <!-- Selected Appointment Type Display -->
-                            <div class="mt-4 p-3 glass-card rounded-2xl">
+                            <div class="mt-4 p-3 glass-card rounded-2xl border-gray-200 border-1 shadow-none">
                                 <p class="text-sm text-gray-600">Selected Type:</p>
                                 <p id="selected-type-display" class="text-base font-medium text-nhd-brown">No type selected</p>
                             </div>
@@ -249,6 +249,7 @@
                                     rows="5" 
                                     required 
                                     placeholder="Please describe your symptoms or the reason for your visit..."
+                                    class="rounded-2xl"
                                     ></textarea>
                             <p class="text-sm text-gray-500 mt-1">Minimum 10 characters required.</p>
                         </div>
