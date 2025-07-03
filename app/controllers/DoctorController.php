@@ -122,6 +122,127 @@ class DoctorController extends Controller
         $this->view("pages/staff/doctor/Schedule", $data, $layoutConfig);
     }
 
+    public function getWeekData()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+
+        $user = $this->getAuthUser();
+        $doctorID = $user["id"];
+
+        $appointmentModel = new Appointment($this->conn);
+
+        $selectedDate = isset($_GET["date"]) ? $_GET["date"] : date("Y-m-d");
+
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $selectedDate)) {
+            $selectedDate = date("Y-m-d");
+        }
+
+        $startOfWeek = date(
+            "Y-m-d",
+            strtotime("monday this week", strtotime($selectedDate))
+        );
+        $endOfWeek = date(
+            "Y-m-d",
+            strtotime("sunday this week", strtotime($selectedDate))
+        );
+        $weekAppointments = $appointmentModel->getAppointmentsByDoctorAndDateRange(
+            $doctorID,
+            $startOfWeek,
+            $endOfWeek
+        );
+
+        // Return only the week grid HTML
+        $daysOfWeek = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ];
+
+        $html = "";
+        for ($i = 0; $i < 7; $i++) {
+            $currentDate = date(
+                "Y-m-d",
+                strtotime($startOfWeek . " +" . $i . " days")
+            );
+            $dayAppointments = array_filter($weekAppointments, function (
+                $app
+            ) use ($currentDate) {
+                return date("Y-m-d", strtotime($app["DateTime"])) ===
+                    $currentDate;
+            });
+            $isToday = $currentDate === date("Y-m-d");
+
+            $html .=
+                '<div class="glass-card rounded-2xl shadow-sm p-4 ' .
+                ($isToday
+                    ? "bg-nhd-blue/10 border-1 border-nhd-blue/30"
+                    : "bg-white/60 border-gray-200 border-1") .
+                '">';
+            $html .= '<div class="text-center mb-3">';
+            $html .=
+                '<h4 class="font-semibold text-gray-900 ' .
+                ($isToday ? "text-nhd-blue" : "") .
+                '">' .
+                $daysOfWeek[$i] .
+                "</h4>";
+            $html .=
+                '<p class="text-sm text-gray-600 ' .
+                ($isToday ? "text-nhd-blue/80" : "") .
+                '">' .
+                date("M j", strtotime($currentDate));
+            if ($isToday) {
+                $html .= '<span class="text-xs">(Today)</span>';
+            }
+            $html .= "</p></div>";
+
+            if (!empty($dayAppointments)) {
+                $html .= '<div class="space-y-2">';
+                foreach ($dayAppointments as $appointment) {
+                    $html .=
+                        '<div class="glass-card bg-white/40 border-gray-200 border-1 shadow-sm p-3 rounded-xl text-xs">';
+                    $html .=
+                        '<div class="font-semibold text-nhd-blue">' .
+                        date("g:i A", strtotime($appointment["DateTime"])) .
+                        "</div>";
+                    $html .=
+                        '<div class="text-gray-900 font-medium">' .
+                        htmlspecialchars(
+                            $appointment["PatientFirstName"] .
+                                " " .
+                                $appointment["PatientLastName"]
+                        ) .
+                        "</div>";
+                    $html .=
+                        '<div class="text-gray-600 truncate">' .
+                        htmlspecialchars($appointment["AppointmentType"]) .
+                        "</div>";
+                    $html .= "</div>";
+                }
+                $html .= "</div>";
+            } else {
+                $html .=
+                    '<div class="text-center text-gray-400 text-xs py-4">No appointments</div>';
+            }
+            $html .= "</div>";
+        }
+
+        // Return JSON response with the HTML and date range
+        header("Content-Type: application/json");
+        echo json_encode([
+            "html" => $html,
+            "dateRange" =>
+                date("M j", strtotime($startOfWeek)) .
+                " - " .
+                date("M j, Y", strtotime($endOfWeek)),
+        ]);
+        exit();
+    }
+
     public function appointmentHistory()
     {
         $this->requireAuth();
@@ -395,7 +516,6 @@ class DoctorController extends Controller
         }
 
         try {
-            // Get patient basic info
             $patient = new Patient($this->conn);
             $patientData = $patient->getPatientById($patientId);
 
@@ -407,7 +527,6 @@ class DoctorController extends Controller
                 exit();
             }
 
-            // Get patient record
             $patientRecord = new PatientRecord($this->conn);
             $patientRecordData = null;
             if ($patientRecord->findByPatientID($patientId)) {
@@ -421,11 +540,9 @@ class DoctorController extends Controller
                 ];
             }
 
-            // Get appointments
             $appointment = new Appointment($this->conn);
             $appointments = $appointment->getAppointmentsByPatient($patientId);
 
-            // Get appointment reports for each appointment
             $appointmentReport = new AppointmentReport($this->conn);
             foreach ($appointments as &$apt) {
                 $reportData = $appointmentReport->getReportByAppointmentID(
@@ -609,23 +726,19 @@ class DoctorController extends Controller
                 exit();
             }
 
-            // Get appointment report
             $appointmentReport = new AppointmentReport($this->conn);
             $reportData = $appointmentReport->getReportByAppointmentID(
                 $appointmentId
             );
 
             if (!$reportData) {
-                // Create empty report if none exists
                 $reportData = [
                     "AppointmentReportID" => null,
                     "PatientRecordID" => null,
                     "AppointmentID" => $appointmentId,
-                    "BloodPressure" => "",
-                    "PulseRate" => "",
-                    "Temperature" => "",
-                    "RespiratoryRate" => "",
-                    "GeneralAppearance" => "",
+                    "OralNotes" => "",
+                    "Diagnosis" => "",
+                    "XrayImages" => "",
                     "CreatedAt" => null,
                     "Height" => "",
                     "Weight" => "",
@@ -633,10 +746,26 @@ class DoctorController extends Controller
                 ];
             }
 
+            // Transform field names to match JavaScript expectations
+            $transformedReport = [
+                "appointmentReportID" =>
+                    $reportData["AppointmentReportID"] ?? null,
+                "patientRecordID" => $reportData["PatientRecordID"] ?? null,
+                "appointmentID" =>
+                    $reportData["AppointmentID"] ?? $appointmentId,
+                "oralNotes" => $reportData["OralNotes"] ?? "",
+                "diagnosis" => $reportData["Diagnosis"] ?? "",
+                "xrayImages" => $reportData["XrayImages"] ?? "",
+                "createdAt" => $reportData["CreatedAt"] ?? null,
+                "height" => $reportData["Height"] ?? "",
+                "weight" => $reportData["Weight"] ?? "",
+                "allergies" => $reportData["Allergies"] ?? "",
+            ];
+
             $response = [
                 "success" => true,
                 "appointment" => $appointmentData,
-                "report" => $reportData,
+                "report" => $transformedReport,
             ];
 
             echo json_encode($response);
@@ -679,11 +808,9 @@ class DoctorController extends Controller
 
         try {
             $appointmentId = $data["appointmentId"] ?? null;
-            $bloodPressure = $data["bloodPressure"] ?? "";
-            $pulseRate = $data["pulseRate"] ?? "";
-            $temperature = $data["temperature"] ?? "";
-            $respiratoryRate = $data["respiratoryRate"] ?? "";
-            $generalAppearance = $data["generalAppearance"] ?? "";
+            $oralNotes = $data["oralNotes"] ?? "";
+            $diagnosis = $data["diagnosis"] ?? "";
+            $xrayImages = $data["xrayImages"] ?? "";
 
             if (!$appointmentId) {
                 echo json_encode([
@@ -698,11 +825,9 @@ class DoctorController extends Controller
             // Check if report already exists
             if ($appointmentReport->findByAppointmentID($appointmentId)) {
                 // Update existing report
-                $appointmentReport->bloodPressure = $bloodPressure;
-                $appointmentReport->pulseRate = $pulseRate;
-                $appointmentReport->temperature = $temperature;
-                $appointmentReport->respiratoryRate = $respiratoryRate;
-                $appointmentReport->generalAppearance = $generalAppearance;
+                $appointmentReport->oralNotes = $oralNotes;
+                $appointmentReport->diagnosis = $diagnosis;
+                $appointmentReport->xrayImages = $xrayImages;
 
                 if ($appointmentReport->update()) {
                     echo json_encode([
@@ -737,7 +862,6 @@ class DoctorController extends Controller
                         $appointmentData["PatientID"]
                     )
                 ) {
-                    // Create patient record if it doesn't exist
                     $patientRecord->patientID = $appointmentData["PatientID"];
                     $patientRecord->height = null;
                     $patientRecord->weight = null;
@@ -748,11 +872,9 @@ class DoctorController extends Controller
 
                 $appointmentReport->appointmentID = $appointmentId;
                 $appointmentReport->patientRecordID = $patientRecord->recordID;
-                $appointmentReport->bloodPressure = $bloodPressure;
-                $appointmentReport->pulseRate = $pulseRate;
-                $appointmentReport->temperature = $temperature;
-                $appointmentReport->respiratoryRate = $respiratoryRate;
-                $appointmentReport->generalAppearance = $generalAppearance;
+                $appointmentReport->oralNotes = $oralNotes;
+                $appointmentReport->diagnosis = $diagnosis;
+                $appointmentReport->xrayImages = $xrayImages;
 
                 if ($appointmentReport->create()) {
                     echo json_encode([
@@ -773,6 +895,224 @@ class DoctorController extends Controller
             ]);
         }
         exit();
+    }
+
+    public function getDentalChart()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+
+        header("Content-Type: application/json");
+
+        $patientId = $_GET["patient_id"] ?? "";
+
+        if (empty($patientId)) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Patient ID is required",
+            ]);
+            exit();
+        }
+
+        try {
+            require_once "app/models/DentalChart.php";
+            require_once "app/models/DentalChartItem.php";
+
+            // Get or create dental chart
+            $dentalChart = new DentalChart($this->conn);
+            if (!$dentalChart->findByPatientID($patientId)) {
+                if (!$dentalChart->createForPatient($patientId)) {
+                    echo json_encode([
+                        "success" => false,
+                        "message" =>
+                            "Failed to create dental chart for patient",
+                    ]);
+                    exit();
+                }
+            }
+
+            // Initialize all teeth if needed
+            $dentalChartItem = new DentalChartItem($this->conn);
+            if (
+                !$dentalChartItem->initializeAllTeeth(
+                    $dentalChart->dentalChartID
+                )
+            ) {
+                error_log(
+                    "Warning: Failed to initialize some teeth for dental chart ID: " .
+                        $dentalChart->dentalChartID
+                );
+            }
+
+            // Get all teeth data
+            $teethData = $dentalChartItem->getTeethByChartID(
+                $dentalChart->dentalChartID
+            );
+
+            // Organize teeth data by tooth number
+            $teethByNumber = [];
+            foreach ($teethData as $tooth) {
+                $teethByNumber[$tooth["ToothNumber"]] = $tooth;
+            }
+
+            echo json_encode([
+                "success" => true,
+                "dentalChart" => [
+                    "DentalChartID" => $dentalChart->dentalChartID,
+                    "PatientID" => $dentalChart->patientID,
+                    "DentistID" => $dentalChart->dentistID,
+                    "CreatedAt" => $dentalChart->createdAt,
+                ],
+                "teethData" => $teethByNumber,
+            ]);
+        } catch (Exception $e) {
+            error_log("Error in getDentalChart: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" => "Error fetching dental chart: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function updateDentalChartItem()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $patientId = $data["patientId"] ?? null;
+            $toothNumber = $data["toothNumber"] ?? null;
+            $status = $data["status"] ?? "";
+            $notes = $data["notes"] ?? "";
+
+            if (!$patientId || !$toothNumber) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Patient ID and tooth number are required",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/DentalChart.php";
+            require_once "app/models/DentalChartItem.php";
+
+            // Get or create dental chart
+            $dentalChart = new DentalChart($this->conn);
+            if (!$dentalChart->findByPatientID($patientId)) {
+                // Get current user (dentist) ID
+                $user = $this->getAuthUser();
+
+                // For doctors, the UserID is the same as DoctorID
+                if (!$dentalChart->createForPatient($patientId, $user["id"])) {
+                    echo json_encode([
+                        "success" => false,
+                        "message" =>
+                            "Failed to create dental chart for patient",
+                    ]);
+                    exit();
+                }
+            }
+
+            // Update or create tooth record
+            $dentalChartItem = new DentalChartItem($this->conn);
+
+            if (
+                $dentalChartItem->updateOrCreate(
+                    $dentalChart->dentalChartID,
+                    $toothNumber,
+                    $status,
+                    $notes
+                )
+            ) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Dental chart item updated successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" =>
+                        "Failed to update dental chart item - database error",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("Error in updateDentalChartItem: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" => "Error processing request: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function dentalChartEdit($patientId)
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+
+        // Validate patient ID
+        if (empty($patientId) || !is_numeric($patientId)) {
+            $_SESSION["error"] = "Invalid patient ID";
+            $this->redirect("/doctor/patient-records");
+            return;
+        }
+
+        // Check if patient exists
+        $patient = new Patient($this->conn);
+        $patientData = $patient->getPatientById($patientId);
+
+        if (!$patientData) {
+            $_SESSION["error"] = "Patient not found";
+            $this->redirect("/doctor/patient-records");
+            return;
+        }
+
+        $user = $this->getAuthUser();
+
+        // Include the dental chart models
+        require_once "app/models/DentalChart.php";
+        require_once "app/models/DentalChartItem.php";
+
+        $data = [
+            "user" => $user,
+            "patientId" => $patientId,
+            "patient" => $patientData,
+        ];
+
+        $layoutConfig = [
+            "title" =>
+                "Edit Dental Chart - " .
+                $patientData["FirstName"] .
+                " " .
+                $patientData["LastName"],
+            "hideHeader" => false,
+            "hideFooter" => false,
+        ];
+
+        $this->view("pages/staff/doctor/DentalChartEdit", $data, $layoutConfig);
     }
 }
 ?> 

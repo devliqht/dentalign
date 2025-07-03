@@ -38,9 +38,10 @@ class AuthController extends Controller
         $layoutConfig = [
             "title" => "Login",
             "hideHeader" => true,
+            "hideSidebar" => true,
             "hideFooter" => false,
             "bodyClass" =>
-                "bg-[url('/dentalign/public/low.svg')]",
+                "bg-[url('/dentalign/public/low.svg')] bg-size-[100%]",
         ];
 
         unset($_SESSION["error"]);
@@ -102,6 +103,7 @@ class AuthController extends Controller
         $layoutConfig = [
             "title" => "Sign Up",
             "hideHeader" => true,
+            "hideSidebar" => true,
             "hideFooter" => true,
         ];
 
@@ -241,7 +243,7 @@ class AuthController extends Controller
         return $errors;
     }
 
-    private function createDoctor($data)
+    private function createDoctor($data): bool
     {
         $doctor = new Doctor($this->conn);
         $doctor->firstName = $data["first_name"];
@@ -253,7 +255,7 @@ class AuthController extends Controller
         return $doctor->createDoctor();
     }
 
-    private function createPatient($data)
+    private function createPatient($data): bool
     {
         $patient = new Patient($this->conn);
         $patient->firstName = $data["first_name"];

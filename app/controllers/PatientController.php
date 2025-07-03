@@ -25,24 +25,154 @@ class PatientController extends Controller
 
         $user = $this->getAuthUser();
         $appointment = new Appointment($this->conn);
+        $patient = new Patient($this->conn);
+        $payment = new Payment($this->conn);
+        $patientRecord = new PatientRecord($this->conn);
+
+        $patientData = $patient->getPatientByUserId($user["id"]);
+
         $upcomingAppointments = $appointment->getUpcomingAppointmentsByPatient(
             $user["id"]
         );
 
+        $completedAppointments = $appointment->getCompletedAppointmentsByPatient(
+            $user["id"]
+        );
+
+        $allAppointments = $appointment->getAppointmentsByPatient($user["id"]);
+
+        $today = date("Y-m-d");
+        $startOfWeek = date(
+            "Y-m-d",
+            strtotime("monday this week", strtotime($today))
+        );
+        $endOfWeek = date(
+            "Y-m-d",
+            strtotime("sunday this week", strtotime($today))
+        );
+
+        $weekAppointments = [];
+        if ($patientData) {
+            $weekQuery = "SELECT a.*, 
+                            CONCAT(u.FirstName, ' ', u.LastName) as DoctorName,
+                            d.Specialization
+                          FROM Appointment a
+                          LEFT JOIN Doctor d ON a.DoctorID = d.DoctorID
+                          LEFT JOIN USER u ON d.DoctorID = u.UserID
+                          WHERE a.PatientID = ? 
+                          AND DATE(a.DateTime) BETWEEN ? AND ?
+                          ORDER BY a.DateTime ASC";
+
+            $stmt = $this->conn->prepare($weekQuery);
+            $stmt->bind_param(
+                "iss",
+                $patientData["PatientID"],
+                $startOfWeek,
+                $endOfWeek
+            );
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $weekAppointments = $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        $appointmentPayments = [];
+        $pendingPayments = [];
+        $totalPendingAmount = 0;
+        $totalPaidAmount = 0;
+
+        if ($patientData) {
+            $payments = $payment->getPaymentsByPatient(
+                $patientData["PatientID"]
+            );
+            foreach ($payments as $paymentRecord) {
+                $paymentWithBreakdown = $payment->getPaymentWithBreakdown(
+                    $paymentRecord["PaymentID"]
+                );
+                $paymentRecord["items"] = $paymentWithBreakdown["items"] ?? [];
+                $paymentRecord["total_amount"] =
+                    $paymentWithBreakdown["total_amount"] ?? 0;
+
+                $appointmentPayments[
+                    $paymentRecord["AppointmentID"]
+                ] = $paymentRecord;
+
+                // Track pending payments
+                if (strtolower($paymentRecord["Status"]) === "pending") {
+                    $pendingPayments[] = $paymentRecord;
+                    $totalPendingAmount += $paymentRecord["total_amount"];
+                } elseif (strtolower($paymentRecord["Status"]) === "paid") {
+                    $totalPaidAmount += $paymentRecord["total_amount"];
+                }
+            }
+        }
+
+        $patientPhysicalInfo = null;
+        if ($patientData) {
+            $patientPhysicalInfo = $patientRecord->getRecordByPatientID(
+                $patientData["PatientID"]
+            );
+        }
+
+        $appointmentStats = [
+            "total" => count($allAppointments),
+            "completed" => count($completedAppointments),
+            "upcoming" => count($upcomingAppointments),
+            "cancelled" => count(
+                array_filter($allAppointments, function ($apt) {
+                    return strtolower($apt["Status"]) === "cancelled";
+                })
+            ),
+        ];
+
+        // Mock current treatments data (UI only for now)
+        $currentTreatments = [
+            [
+                "id" => 1,
+                "name" => "Orthodontic Treatment",
+                "doctor" => "Dr. Smith",
+                "specialization" => "Orthodontist",
+                "progress" => 65,
+                "next_appointment" => "2024-01-15",
+                "status" => "In Progress",
+                "description" => "Braces treatment for teeth alignment",
+            ],
+            [
+                "id" => 2,
+                "name" => "Root Canal Therapy",
+                "doctor" => "Dr. Johnson",
+                "specialization" => "Endodontist",
+                "progress" => 80,
+                "next_appointment" => "2024-01-20",
+                "status" => "Final Stage",
+                "description" => "Root canal treatment for tooth #14",
+            ],
+        ];
+
         $data = [
             "user" => $user,
+            "patientData" => $patientData,
             "upcomingAppointments" => $upcomingAppointments,
+            "completedAppointments" => $completedAppointments,
+            "allAppointments" => $allAppointments,
+            "appointmentPayments" => $appointmentPayments,
+            "pendingPayments" => $pendingPayments,
+            "totalPendingAmount" => $totalPendingAmount,
+            "totalPaidAmount" => $totalPaidAmount,
+            "patientPhysicalInfo" => $patientPhysicalInfo,
+            "appointmentStats" => $appointmentStats,
+            "currentTreatments" => $currentTreatments,
+            "weekAppointments" => $weekAppointments,
+            "startOfWeek" => $startOfWeek,
+            "endOfWeek" => $endOfWeek,
+            "selectedDate" => $today,
         ];
 
         $layoutConfig = [
             "title" => "Patient Dashboard",
             "hideHeader" => true,
             "hideFooter" => false,
-            "bodyClass" =>
-                "bg-white bg-[radial-gradient(#e4e9f5_1px,transparent_2px)] [background-size:16px_16px]",
-            "showLoading" => true
+            "showLoading" => true,
         ];
-
 
         $this->view("pages/patient/Dashboard", $data, $layoutConfig);
     }
@@ -61,7 +191,6 @@ class PatientController extends Controller
             $user["id"]
         );
 
-        // Get payment data for appointments
         $payment = new Payment($this->conn);
         $patient = new Patient($this->conn);
         $patientData = $patient->getPatientByUserId($user["id"]);
@@ -206,15 +335,12 @@ class PatientController extends Controller
             return;
         }
 
-        // Get all appointments for the patient
         $allAppointments = $appointment->getAppointmentsByPatient($user["id"]);
 
-        // Get existing payments for the patient
         $existingPayments = $payment->getPaymentsByPatient(
             $patientData["PatientID"]
         );
 
-        // Index existing payments by AppointmentID
         $paymentsByAppointment = [];
         foreach ($existingPayments as $existingPayment) {
             $paymentWithBreakdown = $payment->getPaymentWithBreakdown(
@@ -285,23 +411,121 @@ class PatientController extends Controller
         $this->view("pages/patient/Payments", $data, $layoutConfig);
     }
 
-    public function results()
+    public function dentalchart()
     {
         $this->requireAuth();
         $this->requireRole("Patient");
 
+        $user = $this->getAuthUser();
+
+        require_once "app/models/DentalChart.php";
+        require_once "app/models/DentalChartItem.php";
+        require_once "app/models/Patient.php";
+
+        $patient = new Patient($this->conn);
+        $patientData = $patient->getPatientByUserId($user["id"]);
+
+        if (!$patientData) {
+            $_SESSION["error"] = "Patient data not found";
+            $this->redirect("/patient/dashboard");
+            return;
+        }
+
+        $patientID = $patientData["PatientID"];
+
+        $dentalChart = new DentalChart($this->conn);
+        if (!$dentalChart->findByPatientID($patientID)) {
+            $dentalChart->createForPatient($patientID);
+        }
+
+        $dentalChartItem = new DentalChartItem($this->conn);
+        $dentalChartItem->initializeAllTeeth($dentalChart->dentalChartID);
+        $teethData = $dentalChartItem->getTeethByChartID(
+            $dentalChart->dentalChartID
+        );
+
+        $teethByNumber = [];
+        foreach ($teethData as $tooth) {
+            $teethByNumber[$tooth["ToothNumber"]] = $tooth;
+        }
+
         $data = [
             "user" => $this->getAuthUser(),
-            // TODO: Fetch test results and prescriptions
+            "dentalChart" => [
+                "DentalChartID" => $dentalChart->dentalChartID,
+                "PatientID" => $dentalChart->patientID,
+                "DentistID" => $dentalChart->dentistID,
+                "CreatedAt" => $dentalChart->createdAt,
+            ],
+            "teethData" => $teethByNumber,
+            "csrf_token" => $this->generateCsrfToken(),
         ];
 
         $layoutConfig = [
-            "title" => "Results",
+            "title" => "Dental Chart",
             "hideHeader" => true,
             "hideFooter" => false,
         ];
 
-        $this->view("pages/patient/Results", $data, $layoutConfig);
+        $this->view("pages/patient/DentalChart", $data, $layoutConfig);
+    }
+
+    public function getDentalChartData()
+    {
+        $this->requireAuth();
+        $this->requireRole("Patient");
+
+        header("Content-Type: application/json");
+
+        $user = $this->getAuthUser();
+
+        require_once "app/models/DentalChart.php";
+        require_once "app/models/DentalChartItem.php";
+        require_once "app/models/Patient.php";
+
+        $patient = new Patient($this->conn);
+        $patientData = $patient->getPatientByUserId($user["id"]);
+
+        if (!$patientData) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Patient data not found",
+            ]);
+            exit();
+        }
+
+        $patientID = $patientData["PatientID"];
+
+        // Get or create dental chart
+        $dentalChart = new DentalChart($this->conn);
+        if (!$dentalChart->findByPatientID($patientID)) {
+            $dentalChart->createForPatient($patientID);
+        }
+
+        // Get all teeth data
+        $dentalChartItem = new DentalChartItem($this->conn);
+        $dentalChartItem->initializeAllTeeth($dentalChart->dentalChartID);
+        $teethData = $dentalChartItem->getTeethByChartID(
+            $dentalChart->dentalChartID
+        );
+
+        // Organize teeth data by tooth number
+        $teethByNumber = [];
+        foreach ($teethData as $tooth) {
+            $teethByNumber[$tooth["ToothNumber"]] = $tooth;
+        }
+
+        echo json_encode([
+            "success" => true,
+            "dentalChart" => [
+                "DentalChartID" => $dentalChart->dentalChartID,
+                "PatientID" => $dentalChart->patientID,
+                "DentistID" => $dentalChart->dentistID,
+                "CreatedAt" => $dentalChart->createdAt,
+            ],
+            "teethData" => $teethByNumber,
+        ]);
+        exit();
     }
 
     public function updatePaymentStatus()
@@ -658,7 +882,6 @@ class PatientController extends Controller
             $_SESSION["success"] = "Appointment booked successfully!";
             $this->redirect(BASE_URL . "/patient/bookings");
         } else {
-            // Get more specific error information
             $error = $this->conn->error;
             error_log(
                 "FAILURE: Appointment creation failed with error: " . $error
@@ -1132,7 +1355,7 @@ class PatientController extends Controller
 
         if (!empty($payment["items"])) {
             $html .= '
-            <div class="glass-card bg-blue-50/50 rounded-xl p-6">
+            <div class="glass-card shadow-none bg-blue-50/50 rounded-xl p-6">
                 <h4 class="text-xl font-semibold text-nhd-brown mb-4">Payment Breakdown</h4>
                 <div class="space-y-3">';
 
@@ -1186,7 +1409,7 @@ class PatientController extends Controller
         if (!empty($payment["Notes"])) {
             $html .=
                 '
-            <div class="glass-card bg-green-50/50 rounded-xl p-6">
+            <div class="glass-card bg-green-50/50 shadow-none rounded-xl p-6">
                 <h4 class="text-lg font-medium text-nhd-brown mb-2">Payment Notes</h4>
                 <p class="text-gray-700">' .
                 nl2br(htmlspecialchars($payment["Notes"])) .
