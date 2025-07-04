@@ -151,7 +151,6 @@
         background: rgba(255, 251, 235, 0.95);
     }
 
-    /* Scrollbar Styling */
     ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -177,28 +176,8 @@
         background: transparent;
     }
 
-    /* For Firefox */
     * {
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
     }
 }
-
-@import "tailwindcss";
-
-@layer utilities {
-  .bg-pale-pattern {
-    background-image: url('/dentalign/public/pale.svg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-  
-  .bg-main-pattern {
-    background-image: url('/dentalign/public/bg.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
-}
-

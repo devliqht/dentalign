@@ -200,7 +200,7 @@
                                         <a href="<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
 ]; ?>/<?php echo $appointment["AppointmentID"]; ?>" 
-                                           class="inline-flex items-center glass-card mt-2 px-3 py-1 text-sm bg-nhd-blue/80 text-white rounded-lg hover:bg-nhd-blue transition-colors">
+                                           class="inline-flex items-center glass-card mt-2 px-3 py-1 text-sm bg-nhd-blue/80 text-white rounded-2xl hover:bg-nhd-blue transition-colors">
                                             View Details
                                         </a>
                                     </div>
@@ -237,9 +237,9 @@
             </div>
 
             <!-- Current Treatments Section -->
-            <div class="glass-card rounded-2xl p-6 border-1 border-gray-200 shadow-none">
+            <div>
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-bold text-nhd-brown font-family-sans">Current Treatments</h3>
+                    <h3 class="text-2xl font-bold text-nhd-brown font-family-sans tracking-tight">Current Treatments</h3>
                     <span class="text-sm text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Preview Mode</span>
                 </div>
 
@@ -299,7 +299,7 @@
                                             )
                                         ); ?></span>
                                     </span>
-                                    <button class="text-nhd-blue hover:text-nhd-blue/80 font-medium">View Details</button>
+                                    <button class="glass-card bg-nhd-blue/80 text-white px-4 py-2 font-medium">View Details</button>
                                 </div>
                             </div>
                         <?php endforeach; ?>

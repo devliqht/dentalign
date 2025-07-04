@@ -117,11 +117,6 @@ class PatientController extends Controller
             "total" => count($allAppointments),
             "completed" => count($completedAppointments),
             "upcoming" => count($upcomingAppointments),
-            "cancelled" => count(
-                array_filter($allAppointments, function ($apt) {
-                    return strtolower($apt["Status"]) === "cancelled";
-                })
-            ),
         ];
 
         // Mock current treatments data (UI only for now)

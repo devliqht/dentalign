@@ -17,11 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const minDate = new Date(today);
   minDate.setDate(today.getDate() + 1);
 
-  console.log("Toast system available:", window.toast ? "Yes" : "No");
-  if (window.toast) {
-    console.log("Toast object:", window.toast);
-  }
-
   initializeCalendar();
 
   doctorCards.forEach((card) => {

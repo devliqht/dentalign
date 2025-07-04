@@ -373,7 +373,6 @@ class Appointment
         $this->conn->begin_transaction();
 
         try {
-            // Check if appointment exists first
             $checkQuery =
                 "SELECT AppointmentID FROM " .
                 $this->table .

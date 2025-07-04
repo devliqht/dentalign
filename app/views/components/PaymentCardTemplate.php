@@ -68,7 +68,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
             <!-- Price and Date -->
             <div class="text-right">
                 <div class="text-2xl font-bold text-nhd-brown">
-                    $<?php echo number_format($payment["total_amount"], 2); ?>
+                    ₱<?php echo number_format($payment["total_amount"], 2); ?>
                 </div>
                 <div class="text-sm text-gray-500">
                     Updated <?php echo date(

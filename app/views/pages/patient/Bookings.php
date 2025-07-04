@@ -107,7 +107,7 @@
                                         ]["Status"]
                                     ) === "paid"
                                         ? "bg-green-100 text-green-800"
-                                        : "bg-yellow-100 text-yellow-800"; ?> px-2 py-1 rounded-full ml-1">
+                                        : "bg-yellow-100 text-yellow-800 text-xs"; ?> px-2 py-1 rounded-full ml-1">
                                         <?php echo htmlspecialchars(
                                             $appointmentPayments[
                                                 $appointment["AppointmentID"]
@@ -230,7 +230,7 @@
                                                 ]["Status"]
                                             ) === "paid"
                                                 ? "bg-green-100 text-green-800"
-                                                : "bg-yellow-100 text-yellow-800"; ?> px-2 py-1 rounded-full">
+                                                : "bg-yellow-100 text-yellow-800 text-xs"; ?> px-2 py-1 rounded-full">
                                                 <?php echo htmlspecialchars(
                                                     $appointmentPayments[
                                                         $appointment[
@@ -367,7 +367,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                         ]["Status"]
                                     ) === "paid"
                                         ? "bg-green-100 text-green-800"
-                                        : "bg-yellow-100 text-yellow-800"; ?> px-2 py-1 rounded-full ml-1">
+                                        : "bg-yellow-100 text-yellow-800 text-xs"; ?> px-2 py-1 rounded-full ml-1">
                                         <?php echo htmlspecialchars(
                                             $appointmentPayments[
                                                 $appointment["AppointmentID"]

@@ -250,13 +250,13 @@
                 </div>
 
                 <!-- General Appearance and Notes -->
-                <?php if ($appointmentReport["GeneralAppearance"]): ?>
+                <?php if ($appointmentReport["OralNotes"]): ?>
                 <div class="glass-card bg-gray-50/50 border-gray-200 border-2 rounded-2xl p-4 shadow-md">
                     <h4 class="text-lg font-medium text-nhd-brown mb-3">General Appearance & Notes</h4>
                     <p class="text-gray-900 leading-relaxed">
                         <?php echo nl2br(
                             htmlspecialchars(
-                                $appointmentReport["GeneralAppearance"]
+                                $appointmentReport["OralNotes"]
                             )
                         ); ?>
                     </p>
@@ -339,6 +339,7 @@
                             2
                         )
                         : "0.00"; ?></span>
+                    <?php if ($appointmentPayment): ?>
                     <div class="mt-2">
                         <a onclick="viewPaymentDetails(<?php echo $appointmentPayment[
                             "PaymentID"
@@ -350,6 +351,7 @@
                             View Payment Details
                         </a>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php if (!$appointmentPayment): ?>
