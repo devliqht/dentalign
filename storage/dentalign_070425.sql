@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 30, 2025 at 05:46 AM
+-- Generation Time: Jul 04, 2025 at 02:30 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -48,7 +48,8 @@ INSERT INTO `Appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`,
 (23, 1, 3, '2025-06-27 09:00:00', 'Cleaning', 'second book of the day lets go', '2025-06-25 13:47:11'),
 (24, 1, 3, '2025-06-30 08:00:00', 'Consultation', 'This ia atestetest', '2025-06-27 14:44:47'),
 (25, 1, 3, '2025-07-07 09:00:00', 'Cleaning', 'Hello worldd', '2025-06-27 14:45:26'),
-(26, 1, 3, '2025-06-29 09:00:00', 'Cleaning', 'sdgdahdasjndsjsj', '2025-06-27 14:54:46');
+(26, 1, 3, '2025-06-29 09:00:00', 'Cleaning', 'sdgdahdasjndsjsj', '2025-06-27 14:54:46'),
+(30, 1, 3, '2025-07-03 08:00:00', 'Consultation', 'hello world pls work', '2025-07-01 14:28:12');
 
 --
 -- Triggers `Appointment`
@@ -64,8 +65,8 @@ CREATE TRIGGER `create_appointment_report_after_appointment_insert` AFTER INSERT
     LIMIT 1;
     
     -- Insert AppointmentReport
-    INSERT INTO AppointmentReport (PatientRecordID, AppointmentID, BloodPressure, PulseRate, Temperature, RespiratoryRate, GeneralAppearance)
-    VALUES (patient_record_id, NEW.AppointmentID, NULL, NULL, NULL, NULL, NULL);
+    INSERT INTO AppointmentReport (PatientRecordID, AppointmentID, OralNotes, Diagnosis, XrayImages)
+    VALUES (patient_record_id, NEW.AppointmentID, NULL, NULL, NULL);
 END
 $$
 DELIMITER ;
@@ -86,26 +87,25 @@ CREATE TABLE `AppointmentReport` (
   `AppointmentReportID` int(11) NOT NULL,
   `PatientRecordID` int(11) NOT NULL,
   `AppointmentID` int(11) NOT NULL,
-  `BloodPressure` varchar(20) DEFAULT NULL,
-  `PulseRate` int(11) DEFAULT NULL,
-  `Temperature` decimal(4,1) DEFAULT NULL,
-  `RespiratoryRate` int(11) DEFAULT NULL,
-  `GeneralAppearance` text DEFAULT NULL,
-  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp()
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `OralNotes` text DEFAULT NULL,
+  `Diagnosis` text DEFAULT NULL,
+  `XrayImages` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `AppointmentReport`
 --
 
-INSERT INTO `AppointmentReport` (`AppointmentReportID`, `PatientRecordID`, `AppointmentID`, `BloodPressure`, `PulseRate`, `Temperature`, `RespiratoryRate`, `GeneralAppearance`, `CreatedAt`) VALUES
-(1, 1, 1, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
-(4, 1, 8, NULL, NULL, NULL, NULL, NULL, '2025-06-24 00:31:51'),
-(31, 1, 22, NULL, NULL, NULL, NULL, NULL, '2025-06-25 13:46:50'),
-(32, 1, 23, '120/440', 90, 98.6, 16, 'Amazing so depressed', '2025-06-25 13:47:11'),
-(33, 1, 24, '', 0, 0.0, 0, '', '2025-06-27 14:44:47'),
-(34, 1, 25, NULL, NULL, NULL, NULL, NULL, '2025-06-27 14:45:26'),
-(35, 1, 26, '', 0, 0.0, 0, 'efsdgsdgsg', '2025-06-27 14:54:46');
+INSERT INTO `AppointmentReport` (`AppointmentReportID`, `PatientRecordID`, `AppointmentID`, `CreatedAt`, `OralNotes`, `Diagnosis`, `XrayImages`) VALUES
+(1, 1, 1, '2025-06-24 00:31:51', 'adadadad', '', ''),
+(4, 1, 8, '2025-06-24 00:31:51', NULL, NULL, NULL),
+(31, 1, 22, '2025-06-25 13:46:50', NULL, NULL, NULL),
+(32, 1, 23, '2025-06-25 13:47:11', NULL, NULL, NULL),
+(33, 1, 24, '2025-06-27 14:44:47', NULL, NULL, NULL),
+(34, 1, 25, '2025-06-27 14:45:26', NULL, NULL, NULL),
+(35, 1, 26, '2025-06-27 14:54:46', NULL, NULL, NULL),
+(36, 1, 30, '2025-07-01 14:28:12', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -130,6 +130,111 @@ INSERT INTO `CLINIC_STAFF` (`ClinicStaffID`, `StaffType`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `dentalchartitem`
+--
+
+CREATE TABLE `dentalchartitem` (
+  `DentalChartItemID` int(11) NOT NULL,
+  `DentalChartID` int(11) NOT NULL,
+  `ToothNumber` varchar(5) NOT NULL,
+  `Status` text DEFAULT NULL,
+  `Notes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dentalchartitem`
+--
+
+INSERT INTO `dentalchartitem` (`DentalChartItemID`, `DentalChartID`, `ToothNumber`, `Status`, `Notes`) VALUES
+(33, 1, '1', 'Healthy', ''),
+(34, 1, '2', 'Healthy', ''),
+(35, 1, '3', 'Healthy', ''),
+(36, 1, '4', 'Healthy', ''),
+(37, 1, '5', 'Healthy', ''),
+(38, 1, '6', 'Treatment Needed', 'Root Canal. Extraction. Crown. Filling. Cavity. Crown. Root Canal'),
+(39, 1, '7', '', ''),
+(40, 1, '8', '', ''),
+(41, 1, '9', 'Healthy', ''),
+(42, 1, '10', 'Healthy', ''),
+(43, 1, '11', 'Healthy', ''),
+(44, 1, '12', 'Healthy', ''),
+(45, 1, '13', 'Healthy', ''),
+(46, 1, '14', 'Healthy', ''),
+(47, 1, '15', 'Healthy', ''),
+(48, 1, '16', 'Healthy', ''),
+(49, 1, '17', 'Treatment Needed', ''),
+(50, 1, '18', 'Watch', 'Filling'),
+(51, 1, '19', 'Healthy', ''),
+(52, 1, '20', 'Healthy', ''),
+(53, 1, '21', 'Healthy', ''),
+(54, 1, '22', 'Healthy', ''),
+(55, 1, '23', 'Healthy', ''),
+(56, 1, '24', 'Healthy', ''),
+(57, 1, '25', 'Healthy', ''),
+(58, 1, '26', 'Healthy', ''),
+(59, 1, '27', 'Healthy', ''),
+(60, 1, '28', 'Healthy', ''),
+(61, 1, '29', 'Healthy', ''),
+(62, 1, '30', 'Healthy', ''),
+(63, 1, '31', 'Healthy', ''),
+(64, 1, '32', 'Healthy', ''),
+(65, 2, '1', NULL, NULL),
+(66, 2, '2', NULL, NULL),
+(67, 2, '3', NULL, NULL),
+(68, 2, '4', NULL, NULL),
+(69, 2, '5', NULL, NULL),
+(70, 2, '6', NULL, NULL),
+(71, 2, '7', NULL, NULL),
+(72, 2, '8', NULL, NULL),
+(73, 2, '9', NULL, NULL),
+(74, 2, '10', NULL, NULL),
+(75, 2, '11', NULL, NULL),
+(76, 2, '12', NULL, NULL),
+(77, 2, '13', NULL, NULL),
+(78, 2, '14', NULL, NULL),
+(79, 2, '15', NULL, NULL),
+(80, 2, '16', NULL, NULL),
+(81, 2, '17', NULL, NULL),
+(82, 2, '18', NULL, NULL),
+(83, 2, '19', NULL, NULL),
+(84, 2, '20', NULL, NULL),
+(85, 2, '21', NULL, NULL),
+(86, 2, '22', NULL, NULL),
+(87, 2, '23', NULL, NULL),
+(88, 2, '24', NULL, NULL),
+(89, 2, '25', NULL, NULL),
+(90, 2, '26', NULL, NULL),
+(91, 2, '27', NULL, NULL),
+(92, 2, '28', NULL, NULL),
+(93, 2, '29', NULL, NULL),
+(94, 2, '30', NULL, NULL),
+(95, 2, '31', NULL, NULL),
+(96, 2, '32', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dentalcharts`
+--
+
+CREATE TABLE `dentalcharts` (
+  `DentalChartID` int(11) NOT NULL,
+  `PatientID` int(11) NOT NULL,
+  `DentistID` int(11) DEFAULT NULL,
+  `CreatedAt` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dentalcharts`
+--
+
+INSERT INTO `dentalcharts` (`DentalChartID`, `PatientID`, `DentistID`, `CreatedAt`) VALUES
+(1, 1, NULL, '2025-07-02 18:12:48'),
+(2, 5, NULL, '2025-07-02 22:56:48');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `Doctor`
 --
 
@@ -150,38 +255,22 @@ INSERT INTO `Doctor` (`DoctorID`, `Specialization`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Messages`
---
-
-CREATE TABLE `Messages` (
-  `MessageID` int(11) NOT NULL,
-  `SenderID` int(11) NOT NULL,
-  `ReceiverID` int(11) NOT NULL,
-  `SenderType` varchar(50) DEFAULT NULL COMMENT 'e.g., Patient, Doctor, Staff for context',
-  `ReceiverType` varchar(50) DEFAULT NULL COMMENT 'e.g., Patient, Doctor, Staff for context',
-  `MessageText` text NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  `status` varchar(50) DEFAULT NULL COMMENT 'e.g., Sent, Delivered, Read'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `PATIENT`
 --
 
 CREATE TABLE `PATIENT` (
-  `PatientID` int(11) NOT NULL
+  `PatientID` int(11) NOT NULL,
+  `InsuranceProvider` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `PATIENT`
 --
 
-INSERT INTO `PATIENT` (`PatientID`) VALUES
-(1),
-(5),
-(11);
+INSERT INTO `PATIENT` (`PatientID`, `InsuranceProvider`) VALUES
+(1, NULL),
+(5, NULL),
+(11, NULL);
 
 --
 -- Triggers `PATIENT`
@@ -233,17 +322,17 @@ CREATE TABLE `PaymentItems` (
   `Quantity` int(11) NOT NULL DEFAULT 1,
   `Total` decimal(10,2) NOT NULL DEFAULT 0.00,
   `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `UpdatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `UpdatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `TreatmentItemID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `PaymentItems`
 --
 
-INSERT INTO `PaymentItems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`) VALUES
-(1, 2, 'Consultation Fee', 75.00, 1, 75.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
-(4, 5, 'Consultation Fee', 50.00, 1, 50.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16'),
-(5, 5, 'Professional Cleaning', 120.00, 1, 120.00, '2025-06-24 02:34:16', '2025-06-24 02:34:16');
+INSERT INTO `PaymentItems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`, `TreatmentItemID`) VALUES
+(9, 7, 'Cleaning', 696.00, 1, 696.00, '2025-07-03 06:24:21', '2025-07-03 06:24:21', NULL),
+(10, 8, 'Consultation', 500.00, 1, 500.00, '2025-07-03 08:56:57', '2025-07-03 08:56:57', NULL);
 
 -- --------------------------------------------------------
 
@@ -266,22 +355,39 @@ CREATE TABLE `Payments` (
 --
 
 INSERT INTO `Payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `UpdatedBy`, `UpdatedAt`, `Notes`) VALUES
-(2, 1, 1, 'Paid', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Consultation appointment'),
-(5, 8, 1, 'Pending', NULL, '2025-06-24 02:34:16', 'Auto-generated payment for Cleaning appointment');
+(7, 25, 1, 'Pending', 3, '2025-07-03 08:55:34', NULL),
+(8, 1, 1, 'Pending', 3, '2025-07-03 08:56:57', 'First Payment');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Prescription`
+-- Table structure for table `TreatmentPlan`
 --
 
-CREATE TABLE `Prescription` (
-  `PrescriptionID` int(11) NOT NULL,
+CREATE TABLE `TreatmentPlan` (
+  `TreatmentPlanID` int(11) NOT NULL,
   `AppointmentReportID` int(11) NOT NULL,
-  `Medicines` text NOT NULL,
-  `Diagnosis` text DEFAULT NULL,
-  `DoctorNotes` text DEFAULT NULL,
-  `AssignedAt` timestamp NOT NULL DEFAULT current_timestamp()
+  `Status` enum('pending','in_progress','completed','cancelled') NOT NULL DEFAULT 'pending',
+  `DentistNotes` text DEFAULT NULL,
+  `AssignedAt` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `TreatmentPlanItem`
+--
+
+CREATE TABLE `TreatmentPlanItem` (
+  `TreatmentItemID` int(11) NOT NULL,
+  `TreatmentPlanID` int(11) NOT NULL,
+  `ToothNumber` varchar(5) NOT NULL,
+  `ProcedureCode` varchar(50) NOT NULL,
+  `Description` text DEFAULT NULL,
+  `Cost` decimal(10,2) NOT NULL,
+  `ScheduledDate` date DEFAULT NULL,
+  `CreatedAt` datetime NOT NULL DEFAULT current_timestamp(),
+  `CompletedAt` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -340,18 +446,25 @@ ALTER TABLE `CLINIC_STAFF`
   ADD PRIMARY KEY (`ClinicStaffID`);
 
 --
+-- Indexes for table `dentalchartitem`
+--
+ALTER TABLE `dentalchartitem`
+  ADD PRIMARY KEY (`DentalChartItemID`),
+  ADD KEY `dentalchartitem_ibfk_1` (`DentalChartID`);
+
+--
+-- Indexes for table `dentalcharts`
+--
+ALTER TABLE `dentalcharts`
+  ADD PRIMARY KEY (`DentalChartID`),
+  ADD KEY `PatientID` (`PatientID`),
+  ADD KEY `DentistID` (`DentistID`);
+
+--
 -- Indexes for table `Doctor`
 --
 ALTER TABLE `Doctor`
   ADD PRIMARY KEY (`DoctorID`);
-
---
--- Indexes for table `Messages`
---
-ALTER TABLE `Messages`
-  ADD PRIMARY KEY (`MessageID`),
-  ADD KEY `FK_Messages_Sender` (`SenderID`),
-  ADD KEY `FK_Messages_Receiver` (`ReceiverID`);
 
 --
 -- Indexes for table `PATIENT`
@@ -371,7 +484,8 @@ ALTER TABLE `PatientRecord`
 --
 ALTER TABLE `PaymentItems`
   ADD PRIMARY KEY (`PaymentItemID`),
-  ADD KEY `idx_payment_id` (`PaymentID`);
+  ADD KEY `idx_payment_id` (`PaymentID`),
+  ADD KEY `fk_treatmentitem_payment` (`TreatmentItemID`);
 
 --
 -- Indexes for table `Payments`
@@ -383,11 +497,18 @@ ALTER TABLE `Payments`
   ADD KEY `FK_Payments_UpdatedBy` (`UpdatedBy`);
 
 --
--- Indexes for table `Prescription`
+-- Indexes for table `TreatmentPlan`
 --
-ALTER TABLE `Prescription`
-  ADD PRIMARY KEY (`PrescriptionID`),
-  ADD UNIQUE KEY `AppointmentReportID` (`AppointmentReportID`);
+ALTER TABLE `TreatmentPlan`
+  ADD PRIMARY KEY (`TreatmentPlanID`),
+  ADD KEY `fk_treatmentplan_appointment` (`AppointmentReportID`);
+
+--
+-- Indexes for table `TreatmentPlanItem`
+--
+ALTER TABLE `TreatmentPlanItem`
+  ADD PRIMARY KEY (`TreatmentItemID`),
+  ADD KEY `fk_treatmentitem_plan` (`TreatmentPlanID`);
 
 --
 -- Indexes for table `USER`
@@ -404,19 +525,25 @@ ALTER TABLE `USER`
 -- AUTO_INCREMENT for table `Appointment`
 --
 ALTER TABLE `Appointment`
-  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `AppointmentReport`
 --
 ALTER TABLE `AppointmentReport`
-  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
--- AUTO_INCREMENT for table `Messages`
+-- AUTO_INCREMENT for table `dentalchartitem`
 --
-ALTER TABLE `Messages`
-  MODIFY `MessageID` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `dentalchartitem`
+  MODIFY `DentalChartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+
+--
+-- AUTO_INCREMENT for table `dentalcharts`
+--
+ALTER TABLE `dentalcharts`
+  MODIFY `DentalChartID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `PatientRecord`
@@ -428,7 +555,7 @@ ALTER TABLE `PatientRecord`
 -- AUTO_INCREMENT for table `PaymentItems`
 --
 ALTER TABLE `PaymentItems`
-  MODIFY `PaymentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `PaymentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `Payments`
@@ -437,10 +564,16 @@ ALTER TABLE `Payments`
   MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `Prescription`
+-- AUTO_INCREMENT for table `TreatmentPlan`
 --
-ALTER TABLE `Prescription`
-  MODIFY `PrescriptionID` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `TreatmentPlan`
+  MODIFY `TreatmentPlanID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `TreatmentPlanItem`
+--
+ALTER TABLE `TreatmentPlanItem`
+  MODIFY `TreatmentItemID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `USER`
@@ -473,17 +606,22 @@ ALTER TABLE `CLINIC_STAFF`
   ADD CONSTRAINT `FK_ClinicStaff_User` FOREIGN KEY (`ClinicStaffID`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `dentalchartitem`
+--
+ALTER TABLE `dentalchartitem`
+  ADD CONSTRAINT `dentalchartitem_ibfk_1` FOREIGN KEY (`DentalChartID`) REFERENCES `dentalcharts` (`DentalChartID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `dentalcharts`
+--
+ALTER TABLE `dentalcharts`
+  ADD CONSTRAINT `dentalcharts_ibfk_1` FOREIGN KEY (`PatientID`) REFERENCES `PATIENT` (`PatientID`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `Doctor`
 --
 ALTER TABLE `Doctor`
   ADD CONSTRAINT `FK_Doctor_ClinicStaff` FOREIGN KEY (`DoctorID`) REFERENCES `CLINIC_STAFF` (`ClinicStaffID`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `Messages`
---
-ALTER TABLE `Messages`
-  ADD CONSTRAINT `FK_Messages_Receiver` FOREIGN KEY (`ReceiverID`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_Messages_Sender` FOREIGN KEY (`SenderID`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `PATIENT`
@@ -501,7 +639,8 @@ ALTER TABLE `PatientRecord`
 -- Constraints for table `PaymentItems`
 --
 ALTER TABLE `PaymentItems`
-  ADD CONSTRAINT `paymentitems_ibfk_1` FOREIGN KEY (`PaymentID`) REFERENCES `Payments` (`PaymentID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_treatmentitem_payment` FOREIGN KEY (`TreatmentItemID`) REFERENCES `TreatmentPlanItem` (`TreatmentItemID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `paymentitems_ibfk_1` FOREIGN KEY (`PaymentID`) REFERENCES `payments` (`PaymentID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `Payments`
@@ -512,10 +651,18 @@ ALTER TABLE `Payments`
   ADD CONSTRAINT `FK_Payments_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `CLINIC_STAFF` (`ClinicStaffID`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Constraints for table `Prescription`
+-- Constraints for table `TreatmentPlan`
 --
-ALTER TABLE `Prescription`
-  ADD CONSTRAINT `FK_Prescription_AppointmentReport` FOREIGN KEY (`AppointmentReportID`) REFERENCES `AppointmentReport` (`AppointmentReportID`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `TreatmentPlan`
+  ADD CONSTRAINT `fk_treatmentplan_appointment` FOREIGN KEY (`AppointmentReportID`) REFERENCES `AppointmentReport` (`AppointmentReportID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `treatmentplan_ibfk_1` FOREIGN KEY (`AppointmentReportID`) REFERENCES `AppointmentReport` (`AppointmentReportID`);
+
+--
+-- Constraints for table `TreatmentPlanItem`
+--
+ALTER TABLE `TreatmentPlanItem`
+  ADD CONSTRAINT `fk_treatmentitem_plan` FOREIGN KEY (`TreatmentPlanID`) REFERENCES `TreatmentPlan` (`TreatmentPlanID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `treatmentplanitem_ibfk_1` FOREIGN KEY (`TreatmentPlanID`) REFERENCES `TreatmentPlan` (`TreatmentPlanID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

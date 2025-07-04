@@ -333,7 +333,7 @@
                 </div>
                 <div class="text-right">
                     <span class="text-sm text-gray-500 block">Amount</span>
-                    <span class="text-2xl font-bold text-nhd-brown">$<?php echo $appointmentPayment
+                    <span class="text-2xl font-bold text-nhd-brown">₱<?php echo $appointmentPayment
                         ? number_format(
                             $appointmentPayment["total_amount"] ?? 0,
                             2

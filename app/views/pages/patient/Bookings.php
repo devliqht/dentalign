@@ -114,7 +114,7 @@
                                             ]["Status"]
                                         ); ?>
                                     </span>
-                                    <span class="ml-2 text-nhd-brown font-semibold">$
+                                    <span class="ml-2 text-nhd-brown font-semibold">₱
                                         <?php echo number_format(
                                             $appointmentPayments[
                                                 $appointment["AppointmentID"]
@@ -124,7 +124,7 @@
                                     </span>
                                 <?php else: ?>
                                     <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-xl">Pending</span>
-                                    <span class="ml-2 text-nhd-brown font-semibold">$0.00</span>
+                                    <span class="ml-2 text-nhd-brown font-semibold">₱0.00</span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -221,17 +221,7 @@
                                             ]
                                         )
                                     ): ?>
-                                        <div class="flex flex-col gap-1">
-                                            <span class="font-mono">#<?php echo str_pad(
-                                                $appointmentPayments[
-                                                    $appointment[
-                                                        "AppointmentID"
-                                                    ]
-                                                ]["PaymentID"],
-                                                6,
-                                                "0",
-                                                STR_PAD_LEFT
-                                            ); ?></span>
+                                        <div class="flex flex-row gap-1">
                                             <span class="<?php echo strtolower(
                                                 $appointmentPayments[
                                                     $appointment[
@@ -249,7 +239,7 @@
                                                     ]["Status"]
                                                 ); ?>
                                             </span>
-                                            <span class="text-nhd-brown font-semibold">$
+                                            <span class="text-nhd-brown font-semibold">₱
                                                 <?php echo number_format(
                                                     $appointmentPayments[
                                                         $appointment[
@@ -262,7 +252,7 @@
                                         </div>
                                     <?php else: ?>
                                         <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-xl">Pending</span>
-                                        <span class="text-nhd-brown font-semibold ml-2">$0.00</span>
+                                        <span class="text-nhd-brown font-semibold ml-2">₱0.00</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="py-2 px-3">
@@ -384,7 +374,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                             ]["Status"]
                                         ); ?>
                                     </span>
-                                    <span class="ml-2 text-nhd-brown font-semibold">$
+                                    <span class="ml-2 text-nhd-brown font-semibold">₱
                                         <?php echo number_format(
                                             $appointmentPayments[
                                                 $appointment["AppointmentID"]
@@ -394,7 +384,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                     </span>
                                 <?php else: ?>
                                     <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-xl">Pending</span>
-                                    <span class="ml-2 text-nhd-brown font-semibold">$0.00</span>
+                                    <span class="ml-2 text-nhd-brown font-semibold">₱0.00</span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -491,17 +481,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                             ]
                                         )
                                     ): ?>
-                                        <div class="flex flex-col gap-1">
-                                            <span class="font-mono">#<?php echo str_pad(
-                                                $appointmentPayments[
-                                                    $appointment[
-                                                        "AppointmentID"
-                                                    ]
-                                                ]["PaymentID"],
-                                                6,
-                                                "0",
-                                                STR_PAD_LEFT
-                                            ); ?></span>
+                                        <div class="flex flex-row gap-1">
                                             <span class="<?php echo strtolower(
                                                 $appointmentPayments[
                                                     $appointment[
@@ -510,7 +490,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                                 ]["Status"]
                                             ) === "paid"
                                                 ? "bg-green-100 text-green-800"
-                                                : "bg-yellow-100 text-yellow-800"; ?> px-2 py-1 rounded-full">
+                                                : "bg-yellow-100 text-yellow-800 text-xs"; ?> px-2 py-1 rounded-full">
                                                 <?php echo htmlspecialchars(
                                                     $appointmentPayments[
                                                         $appointment[
@@ -519,7 +499,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                                     ]["Status"]
                                                 ); ?>
                                             </span>
-                                            <span class="text-nhd-brown font-semibold">$
+                                            <span class="text-nhd-brown font-semibold">₱
                                                 <?php echo number_format(
                                                     $appointmentPayments[
                                                         $appointment[
@@ -532,7 +512,7 @@ class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-
                                         </div>
                                     <?php else: ?>
                                         <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-xl">Pending</span>
-                                        <span class="text-nhd-brown font-semibold ml-2">$0.00</span>
+                                        <span class="text-nhd-brown font-semibold ml-2">₱0.00</span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="py-2 px-3">

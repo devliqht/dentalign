@@ -1221,7 +1221,6 @@ class PatientController extends Controller
             // Test appointment booking components
             echo "<hr><h3>Testing Appointment Booking Components:</h3>";
 
-            // Test if doctors exist
             $doctorResult = $this->conn->query(
                 "SELECT COUNT(*) as count FROM Doctor"
             );
@@ -1230,7 +1229,6 @@ class PatientController extends Controller
             error_log("Number of doctors: $doctorCount");
 
             if ($doctorCount > 0) {
-                // Get first doctor for testing
                 $firstDoctor = $this->conn
                     ->query("SELECT DoctorID FROM Doctor LIMIT 1")
                     ->fetch_assoc();
@@ -1372,7 +1370,7 @@ class PatientController extends Controller
                     $html .=
                         '
                             <p class="text-sm text-gray-500">
-                                $' .
+                                ₱' .
                         number_format($item["Amount"], 2) .
                         " × " .
                         $item["Quantity"] .
@@ -1384,7 +1382,7 @@ class PatientController extends Controller
                     '
                         </div>
                         <div class="text-right">
-                            <p class="text-gray-900 font-semibold">$' .
+                            <p class="text-gray-900 font-semibold">₱' .
                     number_format($item["Total"], 2) .
                     '</p>
                         </div>
@@ -1396,7 +1394,7 @@ class PatientController extends Controller
                     <div class="border-t border-gray-300 pt-4 mt-4">
                         <div class="flex justify-between items-center">
                             <p class="text-xl font-bold text-nhd-brown">Total Amount</p>
-                            <p class="text-2xl font-bold text-nhd-brown">$' .
+                            <p class="text-2xl font-bold text-nhd-brown">₱' .
                 number_format($payment["total_amount"], 2) .
                 '</p>
                         </div>

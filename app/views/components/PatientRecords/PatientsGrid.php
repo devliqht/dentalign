@@ -144,7 +144,7 @@
                             View Details
                         </button>
                         <?php if ($patient["RecordID"]): ?>
-                            <button class="glass-card bg-gray-200/80 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-300/80 transition-colors"
+                            <button class="glass-card bg-gray-200/80 text-gray-700 px-3 py-2 rounded-2xl text-sm shadow-sm hover:bg-gray-300/80 transition-colors"
                                     onclick="editPatientRecord(<?php echo $patient[
                                         "RecordID"
                                     ]; ?>, <?php echo $patient[
@@ -153,7 +153,7 @@
                                 Edit Record
                             </button>
                         <?php else: ?>
-                            <button class="glass-card bg-green-200/80 text-green-700 px-3 py-2 rounded-lg text-sm hover:bg-green-300/80 transition-colors"
+                            <button class="glass-card bg-green-200/80 text-green-700 px-3 py-2 rounded-2xl text-sm hover:bg-green-300/80 transition-colors"
                                     onclick="createPatientRecord(<?php echo $patient[
                                         "PatientID"
                                     ]; ?>)">
@@ -163,7 +163,7 @@
                     </div>
                     
                     <!-- Dental Chart Button -->
-                    <button class="w-full glass-card bg-blue-100/80 text-blue-800 px-3 py-2 rounded-lg text-sm hover:bg-blue-200/80 transition-colors flex items-center justify-center"
+                    <button class="w-full glass-card bg-nhd-green/80 text-white px-3 py-2 rounded-2xl text-sm hover:bg-nhd-green shadow-sm transition-colors flex items-center justify-center"
                             onclick="editDentalChart(<?php echo $patient[
                                 "PatientID"
                             ]; ?>)">

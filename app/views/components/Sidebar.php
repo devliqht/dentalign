@@ -70,6 +70,11 @@
                         "label" => "Patient Records",
                     ],
                     [
+                        "url" => "/doctor/payment-management",
+                        "icon" => "credit-card",
+                        "label" => "Payment Management",
+                    ],
+                    [
                         "url" => "/staff/profile",
                         "icon" => "user",
                         "label" => "Profile",

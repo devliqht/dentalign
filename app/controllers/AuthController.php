@@ -82,7 +82,12 @@ class AuthController extends Controller
             $_SESSION["user_type"] = $user->userType;
             $_SESSION["user_email"] = $user->email;
 
-            $this->redirect(BASE_URL . "/patient/dashboard");
+            // Redirect based on user type
+            if ($user->userType === "ClinicStaff") {
+                $this->redirect(BASE_URL . "/doctor/dashboard");
+            } else {
+                $this->redirect(BASE_URL . "/patient/dashboard");
+            }
         } else {
             $this->redirectBack("Invalid email or password");
         }

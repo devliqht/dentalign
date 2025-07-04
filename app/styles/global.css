@@ -15,6 +15,7 @@
     input[type="email"], 
     input[type="password"], 
     input[type="search"], 
+    input[type="number"], 
     input[type="date"] {
         @apply flex h-10 w-full rounded-xl border border-gray-300 bg-neutral-100/40 backdrop-blur-sm px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-neutral-400 focus:ring-nhd-blue transition-all duration-200 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50;
     }
@@ -29,6 +30,7 @@
 
     button {
         @apply flex items-center justify-center border border-gray-300 text-sm hover:cursor-pointer focus:outline-none focus:ring-2 focus:inset-ring-1 focus:inset-ring-nhd-pale focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 bg-nhd-blue hover:bg-nhd-blue/90 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 hover:shadow-xl;
+        font-family: var(--font-family-sans) !important;
         position: relative;
         overflow: hidden;
     }
@@ -69,7 +71,7 @@
     button, input[type="button"], input[type="submit"], input[type="reset"],
     textarea, select, option,
     figcaption, legend, summary, cite, q {
-        @apply font-family-sans;
+        font-family: var(--font-family-sans);
     } 
 
     .form-row {

@@ -48,7 +48,7 @@
         </div>
 
         <!-- Upcoming Appointments -->
-        <div class="glass-card bg-yellow-50/50 border-2 border-nhd-pale rounded-2xl p-6 shadow-md">
+        <div class="glass-card bg-yellow-50/50 border-2 border-yellow-600 rounded-2xl p-6 shadow-md">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-yellow-700">Upcoming</p>
@@ -69,7 +69,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-red-700">Pending Payments</p>
-                    <p class="text-3xl font-bold text-red-800">$<?php echo number_format(
+                    <p class="text-3xl font-bold text-red-800">₱<?php echo number_format(
                         $totalPendingAmount,
                         2
                     ); ?></p>
@@ -88,11 +88,11 @@
         <!-- Left Column: Appointments & Treatments -->
         <div class="lg:col-span-2 space-y-8">
             <!-- Upcoming Appointments Section -->
-            <div class="glass-card rounded-2xl p-6 border-gray-200 border-1 shadow-none">
+            <div>
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-bold text-nhd-brown font-family-sans">Upcoming Appointments</h3>
+                    <h3 class="text-2xl font-semibold text-nhd-brown font-family-sans tracking-tight">Upcoming Appointments</h3>
                     <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
-                       class="inline-flex items-center px-4 py-2 bg-nhd-blue/80 glass-card text-white rounded-2xl hover:bg-nhd-blue transition-colors">
+                       class="inline-flex items-center px-4 py-2 text-sm bg-nhd-blue/80 glass-card text-white rounded-2xl hover:bg-nhd-blue transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -164,7 +164,7 @@
                                                     ); ?>
                                                 </span>
                                                 <span class="text-nhd-brown font-semibold">
-                                                    $<?php echo number_format(
+                                                    ₱<?php echo number_format(
                                                         $appointmentPayments[
                                                             $appointment[
                                                                 "AppointmentID"
@@ -346,7 +346,7 @@
                                         ); ?>
                                     </p>
                                 </div>
-                                <span class="font-bold text-yellow-800">$<?php echo number_format(
+                                <span class="font-bold text-yellow-800">₱<?php echo number_format(
                                     $payment["total_amount"],
                                     2
                                 ); ?></span>
@@ -661,7 +661,7 @@
                                 </div>
                                 <div class="text-right">
                                     <span class="font-bold text-nhd-brown">
-                                        $<?php echo number_format(
+                                    ₱<?php echo number_format(
                                             $payment["total_amount"],
                                             2
                                         ); ?>
