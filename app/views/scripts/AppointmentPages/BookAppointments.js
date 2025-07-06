@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectedTypeDisplay = document.getElementById("selected-type-display");
   const doctorCards = document.querySelectorAll(".doctor-card");
   const appointmentTypeCards = document.querySelectorAll(
-    ".appointment-type-card",
+    "#appointment-types-container .glass-card",
   );
 
   let currentDate = new Date();
@@ -383,69 +383,5 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       display.textContent = "No date selected";
     }
-  }
-
-  document
-    .getElementById("appointment-form")
-    .addEventListener("submit", function (e) {
-      const reason = document.getElementById("reason").value;
-      const doctorId = doctorIdInput.value;
-      const appointmentDate = dateInput.value;
-      const appointmentTime = timeInput.value;
-      const appointmentType = appointmentTypeInput.value;
-
-      if (!doctorId) {
-        e.preventDefault();
-        if (window.toast) {
-          toast.error("Please select a doctor.");
-        } else {
-          alert("Please select a doctor.");
-        }
-        return false;
-      }
-
-      if (!appointmentDate) {
-        e.preventDefault();
-        if (window.toast) {
-          toast.error("Please select an appointment date.");
-        } else {
-          alert("Please select an appointment date.");
-        }
-        return false;
-      }
-
-      if (!appointmentTime) {
-        e.preventDefault();
-        if (window.toast) {
-          toast.error("Please select an appointment time.");
-        } else {
-          alert("Please select an appointment time.");
-        }
-        return false;
-      }
-
-      if (!appointmentType) {
-        e.preventDefault();
-        if (window.toast) {
-          toast.error("Please select an appointment type.");
-        } else {
-          alert("Please select an appointment type.");
-        }
-        return false;
-      }
-
-      if (reason.length < 10) {
-        e.preventDefault();
-        if (window.toast) {
-          toast.error(
-            "Please provide a reason for your visit (at least 10 characters).",
-          );
-        } else {
-          alert(
-            "Please provide a reason for your visit (at least 10 characters).",
-          );
-        }
-        return false;
-      }
-    });
+    }
 });
