@@ -3,33 +3,12 @@
 abstract class Controller
 {
     protected $conn;
-    protected $middleware = [];
 
     public function __construct()
     {
         global $conn;
         $this->conn = $conn;
-
-        $this->initializeMiddleware();
     }
-
-    /**
-     * Apply middleware to controller methods
-     */
-    protected function middleware($middleware, $options = [])
-    {
-        $this->middleware[] = [
-            "middleware" => $middleware,
-            "options" => $options,
-        ];
-
-        return $this;
-    }
-
-    /**
-     * Initialize middleware - can be overridden by child controllers
-     */
-    protected function initializeMiddleware() {}
 
     /**
      * Check if user is authenticated
