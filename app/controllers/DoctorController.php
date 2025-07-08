@@ -1075,7 +1075,6 @@ class DoctorController extends Controller
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
 
-        // Validate patient ID
         if (empty($patientId) || !is_numeric($patientId)) {
             $_SESSION["error"] = "Invalid patient ID";
             $this->redirect("/doctor/patient-records");
@@ -1094,7 +1093,6 @@ class DoctorController extends Controller
 
         $user = $this->getAuthUser();
 
-        // Include the dental chart models
         require_once "app/models/DentalChart.php";
         require_once "app/models/DentalChartItem.php";
 
