@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 require_once "app/models/User.php";
 require_once "app/models/Doctor.php";
 require_once "app/models/Patient.php";
+require_once "app/models/DentalAssistant.php";
 require_once "app/core/Controller.php";
 
 class AuthController extends Controller
@@ -195,7 +196,15 @@ class AuthController extends Controller
                     $errorMessage =
                         "Failed to create doctor account. Please contact support.";
                 }
-            } else {
+            } 
+            else if($data["user_type"] === "DentalAssistant") {
+                $success = $this->createDentalAssistant($data);
+                if (!$success) {
+                    $errorMessage =
+                        "Failed to create dental assistant account. Please contact support.";
+                }
+            } 
+            else {
                 $success = $this->createPatient($data);
                 if (!$success) {
                     $errorMessage =
@@ -258,6 +267,17 @@ class AuthController extends Controller
         $doctor->specialization = $data["specialization"] ?? "";
 
         return $doctor->createDoctor();
+    }
+
+    private function createDentalAssistant($data): bool
+    {
+        $dentalAssistant = new DentalAssistant($this->conn);
+        $dentalAssistant->firstName = $data["first_name"];
+        $dentalAssistant->lastName = $data["last_name"];
+        $dentalAssistant->email = $data["email"];
+        $dentalAssistant->passwordHash = $dentalAssistant->hashPassword($data["password"]);
+
+        return $dentalAssistant->createDentalAssistant();
     }
 
     private function createPatient($data): bool
