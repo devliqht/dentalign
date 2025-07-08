@@ -187,5 +187,142 @@ class User
 
         return $result->num_rows > 0;
     }
+
+    /**
+     * Generate a password reset token for the user
+     */
+    public function generatePasswordResetToken($userId, $email = null)
+    {
+        $this->cleanupExpiredTokens();
+        
+        $token = bin2hex(random_bytes(32));
+        
+        if ($email) {
+            if (!$this->findByEmail($email)) {
+                return false; 
+            }
+            $userId = $this->userID;
+        }
+        
+        $query = "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("is", $userId, $token);
+        
+        if ($stmt->execute()) {
+            return $token;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Validate a password reset token
+     */
+    public function validatePasswordResetToken($token)
+    {
+        $query = "SELECT user_id, expires_at, used_at FROM password_reset_tokens 
+                  WHERE token = ? AND expires_at > NOW() AND used_at IS NULL LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $token);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $tokenData = $result->fetch_assoc();
+            return $tokenData['user_id'];
+        }
+        
+        return false;
+    }
+
+    /**
+     * Use a password reset token (mark as used)
+     */
+    public function usePasswordResetToken($token)
+    {
+        $query = "UPDATE password_reset_tokens SET used_at = NOW() WHERE token = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $token);
+        
+        return $stmt->execute();
+    }
+
+    /**
+     * Reset password using token
+     */
+    public function resetPasswordWithToken($token, $newPassword)
+    {
+        $userId = $this->validatePasswordResetToken($token);
+        
+        if (!$userId) {
+            return false; // Invalid or expired token
+        }
+        
+        $newPasswordHash = $this->hashPassword($newPassword);
+        
+        if ($this->updatePassword($userId, $newPasswordHash)) {
+            $this->usePasswordResetToken($token);
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Clean up expired tokens (call periodically)
+     */
+    public function cleanupExpiredTokens()
+    {
+        $query = "DELETE FROM password_reset_tokens WHERE expires_at < NOW() OR used_at IS NOT NULL";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+    }
+
+    /**
+     * Get user data by reset token
+     */
+    public function getUserByResetToken($token)
+    {
+        $query = "SELECT u.UserID, u.FirstName, u.LastName, u.Email 
+                  FROM USER u 
+                  INNER JOIN password_reset_tokens prt ON u.UserID = prt.user_id 
+                  WHERE prt.token = ? AND prt.expires_at > NOW() AND prt.used_at IS NULL 
+                  LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $token);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get user data by reset token (including used tokens for success display)
+     */
+    public function getUserByAnyResetToken($token)
+    {
+        $query = "SELECT u.UserID, u.FirstName, u.LastName, u.Email, prt.used_at
+                  FROM USER u 
+                  INNER JOIN password_reset_tokens prt ON u.UserID = prt.user_id 
+                  WHERE prt.token = ? AND prt.expires_at > NOW()
+                  LIMIT 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $token);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        
+        return false;
+    }
 }
 ?>

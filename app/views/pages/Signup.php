@@ -159,7 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSubmitButton();
     });
 
-    // Initial state
     updateSubmitButton();
 });
 </script>

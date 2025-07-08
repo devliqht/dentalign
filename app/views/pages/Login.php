@@ -1,22 +1,11 @@
-<!-- Landing Page Header -->
 <header class="fixed top-0 left-0 right-0 z-50 p-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            <!-- Logo -->
             <div class="flex items-center">
                 <img src="<?php echo BASE_URL; ?>/public/logo.png" alt="North Hill Dental" class="h-10 w-auto">
                 <span class="ml-3 text-xl font-family-bodoni font-bold text-nhd-blue">North Hill Dental</span>
             </div>
             
-            <!-- Navigation -->
-            <nav class="hidden md:flex space-x-8">
-                <a href="#about" class="text-gray-700 hover:text-nhd-blue transition-colors">About Us</a>
-                <a href="#services" class="text-gray-700 hover:text-nhd-blue transition-colors">Our Services</a>
-                <a href="#dentists" class="text-gray-700 hover:text-nhd-blue transition-colors">Our Dentists</a>
-                <a href="#contact" class="text-gray-700 hover:text-nhd-blue transition-colors">Contact</a>
-            </nav>
-            
-            <!-- Login/Signup Buttons -->
             <div class="flex items-center space-x-4">
                 <button onclick="openLoginModal()" class="glass-card bg-white/80 text-gray-800 font-medium transition-colors text-sm px-3 py-2">
                     Log In
@@ -26,7 +15,6 @@
                 </button>
             </div>
             
-            <!-- Mobile menu button -->
             <div class="md:hidden">
                 <button onclick="toggleMobileMenu()" class="text-gray-700 hover:text-nhd-blue">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +25,6 @@
         </div>
     </div>
     
-    <!-- Mobile Navigation -->
     <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-200">
         <div class="px-4 py-3 space-y-3">
             <a href="#about" class="block text-gray-700 hover:text-nhd-blue">About Us</a>
@@ -274,6 +261,8 @@
                 ); ?></p>
             </div>
         <?php endif; ?>
+
+
         
         <form method="POST" action="<?php echo BASE_URL; ?>/login" class="space-y-4">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
@@ -289,11 +278,63 @@
             </button>
         </form>
 
-        <div class="mt-6 text-center">
+        <div class="mt-6 text-center flex flex-col gap-4">
             <p class="text-sm text-gray-600">
                 New patient? 
                 <a href="<?php echo BASE_URL; ?>/signup" class="text-nhd-green hover:text-nhd-green/80 font-medium underline transition-colors">
                     Create an account
+                </a>
+            </p>
+            <p class="text-sm text-gray-600">
+                Forgot your password? 
+                <a href="#" onclick="openResetPasswordModal(); return false;" class="text-nhd-green hover:text-nhd-green/80 font-medium underline transition-colors">
+                   Reset here 
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div id="resetPasswordModal" class="fixed inset-0 bg-black/20 backdrop-blur-[4px] z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card bg-white/90 rounded-2xl p-8 w-full max-w-md relative">
+        <button onclick="closeResetPasswordModal()" class="absolute top-4 right-4 glass-card text-gray-800 rounded-full p-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-family-bodoni font-semibold text-nhd-blue mb-2">
+                Reset Your Password
+            </h2>
+            <p class="text-sm text-gray-600">
+                Enter your email address to receive a password reset link.
+            </p>
+        </div>
+
+        <form id="resetPasswordForm" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
+                $csrf_token
+            ); ?>">
+            
+            <div class="form-group">
+                <input type="email" id="reset_email" name="email" placeholder="Enter your email" required />
+            </div>
+            <button type="submit" id="resetPasswordBtn" class="w-full bg-nhd-blue text-white py-3 rounded-xl hover:bg-nhd-blue/90 transition-colors">
+                Send Reset Link
+            </button>
+        </form>
+
+        <div id="resetMessage" class="mt-4 p-3 rounded-xl hidden">
+            <p id="resetMessageText" class="text-sm"></p>
+        </div>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600">
+                Back to 
+                <a href="#" onclick="closeResetPasswordModal(); openLoginModal(); return false;" class="text-nhd-green hover:text-nhd-green/80 font-medium underline transition-colors">
+                    Login
                 </a>
             </p>
         </div>
@@ -309,6 +350,21 @@ function openLoginModal() {
 function closeLoginModal() {
     document.getElementById('loginModal').classList.add('hidden');
     document.body.style.overflow = 'auto';
+}
+
+function openResetPasswordModal() {
+    document.getElementById('resetPasswordModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeResetPasswordModal() {
+    document.getElementById('resetPasswordModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    
+    document.getElementById('resetPasswordForm').reset();
+    document.getElementById('resetMessage').classList.add('hidden');
+    document.getElementById('resetPasswordBtn').disabled = false;
+    document.getElementById('resetPasswordBtn').textContent = 'Send Reset Link';
 }
 
 function toggleMobileMenu() {
@@ -340,4 +396,57 @@ document.querySelectorAll('#mobile-menu a').forEach(link => {
         openLoginModal();
     });
 <?php endif; ?>
+
+// Handle password reset form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const resetForm = document.getElementById('resetPasswordForm');
+    const resetBtn = document.getElementById('resetPasswordBtn');
+    const resetMessage = document.getElementById('resetMessage');
+    const resetMessageText = document.getElementById('resetMessageText');
+    
+    if (resetForm) {
+        resetForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(resetForm);
+            
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Sending...';
+            resetMessage.classList.add('hidden');
+            
+            fetch('<?php echo BASE_URL; ?>/request-password-reset', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Send Reset Link';
+                
+                if (data.success) {
+                    resetMessage.className = 'mt-4 p-3 rounded-xl bg-green-50 border border-green-200';
+                    resetMessageText.className = 'text-sm text-green-600';
+                    resetMessageText.textContent = data.message;
+                    resetMessage.classList.remove('hidden');
+                    
+                    resetForm.reset();
+                } else {
+                    resetMessage.className = 'mt-4 p-3 rounded-xl bg-red-50 border border-red-200';
+                    resetMessageText.className = 'text-sm text-red-600';
+                    resetMessageText.textContent = data.message;
+                    resetMessage.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Send Reset Link';
+                resetMessage.className = 'mt-4 p-3 rounded-xl bg-red-50 border border-red-200';
+                resetMessageText.className = 'text-sm text-red-600';
+                resetMessageText.textContent = 'An error occurred. Please try again.';
+                resetMessage.classList.remove('hidden');
+                console.error('Error:', error);
+            });
+        });
+    }
+});
 </script> 

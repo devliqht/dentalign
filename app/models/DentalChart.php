@@ -103,14 +103,12 @@ class DentalChart
     // Create dental chart for patient if it doesn't exist
     public function createForPatient($patientID, $dentistID = null)
     {
-        // Check if chart already exists
         if ($this->findByPatientID($patientID)) {
             return true;
         }
 
         $this->patientID = $patientID;
 
-        // Set dentistID to null if not provided
         if ($dentistID === null || $dentistID === 0 || $dentistID === "") {
             $this->dentistID = null;
         } else {

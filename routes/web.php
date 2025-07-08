@@ -15,11 +15,14 @@ $router->group("GET", "AuthController", [
     "signup" => "DisplaySignupPage",
     "dashboard" => "DisplayHomePage",
     "logout" => "LogoutUser",
+    "reset-password" => "displayPasswordResetForm",
 ]);
 
 $router->group("POST", "AuthController", [
     "login" => "LoginUser",
     "signup" => "SignupUser",
+    "request-password-reset" => "requestPasswordReset",
+    "reset-password" => "processPasswordReset",
 ]);
 
 $router->group("GET", "PatientController", [

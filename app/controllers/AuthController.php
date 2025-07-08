@@ -8,6 +8,7 @@ require_once "app/models/User.php";
 require_once "app/models/Doctor.php";
 require_once "app/models/Patient.php";
 require_once "app/core/Controller.php";
+require_once "app/services/EmailService.php";
 
 class AuthController extends Controller
 {
@@ -292,6 +293,179 @@ class AuthController extends Controller
     {
         session_destroy();
         $this->redirect(BASE_URL . "/login");
+    }
+
+    public function requestPasswordReset()
+    {
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+
+        $isValid = $this->validate(
+            $data,
+            [
+                "email" => "required|email",
+            ],
+            [
+                "email" => "Please enter a valid email address",
+            ]
+        );
+
+        if (!$isValid) {
+            $this->json(["success" => false, "message" => "Please enter a valid email address"], 400);
+            return;
+        }
+
+        $user = new User($this->conn);
+        $emailService = new EmailService();
+
+        $resetToken = $user->generatePasswordResetToken(null, $data["email"]);
+
+        if ($resetToken) {
+            $emailSent = $emailService->sendPasswordResetEmail(
+                $data["email"],
+                $user->firstName,
+                $resetToken
+            );
+
+            if ($emailSent) {
+                $this->json([
+                    "success" => true,
+                    "message" => "Password reset link has been sent to your email address. Please check your inbox."
+                ]);
+            } else {
+                $this->json([
+                    "success" => false,
+                    "message" => "Unable to send email at this time. Please try again later or contact support."
+                ], 500);
+            }
+        } else {
+            $this->json([
+                "success" => true,
+                "message" => "If an account with that email exists, you will receive a password reset link shortly."
+            ]);
+        }
+    }
+
+    public function displayPasswordResetForm()
+    {
+        $token = $_GET["token"] ?? "";
+        $isSuccess = isset($_GET["success"]) && $_GET["success"] == "1";
+
+        if (empty($token)) {
+            $this->redirectBack("Invalid or missing reset token.");
+            return;
+        }
+
+        $user = new User($this->conn);
+        
+        if ($isSuccess) {
+            $userData = $user->getUserByAnyResetToken($token);
+            
+            // Verify this is actually a used token (legitimate success)
+            if (!$userData || empty($userData['used_at'])) {
+                // If success=1 but token wasn't used, something's wrong
+                $data = [
+                    "error" => "This password reset link is invalid or has expired. Please request a new one.",
+                    "csrf_token" => $this->generateCsrfToken(),
+                ];
+
+                $layoutConfig = [
+                    "title" => "Invalid Reset Link",
+                    "hideHeader" => true,
+                    "hideSidebar" => true,
+                    "hideFooter" => false,
+                ];
+
+                $this->view("pages/PasswordResetError", $data, $layoutConfig);
+                return;
+            }
+        } else {
+            // Normal case - only get unused tokens
+            $userData = $user->getUserByResetToken($token);
+            
+            if (!$userData) {
+                $data = [
+                    "error" => "This password reset link is invalid or has expired. Please request a new one.",
+                    "csrf_token" => $this->generateCsrfToken(),
+                ];
+
+                $layoutConfig = [
+                    "title" => "Invalid Reset Link",
+                    "hideHeader" => true,
+                    "hideSidebar" => true,
+                    "hideFooter" => false,
+                ];
+
+                $this->view("pages/PasswordResetError", $data, $layoutConfig);
+                return;
+            }
+        }
+
+        $data = [
+            "token" => $token,
+            "user_email" => $userData["Email"],
+            "user_name" => $userData["FirstName"],
+            "csrf_token" => $this->generateCsrfToken(),
+        ];
+
+        $layoutConfig = [
+            "title" => $isSuccess ? "Password Reset Successful" : "Reset Password",
+            "hideHeader" => true,
+            "hideSidebar" => true,
+            "hideFooter" => false,
+        ];
+
+        $this->view("pages/PasswordReset", $data, $layoutConfig);
+    }
+
+    public function processPasswordReset()
+    {
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+
+        $isValid = $this->validate(
+            $data,
+            [
+                "token" => "required",
+                "password" => "required",
+                "confirm_password" => "required",
+            ],
+            [
+                "token" => "Reset token is required",
+                "password" => "Password is required",
+                "confirm_password" => "Please confirm your password",
+            ]
+        );
+
+        if (!$isValid) {
+            $this->redirectBack("Please correct the errors below");
+            return;
+        }
+
+        $passwordErrors = $this->validatePassword($data["password"]);
+        if (!empty($passwordErrors)) {
+            $this->redirectBack(implode(". ", $passwordErrors));
+            return;
+        }
+
+        if ($data["password"] !== $data["confirm_password"]) {
+            $this->redirectBack("Passwords do not match");
+            return;
+        }
+
+        $user = new User($this->conn);
+
+        if ($user->resetPasswordWithToken($data["token"], $data["password"])) {
+            // Clean up old sessions for security
+            session_regenerate_id(true);
+            
+
+            $this->redirect(BASE_URL . "/reset-password?token=" . urlencode($data["token"]) . "&success=1");
+        } else {
+            $this->redirectBack("Invalid or expired reset token. Please request a new password reset.");
+        }
     }
 }
 ?>
