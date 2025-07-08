@@ -35,6 +35,7 @@ $router->group("GET", "PatientController", [
     "patient/payments" => "payments",
     "patient/dental-chart" => "dentalchart",
     "patient/profile" => "profile",
+    "patient/get-treatment-plan" => "getTreatmentPlan"
 ]);
 
 $router->group("POST", "PatientController", [
@@ -58,6 +59,8 @@ $router->group("GET", "DoctorController", [
     "doctor/payment-management" => "paymentManagement",
     "doctor/get-payment-details" => "getPaymentDetails",
     "doctor/get-all-appointments-payments" => "getAllAppointmentsPayments",
+    "doctor/get-patient-treatment-plan" => "getPatientTreatmentPlan",
+    "patient/get-treatment-plan/{patient_id}" => "getTreatmentPlan",
     "doctor/inbox" => "inbox",
     "staff/profile" => "profile",
 ]);
@@ -75,6 +78,7 @@ $router->group("POST", "DoctorController", [
     "doctor/update-payment-item" => "updatePaymentItem",
     "doctor/delete-payment-item" => "deletePaymentItem",
     "doctor/update-payment-status" => "updatePaymentStatus",
+    "doctor/update-treatment-plan" => "updateTreatmentPlan",
     "staff/profile" => "updateProfile",
 ]);
 
