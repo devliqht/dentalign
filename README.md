@@ -44,6 +44,30 @@ Dentalign is a comprehensive clinic management system designed specifically for 
 - **XAMPP**
 - **Git**
 
+## Screenshots
+
+<img src="public/screenshots/ss1.png" alt="Dashboard Overview" width="800"/>
+
+<img src="public/screenshots/ss2.png" alt="Patient Records" width="800"/>
+
+<img src="public/screenshots/ss3.png" alt="Appointment Calendar" width="800"/>
+
+<img src="public/screenshots/ss4.png" alt="Treatment Plans" width="800"/>
+
+<img src="public/screenshots/ss5.png" alt="Dental Chart" width="800"/>
+
+<img src="public/screenshots/ss6.png" alt="Payment Management" width="800"/>
+
+<img src="public/screenshots/ss7.png" alt="Staff Dashboard" width="800"/>
+
+<img src="public/screenshots/ss8.png" alt="Patient Portal" width="800"/>
+
+<img src="public/screenshots/ss9.png" alt="Appointment Booking" width="800"/>
+
+<img src="public/screenshots/ss10.png" alt="Analytics Dashboard" width="800"/>
+
+<img src="public/screenshots/ss11.png" alt="Mobile Interface" width="800"/>
+
 ## 📦 Installation
 
 ### Prerequisites
