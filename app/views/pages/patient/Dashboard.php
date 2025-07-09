@@ -103,8 +103,7 @@
                 <?php if (!empty($upcomingAppointments)): ?>
                     <div class="space-y-4">
                         <?php foreach (
-                            array_slice($upcomingAppointments, 0, 3)
-                            as $appointment
+                            array_slice($upcomingAppointments, 0, 3) as $appointment
                         ): ?>
                             <div class="glass-card bg-neutral-100/50 rounded-2xl shadow-sm p-6 border-1 border-gray-200 hover:shadow-md transition-shadow">
                                 <div class="flex items-center justify-between">
@@ -240,7 +239,9 @@
             <div>
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-2xl font-bold text-nhd-brown font-family-sans tracking-tight">Current Treatments</h3>
-                    <span class="text-sm text-gray-500 px-3 py-1 bg-gray-100 rounded-full">Preview Mode</span>
+                    <a href="<?php echo BASE_URL; ?>/patient/dentalchart" class="text-nhd-blue hover:text-nhd-blue/80 text-sm font-medium">
+                        View Treatment History →
+                    </a>
                 </div>
 
                 <?php if (!empty($currentTreatments)): ?>
@@ -259,15 +260,18 @@
                                             with <?php echo htmlspecialchars(
                                                 $treatment["doctor"]
                                             ); ?> • <?php echo htmlspecialchars(
-     $treatment["specialization"]
- ); ?>
+                                                $treatment["specialization"]
+                                            ); ?>
                                         </p>
                                     </div>
                                     <span class="inline-block px-3 py-1 text-xs font-medium rounded-full 
                                         <?php echo $treatment["status"] ===
-                                        "In Progress"
-                                            ? "bg-blue-100 text-blue-800"
-                                            : "bg-orange-100 text-orange-800"; ?>">
+                                        "Completed"
+                                            ? "bg-green-100 text-green-800"
+                                            : ($treatment["status"] ===
+                                            "In Progress"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : "bg-orange-100 text-orange-800"); ?>">
                                         <?php echo htmlspecialchars(
                                             $treatment["status"]
                                         ); ?>
@@ -292,14 +296,24 @@
                                 
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-gray-600">
-                                        Next Appointment: <span class="font-medium"><?php echo date(
-                                            "M j, Y",
-                                            strtotime(
-                                                $treatment["next_appointment"]
-                                            )
-                                        ); ?></span>
+                                        Next Appointment: <span class="font-medium"><?php if (
+                                            $treatment["next_appointment"] &&
+                                            $treatment["next_appointment"] !==
+                                                "TBD"
+                                        ) {
+                                            echo date(
+                                                "M j, Y",
+                                                strtotime(
+                                                    $treatment[
+                                                        "next_appointment"
+                                                    ]
+                                                )
+                                            );
+                                        } else {
+                                            echo "To be scheduled";
+                                        } ?></span>
                                     </span>
-                                    <button class="glass-card bg-nhd-blue/80 text-white px-4 py-2 font-medium">View Details</button>
+                                    <a href="<?php echo BASE_URL; ?>/patient/dentalchart" class="glass-card bg-nhd-blue/80 text-white px-4 py-2 font-medium hover:bg-nhd-blue transition-colors">View Details</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -309,7 +323,8 @@
                         <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                         </svg>
-                        <p class="text-gray-500">No active treatments at the moment</p>
+                        <p class="text-gray-500 mb-2">No active treatments at the moment</p>
+                        <p class="text-gray-400 text-sm">Treatment plans will appear here when created by your dentist</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -329,8 +344,7 @@
                     
                     <div class="space-y-3">
                         <?php foreach (
-                            array_slice($pendingPayments, 0, 3)
-                            as $payment
+                            array_slice($pendingPayments, 0, 3) as $payment
                         ): ?>
                             <div class="flex items-center justify-between p-3 bg-yellow-50/50 rounded-lg">
                                 <div>
@@ -441,9 +455,9 @@
                             "M j",
                             strtotime($startOfWeek)
                         ); ?> - <?php echo date(
-     "M j",
-     strtotime($endOfWeek)
- ); ?>
+                            "M j",
+                            strtotime($endOfWeek)
+                        ); ?>
                     </span>
                 </div>
 
@@ -458,10 +472,10 @@
                         "Sat",
                         "Sun",
                     ];
-                    foreach ($daysOfWeek as $day): ?>
+            foreach ($daysOfWeek as $day): ?>
                         <div class="text-center text-xs font-medium text-gray-600 py-1"><?php echo $day; ?></div>
                     <?php endforeach;
-                    ?>
+            ?>
                 </div>
 
                 <div class="grid grid-cols-7 gap-1">
@@ -496,8 +510,7 @@
                             <?php if (!empty($dayAppointments)): ?>
                                 <div class="space-y-1">
                                     <?php foreach (
-                                        array_slice($dayAppointments, 0, 2)
-                                        as $appointment
+                                        array_slice($dayAppointments, 0, 2) as $appointment
                                     ): ?>
                                         <div class="w-full bg-nhd-blue/20 text-nhd-blue text-xs px-1 py-0.5 rounded">
                                             <?php echo date(
@@ -540,93 +553,87 @@
 
                 <?php
                 $paymentsWithValues = [];
-                $allPaymentsList = [];
+            $allPaymentsList = [];
 
-                // Convert appointmentPayments (keyed by AppointmentID) to array
-                if (!empty($appointmentPayments)) {
-                    foreach (
-                        $appointmentPayments
-                        as $appointmentId => $payment
-                    ) {
-                        $allPaymentsList[] = $payment;
-                        if (($payment["total_amount"] ?? 0) > 0) {
-                            $paymentsWithValues[] = $payment;
+            if (!empty($appointmentPayments)) {
+                foreach (
+                    $appointmentPayments as $appointmentId => $payment
+                ) {
+                    $allPaymentsList[] = $payment;
+                    if (($payment["total_amount"] ?? 0) > 0) {
+                        $paymentsWithValues[] = $payment;
+                    }
+                }
+            }
+
+            // Also include pending payments if they're separate
+            if (!empty($pendingPayments)) {
+                foreach ($pendingPayments as $pendingPayment) {
+                    $exists = false;
+                    foreach ($allPaymentsList as $existingPayment) {
+                        if (
+                            ($existingPayment["PaymentID"] ?? null) ===
+                                ($pendingPayment["PaymentID"] ?? null) &&
+                            ($existingPayment["AppointmentID"] ?? null) ===
+                                ($pendingPayment["AppointmentID"] ?? null)
+                        ) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                    if (!$exists) {
+                        $allPaymentsList[] = $pendingPayment;
+                        if (($pendingPayment["total_amount"] ?? 0) > 0) {
+                            $paymentsWithValues[] = $pendingPayment;
                         }
                     }
                 }
+            }
 
-                // Also include pending payments if they're separate
-                if (!empty($pendingPayments)) {
-                    foreach ($pendingPayments as $pendingPayment) {
-                        // Check if not already in the list
-                        $exists = false;
-                        foreach ($allPaymentsList as $existingPayment) {
-                            if (
-                                ($existingPayment["PaymentID"] ?? null) ===
-                                    ($pendingPayment["PaymentID"] ?? null) &&
-                                ($existingPayment["AppointmentID"] ?? null) ===
-                                    ($pendingPayment["AppointmentID"] ?? null)
-                            ) {
-                                $exists = true;
-                                break;
-                            }
-                        }
-                        if (!$exists) {
-                            $allPaymentsList[] = $pendingPayment;
-                            if (($pendingPayment["total_amount"] ?? 0) > 0) {
-                                $paymentsWithValues[] = $pendingPayment;
-                            }
-                        }
-                    }
+            // If we still don't have payments, let's try to get them from all appointments with mock payments
+            if (empty($allPaymentsList) && !empty($allAppointments)) {
+                foreach (
+                    array_slice($allAppointments, 0, 5) as $appointment
+                ) {
+                    $allPaymentsList[] = [
+                        "PaymentID" => null,
+                        "AppointmentID" => $appointment["AppointmentID"],
+                        "AppointmentType" =>
+                            $appointment["AppointmentType"],
+                        "AppointmentDateTime" => $appointment["DateTime"],
+                        "Status" => "Pending",
+                        "total_amount" => 0.0,
+                        "DoctorName" =>
+                            ($appointment["DoctorFirstName"] ?? "") .
+                            " " .
+                            ($appointment["DoctorLastName"] ?? ""),
+                    ];
                 }
+            }
 
-                // If we still don't have payments, let's try to get them from all appointments with mock payments
-                if (empty($allPaymentsList) && !empty($allAppointments)) {
-                    foreach (
-                        array_slice($allAppointments, 0, 5)
-                        as $appointment
-                    ) {
-                        $allPaymentsList[] = [
-                            "PaymentID" => null,
-                            "AppointmentID" => $appointment["AppointmentID"],
-                            "AppointmentType" =>
-                                $appointment["AppointmentType"],
-                            "AppointmentDateTime" => $appointment["DateTime"],
-                            "Status" => "Pending",
-                            "total_amount" => 0.0,
-                            "DoctorName" =>
-                                ($appointment["DoctorFirstName"] ?? "") .
-                                " " .
-                                ($appointment["DoctorLastName"] ?? ""),
-                        ];
-                    }
-                }
+            usort($allPaymentsList, function ($a, $b) {
+                $dateA =
+                    $a["AppointmentDateTime"] ??
+                    ($a["UpdatedAt"] ?? "1970-01-01");
+                $dateB =
+                    $b["AppointmentDateTime"] ??
+                    ($b["UpdatedAt"] ?? "1970-01-01");
+                return strtotime($dateB) - strtotime($dateA);
+            });
+            usort($paymentsWithValues, function ($a, $b) {
+                $dateA =
+                    $a["AppointmentDateTime"] ??
+                    ($a["UpdatedAt"] ?? "1970-01-01");
+                $dateB =
+                    $b["AppointmentDateTime"] ??
+                    ($b["UpdatedAt"] ?? "1970-01-01");
+                return strtotime($dateB) - strtotime($dateA);
+            });
 
-                // Sort by date (most recent first)
-                usort($allPaymentsList, function ($a, $b) {
-                    $dateA =
-                        $a["AppointmentDateTime"] ??
-                        ($a["UpdatedAt"] ?? "1970-01-01");
-                    $dateB =
-                        $b["AppointmentDateTime"] ??
-                        ($b["UpdatedAt"] ?? "1970-01-01");
-                    return strtotime($dateB) - strtotime($dateA);
-                });
-                usort($paymentsWithValues, function ($a, $b) {
-                    $dateA =
-                        $a["AppointmentDateTime"] ??
-                        ($a["UpdatedAt"] ?? "1970-01-01");
-                    $dateB =
-                        $b["AppointmentDateTime"] ??
-                        ($b["UpdatedAt"] ?? "1970-01-01");
-                    return strtotime($dateB) - strtotime($dateA);
-                });
-
-                // Use payments with values if available, otherwise use latest 5
-                $displayPayments = !empty($paymentsWithValues)
-                    ? array_slice($paymentsWithValues, 0, 5)
-                    : array_slice($allPaymentsList, 0, 5);
-                ?>
+            $displayPayments = !empty($paymentsWithValues)
+                ? array_slice($paymentsWithValues, 0, 5)
+                : array_slice($allPaymentsList, 0, 5);
+            ?>
 
                 <?php if (!empty($displayPayments)): ?>
                     <div class="space-y-3">
@@ -687,8 +694,8 @@
                                 Showing <?php echo count(
                                     $displayPayments
                                 ); ?> of <?php echo count(
-     $allPaymentsList
- ); ?> payments
+                                    $allPaymentsList
+                                ); ?> payments
                             </span>
                         </div>
                     <?php endif; ?>

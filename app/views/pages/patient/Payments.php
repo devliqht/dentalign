@@ -130,7 +130,9 @@
 
 <?php // Payment Card Template - Define it inline since PHP includes work differently
 
-function renderPaymentCard($payment) {} ?>
+function renderPaymentCard($payment)
+{
+} ?>
 
 <!-- Payment Details Modal -->
 <div id="paymentDetailsModal" class="fixed inset-0 bg-black/30 backdrop-blur-[1px] hidden items-center justify-center z-50 p-4">

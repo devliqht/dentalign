@@ -139,7 +139,13 @@
     <div class="bg-white rounded-2xl shadow-sm border border-nhd-brown/50 p-6 my-6">
         <h3 class="text-xl font-semibold text-nhd-brown mb-4">Quick Actions</h3>
         <div class="flex flex-row gap-4">
-            <button onclick="markAllTeethAs('Healthy')" class="glass-card bg-green-100/80 text-green-800 px-3 py-2 rounded-2xl hover:bg-green-200/80 transition-colors w-fit shadow-sm text-sm">
+            <button onclick="saveAllChanges()" class="glass-card bg-nhd-blue/80 text-white px-3 py-2 rounded-2xl hover:bg-nhd-blue transition-colors w-fit shadow-sm text-sm">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                </svg>
+                Save All Changes
+            </button>
+            <button onclick="markAllTeethAs('Healthy')" class="glass-card bg-green-600/80 px-3 py-2 rounded-2xl hover:bg-green-600 transition-colors w-fit shadow-sm text-sm">
                 <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -151,18 +157,98 @@
                 </svg>
                 Clear All Notes
             </button>
-            <button onclick="saveAllChanges()" class="glass-card bg-nhd-blue/80 text-white px-3 py-2 rounded-2xl hover:bg-nhd-blue transition-colors w-fit shadow-sm text-sm">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                </svg>
-                Save All Changes
-            </button>
             <button onclick="generateReport()" class="glass-card bg-purple-100/80 text-purple-800 px-3 py-2 rounded-2xl hover:bg-purple-200/80 transition-colors w-fit shadow-sm text-sm">
                 <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 Generate Report
             </button>
+        </div>
+    </div>
+
+    <!-- Treatment Plan Management -->
+    <div class="bg-white rounded-2xl shadow-sm border border-nhd-brown/50 p-6 my-6">
+        <h3 class="text-xl font-semibold text-nhd-brown mb-4">Treatment Plan Management</h3>
+        
+        <!-- Existing Treatment Plans -->
+        <div id="existing-treatment-plans" class="mb-6">
+            <h4 class="text-lg font-medium text-gray-700 mb-3">Existing Treatment Plans</h4>
+            <div id="treatment-plans-list" class="space-y-3">
+                <div class="text-gray-500 text-center py-4 text-sm">
+                    Loading treatment plans...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Create New Treatment Plan -->
+        <div class="border-t border-gray-200 pt-6">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-lg font-medium text-gray-700">Create New Treatment Plan</h4>
+                <button id="create-treatment-plan-btn" class="glass-card bg-nhd-blue/80 text-white px-4 py-2 rounded-2xl hover:bg-nhd-blue transition-colors">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Create Treatment Plan
+                </button>
+            </div>
+            
+            <!-- Treatment Plan Creation Form -->
+            <div id="treatment-plan-form" class="hidden space-y-4">
+                <div>
+                    <label for="appointment-report-select" class="block text-sm font-medium text-gray-700 mb-2">
+                        Based on Appointment Report
+                    </label>
+                    <select id="appointment-report-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                        <option value="">Select an appointment report...</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Only completed appointments with reports are available</p>
+                </div>
+                
+                <div>
+                    <label for="treatment-plan-notes" class="block text-sm font-medium text-gray-700 mb-2">
+                        Dentist Notes
+                    </label>
+                    <textarea id="treatment-plan-notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"
+                              placeholder="Enter treatment plan notes and recommendations..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Treatment Status</label>
+                    <select id="treatment-plan-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                
+                <!-- Treatment Items Section -->
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h5 class="text-md font-medium text-gray-700">Treatment Items</h5>
+                        <button type="button" id="add-treatment-item-btn" class="glass-card bg-green-300/80 text-green-800 px-3 py-1 hover:bg-green-200/80 transition-colors text-sm">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Item
+                        </button>
+                    </div>
+                    
+                    <div id="treatment-items-container" class="space-y-3">
+                        <!-- Treatment items will be added dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" id="save-treatment-plan-btn" class="flex-1 bg-nhd-blue text-white px-4 py-2 rounded-lg hover:bg-nhd-blue/90 transition-colors">
+                        Create Treatment Plan
+                    </button>
+                    <button type="button" id="cancel-treatment-plan-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -252,6 +338,181 @@
     </div>
 </div>
 
+<!-- Treatment Plan Edit Modal -->
+<div id="treatment-plan-edit-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="glass-card bg-white/95 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        <div class="flex flex-col h-full">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                <div>
+                    <h2 class="text-2xl font-bold text-nhd-brown">Treatment Plan Details</h2>
+                    <p class="text-gray-600" id="treatment-plan-subtitle">
+                        Treatment Plan #<span id="treatment-plan-id-display"></span> - <span id="treatment-plan-patient-name"></span>
+                    </p>
+                </div>
+                <button onclick="closeTreatmentPlanModal()" class="glass-card bg-gray-200/80 text-gray-700 px-3 py-2 rounded-full hover:bg-gray-300/80 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Treatment Plan Overview -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="treatment-plan-status-edit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                                <option value="pending">Pending</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Progress</label>
+                            <div class="flex items-center">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2 mr-3">
+                                    <div id="treatment-plan-progress-bar" class="bg-nhd-blue h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                                <span id="treatment-plan-progress-text" class="text-sm font-medium text-gray-700">0%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Created</label>
+                            <p id="treatment-plan-created-date" class="text-gray-600 text-sm py-2"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dentist Notes</label>
+                        <textarea id="treatment-plan-notes-edit" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"
+                                  placeholder="Enter treatment plan notes and recommendations..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Treatment Items Section -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-nhd-brown">Treatment Items</h3>
+                        <button id="add-treatment-item-modal-btn" class="glass-card bg-green-600/80 px-4 py-2 hover:bg-green-700 transition-colors">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Item
+                        </button>
+                    </div>
+                    
+                    <div id="treatment-items-list" class="space-y-4">
+                        <!-- Treatment items will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 items-end justify-end w-full">
+                <button id="save-treatment-plan-changes-btn" class="flex 1 glass-card bg-nhd-blue/80 shadow-md px-4 py-2 hover:bg-nhd-blue/90 transition-colors">
+                    Save All Changes
+                </button>
+                <button onclick="closeTreatmentPlanModal()" class="px-4 py-2 glass-card bg-gray-800/80 hover:bg-nhd-blue shadow-md transition-colors">
+                    Cancel
+                </button>
+                <button id="delete-treatment-plan-btn" class="px-4 py-2 glass-card bg-red-600/80 text-white hover:bg-red-700 transition-colors">
+                    Delete Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Treatment Item Edit Modal -->
+<div id="treatment-item-edit-modal" class="hidden fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4">
+    <div class="glass-card bg-white/95 rounded-2xl shadow-xl w-full max-w-2xl">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-nhd-brown">Edit Treatment Item</h2>
+                    <p class="text-gray-600" id="treatment-item-subtitle">Treatment Item Details</p>
+                </div>
+                <button onclick="closeTreatmentItemModal()" class="glass-card bg-gray-200/80 text-gray-700 px-3 py-2 rounded-full hover:bg-gray-300/80 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="treatment-item-edit-form" class="space-y-4">
+                <input type="hidden" id="edit-treatment-item-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tooth Number (Optional)</label>
+                        <select id="edit-item-tooth-number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                            <option value="">No specific tooth</option>
+                            <!-- Tooth options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Procedure Code</label>
+                        <select id="edit-item-procedure-code" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                            <option value="">Select procedure...</option>
+                            <!-- Procedure options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="edit-item-description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent"
+                               placeholder="Enter treatment description...">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Estimated Cost (₱)</label>
+                        <input type="number" step="0.01" min="0" id="edit-item-cost" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent"
+                               placeholder="0.00">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Scheduled Date (Optional)</label>
+                        <input type="date" id="edit-item-scheduled-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="edit-item-completed" class="mr-2 rounded border-gray-300 text-nhd-blue focus:ring-nhd-blue">
+                            <label for="edit-item-completed" class="text-sm text-gray-700">Mark as completed</label>
+                        </div>
+                        <div id="edit-item-completed-date-container" class="mt-2 hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Completion Date & Time</label>
+                            <input type="datetime-local" id="edit-item-completed-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="saveTreatmentItem()" class="flex-1 glass-card bg-nhd-blue/80 px-4 py-2  hover:bg-nhd-blue transition-colors">
+                        Save Item
+                    </button>
+                    <button type="button" onclick="closeTreatmentItemModal()" class="px-4 py-2 border glass-card bg-gray-600/80 hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="deleteTreatmentItem()" class="px-4 py-2 glass-card bg-red-600/80 hover:bg-red-600 transition-colors">
+                        Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php include_once "app/views/components/Toast.php"; ?>
+
+<script>
+window.BASE_URL = '<?php echo BASE_URL; ?>';
+</script>
+<script src="<?php echo BASE_URL; ?>/app/views/scripts/Toast.js"></script>
 <script src="<?php echo BASE_URL; ?>/app/views/scripts/DentalChart/DentalChartEdit.js"></script>
 
 <style>

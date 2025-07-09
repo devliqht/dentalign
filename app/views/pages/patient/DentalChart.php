@@ -263,15 +263,161 @@
 
     <!-- Treatment History -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mt-6">
-        <h3 class="text-xl font-semibold text-nhd-blue mb-4">Recent Treatment History</h3>
-        <div class="space-y-4">
+        <h3 class="text-xl font-semibold text-nhd-blue mb-4">Treatment Plan History</h3>
+        
+        <?php if (!empty($treatmentPlans)): ?>
+            <div class="space-y-4">
+                <?php foreach ($treatmentPlans as $plan): ?>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3 mb-2">
+                                    <h4 class="text-lg font-semibold text-gray-900">
+                                        Treatment Plan #<?php echo $plan[
+                                            "TreatmentPlanID"
+                                        ]; ?>
+                                    </h4>
+                                    <span class="inline-block px-3 py-1 text-xs font-medium rounded-full 
+                                        <?php echo strtolower(
+                                            $plan["Status"]
+                                        ) === "completed"
+                                            ? "bg-green-100 text-green-800"
+                                            : (strtolower($plan["Status"]) ===
+                                            "active"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : "bg-yellow-100 text-yellow-800"); ?>">
+                                        <?php echo ucfirst($plan["Status"]); ?>
+                                    </span>
+                                </div>
+                                
+                                <?php if (!empty($plan["DentistNotes"])): ?>
+                                    <p class="text-gray-600 text-sm mb-2"><?php echo htmlspecialchars(
+                                        $plan["DentistNotes"]
+                                    ); ?></p>
+                                <?php endif; ?>
+                                
+                                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                    <span>Created by <?php echo htmlspecialchars(
+                                        $plan["DoctorName"]
+                                    ); ?></span>
+                                    <span>•</span>
+                                    <span><?php echo date(
+                                        "M j, Y",
+                                        strtotime($plan["AssignedAt"])
+                                    ); ?></span>
+                                    <span>•</span>
+                                    <span><?php echo $plan[
+                                        "completedItems"
+                                    ]; ?> of <?php echo $plan[
+     "totalItems"
+ ]; ?> items completed</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">Progress</span>
+                                <span class="text-nhd-blue font-semibold"><?php echo $plan[
+                                    "progress"
+                                ]; ?>%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-nhd-blue to-nhd-blue/80 h-2 rounded-full transition-all duration-300" 
+                                     style="width: <?php echo $plan[
+                                         "progress"
+                                     ]; ?>%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Treatment Items -->
+                        <?php if (!empty($plan["items"])): ?>
+                            <div class="border-t pt-3">
+                                <h5 class="text-sm font-medium text-gray-700 mb-2">Treatment Items:</h5>
+                                <div class="space-y-2">
+                                    <?php foreach (
+                                        array_slice($plan["items"], 0, 3) as $item
+                                    ): ?>
+                                        <div class="flex items-center justify-between text-sm">
+                                            <div class="flex items-center space-x-2">
+                                                <div class="w-2 h-2 rounded-full <?php echo !empty(
+                                                    $item["CompletedAt"]
+                                                )
+                                                    ? "bg-green-500"
+                                                    : "bg-gray-300"; ?>"></div>
+                                                <span class="<?php echo !empty(
+                                                    $item["CompletedAt"]
+                                                )
+                                                    ? "line-through text-gray-500"
+                                                    : "text-gray-700"; ?>">
+                                                    <?php if (
+                                                        !empty(
+                                                            $item["ToothNumber"]
+                                                        )
+                                                    ): ?>
+                                                        Tooth #<?php echo $item[
+                                                            "ToothNumber"
+                                                        ]; ?> - 
+                                                    <?php endif; ?>
+                                                    <?php echo htmlspecialchars(
+                                                        $item["Description"]
+                                                    ); ?>
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <?php if (
+                                                    !empty($item["Cost"])
+                                                ): ?>
+                                                    <span class="text-nhd-brown font-medium">₱<?php echo number_format(
+                                                        $item["Cost"],
+                                                        2
+                                                    ); ?></span>
+                                                <?php endif; ?>
+                                                <?php if (
+                                                    !empty($item["CompletedAt"])
+                                                ): ?>
+                                                    <span class="text-green-600 text-xs">✓ Completed</span>
+                                                <?php elseif (
+                                                    !empty(
+                                                        $item["ScheduledDate"]
+                                                    )
+                                                ): ?>
+                                                    <span class="text-blue-600 text-xs">Scheduled: <?php echo date(
+                                                        "M j",
+                                                        strtotime(
+                                                            $item[
+                                                                    "ScheduledDate"
+                                                                ]
+                                                        )
+                                                    ); ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                    
+                                    <?php if (count($plan["items"]) > 3): ?>
+                                        <div class="text-center pt-2">
+                                            <span class="text-gray-500 text-xs">+<?php echo count(
+                                                $plan["items"]
+                                            ) - 3; ?> more items</span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
             <div class="text-gray-500 text-center py-8">
                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <p>Treatment history will be updated by your dentist after appointments.</p>
+                <p class="mb-2">No treatment plans found</p>
+                <p class="text-sm">Treatment plans will appear here when created by your dentist after appointments.</p>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -323,7 +469,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusElement = document.getElementById('tooth-status');
             statusElement.textContent = status;
             
-            // Set status color
             statusElement.className = 'ml-2 px-2 py-1 rounded-full text-xs font-medium ';
             if (status.toLowerCase().includes('healthy') || status.toLowerCase().includes('good')) {
                 statusElement.className += 'bg-green-100 text-green-800';
