@@ -37,7 +37,7 @@ abstract class Controller
                 "name" => $_SESSION["user_name"] ?? "",
                 "email" => $_SESSION["user_email"] ?? "",
                 "type" => $_SESSION["user_type"] ?? "",
-                "staff_type" => 
+                "staff_type" => $_SESSION["staff_type"] ?? NULL,
             ];
         }
         return null;
@@ -46,9 +46,21 @@ abstract class Controller
     /**
      * Gets employee type (Doctor/DentalAssistant)
      */
-    protected function getStaffType()
+    protected function hasStaffType($staffType)
     {
-        //
+        return ($this->getAuthUser()["staff_type"] ?? "") === $staffType;
+    }
+
+    /**
+     * Require specific employee type
+     */
+
+    protected function requireStaffType($staffType, $redirectTo = "/login")
+    {
+        if (!$this->hasStaffType($staffType)){
+            $this->redirect(BASE_URL . $redirectTo);
+            exit();
+        }
     }
 
     /**

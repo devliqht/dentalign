@@ -16,6 +16,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $data = [
             "user" => $this->getAuthUser(),
