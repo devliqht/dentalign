@@ -52,7 +52,8 @@ $router->group("POST", "PatientController", [
 $router->group("GET", "DentalAssistantController", [
     "dentalassistant/dashboard" => "dashboard",
     "dentalassistant/payment-management" => "paymentManagement",
-    "dentalassistant/get-all-appointments-payments" => "getAllAppointmentsPayments",
+    "dentalassistant/get-all-appointments-payments" =>
+        "getAllAppointmentsPayments",
     "dentalassistant/get-payment-details" => "getPaymentDetails",
 ]);
 
@@ -79,10 +80,14 @@ $router->group("GET", "DoctorController", [
     // "doctor/get-payment-details" => "getPaymentDetails",
     //"doctor/get-all-appointments-payments" => "getAllAppointmentsPayments",
     "doctor/get-patient-treatment-plan" => "getPatientTreatmentPlan",
-    "patient/get-treatment-plan/{patient_id}" => "getTreatmentPlan",
+    "doctor/get-treatment-plan" => "getTreatmentPlan",
+    "doctor/get-valid-appointment-reports" => "getValidAppointmentReports",
     "doctor/inbox" => "inbox",
     "staff/profile" => "profile",
-    "doctor/sortAppointmentHistory/{sortOption}/{direction}" => "sortAppointmentHistory", // jeane added this
+    "doctor/sortAppointmentHistory/{sortOption}/{direction}" =>
+        "sortAppointmentHistory", // jeane added this
+    "doctor/sortAppointmentHistory/{sortOption}/{direction}/{status}" =>
+        "sortAppointmentHistory", // Added status parameter
 ]);
 
 $router->group("POST", "DoctorController", [
@@ -99,6 +104,15 @@ $router->group("POST", "DoctorController", [
     // "doctor/delete-payment-item" => "deletePaymentItem",
     // "doctor/update-payment-status" => "updatePaymentStatus",
     "doctor/update-treatment-plan" => "updateTreatmentPlan",
+    "doctor/create-treatment-plan" => "createTreatmentPlan",
+    "doctor/delete-treatment-plan" => "deleteTreatmentPlan",
+    "doctor/add-treatment-plan-item" => "addTreatmentPlanItem",
+    "doctor/update-treatment-plan-item" => "updateTreatmentPlanItem",
+    "doctor/delete-treatment-plan-item" => "deleteTreatmentPlanItem",
+    "doctor/mark-treatment-item-complete" => "markTreatmentItemComplete",
+    "doctor/mark-treatment-item-incomplete" => "markTreatmentItemIncomplete",
+    "doctor/approve-cancellation" => "approveCancellation",
+    "doctor/deny-cancellation" => "denyCancellation",
     "staff/profile" => "updateProfile",
 ]);
 
