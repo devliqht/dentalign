@@ -71,7 +71,7 @@ class PaymentManagement {
       this.showLoading(true);
 
       const response = await fetch(
-        "/dentalign/doctor/get-all-appointments-payments",
+        "/dentalign/dentalassistant/get-all-appointments-payments",
       );
       const data = await response.json();
 
@@ -298,7 +298,7 @@ class PaymentManagement {
   async openAddPaymentModal(appointmentId) {
     try {
       const response = await fetch(
-        `/dentalign/doctor/get-payment-details?appointment_id=${appointmentId}`,
+        `/dentalign/dentalassistant/get-payment-details?appointment_id=${appointmentId}`,
       );
       const data = await response.json();
 
@@ -325,7 +325,7 @@ class PaymentManagement {
   async openEditPaymentModal(appointmentId, paymentId) {
     try {
       const response = await fetch(
-        `/dentalign/doctor/get-payment-details?payment_id=${paymentId}`,
+        `/dentalign/dentalassistant/get-payment-details?payment_id=${paymentId}`,
       );
       const data = await response.json();
 
@@ -521,7 +521,7 @@ class PaymentManagement {
   }
 
   async createNewPayment(status, notes, items) {
-    const response = await fetch("/dentalign/doctor/create-payment", {
+    const response = await fetch("/dentalign/dentalassistant/create-payment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -552,7 +552,7 @@ class PaymentManagement {
 
   async updateExistingPayment(status, notes, items) {
     // Update payment status and notes
-    const updateResponse = await fetch("/dentalign/doctor/update-payment", {
+    const updateResponse = await fetch("/dentalign/dentalassistant/update-payment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -592,13 +592,22 @@ class PaymentManagement {
 
     for (const itemId of originalItemIds) {
       if (!currentItemIds.includes(itemId)) {
-        await fetch("/dentalign/doctor/delete-payment-item", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ itemId: itemId }),
-        });
+        console.log("Attempting to delete item ID: ", itemId);
+        
+    const deleteResponse = await fetch("/dentalign/dentalassistant/delete-payment-item", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ itemId: itemId }),
+    });
+    
+    const deleteResult = await deleteResponse.json();
+    console.log("Delete result:", deleteResult);
+    
+    if (!deleteResult.success) {
+      console.error("Failed to delete item:", deleteResult.message);
+    }
       }
     }
 
@@ -606,7 +615,7 @@ class PaymentManagement {
     for (const item of items) {
       if (item.PaymentItemID) {
         // Update existing item
-        await fetch("/dentalign/doctor/update-payment-item", {
+        await fetch("/dentalign/dentalassistant/update-payment-item", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -620,7 +629,7 @@ class PaymentManagement {
         });
       } else {
         // Add new item
-        await fetch("/dentalign/doctor/add-payment-item", {
+        await fetch("/dentalign/dentalassistant/add-payment-item", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -643,7 +652,7 @@ class PaymentManagement {
     }
 
     try {
-      const response = await fetch("/dentalign/doctor/update-payment-status", {
+      const response = await fetch("/dentalign/dentalassistant/update-payment-status", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -700,7 +709,7 @@ class PaymentManagement {
 
   async deletePaymentById(paymentId) {
     try {
-      const response = await fetch("/dentalign/doctor/delete-payment", {
+      const response = await fetch("/dentalign/dentalassistant/delete-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

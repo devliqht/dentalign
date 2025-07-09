@@ -9,7 +9,7 @@
         <nav class="p-2">
             <?php
             $userType = $_SESSION["user_type"] ?? "";
-            $staffType = $_SESSION["user_staff"] ?? "";
+            $staffType = $_SESSION["staff_type"] ?? "";
             $currentPath = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
             $currentPath = str_replace("/dentalign", "", $currentPath);
 
@@ -49,38 +49,58 @@
                     ],
                 ];
             } elseif ($userType === "ClinicStaff") {
-                $navItems = [
-                    [
-                        "url" => "/doctor/dashboard",
-                        "icon" => "home",
-                        "label" => "Dashboard",
-                    ],
-                    [
-                        "url" => "/doctor/schedule",
-                        "icon" => "calendar",
-                        "label" => "Schedule",
-                    ],
-                    [
-                        "url" => "/doctor/appointment-history",
-                        "icon" => "clock",
-                        "label" => "Appointment History",
-                    ],
-                    [
-                        "url" => "/doctor/patient-records",
-                        "icon" => "users",
-                        "label" => "Patient Records",
-                    ],
-                    [
-                        "url" => "/doctor/payment-management",
-                        "icon" => "credit-card",
-                        "label" => "Payment Management",
-                    ],
-                    [
-                        "url" => "/staff/profile",
-                        "icon" => "user",
-                        "label" => "Profile",
-                    ],
-                ];
+                if($staffType === "Doctor"){
+                    $navItems = [
+                        [
+                            "url" => "/doctor/dashboard",
+                            "icon" => "home",
+                            "label" => "Dashboard",
+                        ],
+                        [
+                            "url" => "/doctor/schedule",
+                            "icon" => "calendar",
+                            "label" => "Schedule",
+                        ],
+                        [
+                            "url" => "/doctor/appointment-history",
+                            "icon" => "clock",
+                            "label" => "Appointment History",
+                        ],
+                        [
+                            "url" => "/doctor/patient-records",
+                            "icon" => "users",
+                            "label" => "Patient Records",
+                        ],
+                        [
+                            "url" => "/staff/profile",
+                            "icon" => "user",
+                            "label" => "Profile",
+                        ],
+                    ];
+                } elseif ($staffType === "DentalAssistant"){
+                    $navItems = [
+                        [
+                            "url" => "/dentalassistant/dashboard",
+                            "icon" => "home",
+                            "label" => "Dashboard",
+                        ],
+                        [
+                            "url" => "/dentalassistant/payment-management",
+                            "icon" => "credit-card",
+                            "label" => "Payment Management",
+                        ],
+                        [
+                            "url" => "/dentalassistant/schedule",
+                            "icon" => "calendar",
+                            "label" => "Schedule",
+                        ],
+                        [
+                            "url" => "/dentalassistant/appointment-history",
+                            "icon" => "clock",
+                            "label" => "Appointment History",
+                        ],
+                    ];
+                }
             }
 
             function getSidebarIcon($iconName)
