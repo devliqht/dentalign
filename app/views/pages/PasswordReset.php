@@ -2,7 +2,10 @@
     <div class="max-w-md w-full">
         <div class="glass-card bg-white/90 rounded-2xl p-8 shadow-xl">
             <div class="text-center mb-8">
-                <?php if (isset($_GET['success']) && $_GET['success'] == '1'): ?>
+                <?php if (
+                    isset($_GET["success"]) &&
+                    $_GET["success"] == "1"
+                ): ?>
                     <div class="text-center">
                         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,7 +16,9 @@
                             Password Reset Successful!
                         </h1>
                         <p class="text-sm text-gray-600 mb-6">
-                            Your password has been successfully updated for <strong><?php echo htmlspecialchars($user_email); ?></strong>
+                            Your password has been successfully updated for <strong><?php echo htmlspecialchars(
+                                $user_email
+                            ); ?></strong>
                         </p>
                         
                         <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
@@ -38,24 +43,32 @@
                         Reset Your Password
                     </h1>
                     <p class="text-sm text-gray-600">
-                        Enter your new password for <strong><?php echo htmlspecialchars($user_email); ?></strong>
+                        Enter your new password for <strong><?php echo htmlspecialchars(
+                            $user_email
+                        ); ?></strong>
                     </p>
                 <?php endif; ?>
             </div>
 
             <?php if (isset($_SESSION["error"])): ?>
                 <div class="mb-6 p-3 bg-red-50 border border-red-200 rounded-xl">
-                    <p class="text-red-600 text-sm"><?php echo htmlspecialchars($_SESSION["error"]); ?></p>
+                    <p class="text-red-600 text-sm"><?php echo htmlspecialchars(
+                        $_SESSION["error"]
+                    ); ?></p>
                 </div>
                 <?php unset($_SESSION["error"]); ?>
             <?php endif; ?>
 
-            <?php if (!isset($_GET['success']) || $_GET['success'] != '1'): ?>
+            <?php if (!isset($_GET["success"]) || $_GET["success"] != "1"): ?>
 
             <!-- Password Reset Form -->
             <form method="POST" action="<?php echo BASE_URL; ?>/reset-password" class="space-y-4">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
+                    $csrf_token
+                ); ?>">
+                <input type="hidden" name="token" value="<?php echo htmlspecialchars(
+                    $token
+                ); ?>">
                 
                 <div class="form-group">
                     <label for="password" class="text-sm font-medium text-neutral-700 mb-1">New Password</label>

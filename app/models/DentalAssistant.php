@@ -15,7 +15,7 @@ class DentalAssistant extends User
 
         try {
             $this->userType = "ClinicStaff";
-            if(!$this->create()){
+            if (!$this->create()) {
                 throw new Exception("Failed to create user");
             }
 
@@ -26,7 +26,7 @@ class DentalAssistant extends User
                                 (ClinicStaffID, StaffType) VALUES (?, ?)";
             $stmt = $this->conn->prepare($clinicStaffQuery);
 
-            if(!$stmt){
+            if (!$stmt) {
                 error_log(
                     "Failed to prepare patient query: " . $this->conn->error
                 );
@@ -35,7 +35,7 @@ class DentalAssistant extends User
 
             $stmt->bind_param("is", $this->userID, $this->staffType);
 
-            if(!$stmt->execute()){
+            if (!$stmt->execute()) {
                 throw new Exception("Failed to create clinic staff record");
             }
 

@@ -662,9 +662,9 @@
                                 <div class="text-right">
                                     <span class="font-bold text-nhd-brown">
                                     ₱<?php echo number_format(
-                                            $payment["total_amount"],
-                                            2
-                                        ); ?>
+                                        $payment["total_amount"],
+                                        2
+                                    ); ?>
                                     </span>
                                     <?php if ($payment["PaymentID"]): ?>
                                         <p class="text-xs text-gray-500 mt-1">

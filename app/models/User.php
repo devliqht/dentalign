@@ -194,24 +194,25 @@ class User
     public function generatePasswordResetToken($userId, $email = null)
     {
         $this->cleanupExpiredTokens();
-        
+
         $token = bin2hex(random_bytes(32));
-        
+
         if ($email) {
             if (!$this->findByEmail($email)) {
-                return false; 
+                return false;
             }
             $userId = $this->userID;
         }
-        
-        $query = "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))";
+
+        $query =
+            "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("is", $userId, $token);
-        
+
         if ($stmt->execute()) {
             return $token;
         }
-        
+
         return false;
     }
 
@@ -225,14 +226,14 @@ class User
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $token);
         $stmt->execute();
-        
+
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             $tokenData = $result->fetch_assoc();
-            return $tokenData['user_id'];
+            return $tokenData["user_id"];
         }
-        
+
         return false;
     }
 
@@ -241,10 +242,11 @@ class User
      */
     public function usePasswordResetToken($token)
     {
-        $query = "UPDATE password_reset_tokens SET used_at = NOW() WHERE token = ?";
+        $query =
+            "UPDATE password_reset_tokens SET used_at = NOW() WHERE token = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $token);
-        
+
         return $stmt->execute();
     }
 
@@ -254,18 +256,18 @@ class User
     public function resetPasswordWithToken($token, $newPassword)
     {
         $userId = $this->validatePasswordResetToken($token);
-        
+
         if (!$userId) {
             return false; // Invalid or expired token
         }
-        
+
         $newPasswordHash = $this->hashPassword($newPassword);
-        
+
         if ($this->updatePassword($userId, $newPasswordHash)) {
             $this->usePasswordResetToken($token);
             return true;
         }
-        
+
         return false;
     }
 
@@ -274,7 +276,8 @@ class User
      */
     public function cleanupExpiredTokens()
     {
-        $query = "DELETE FROM password_reset_tokens WHERE expires_at < NOW() OR used_at IS NOT NULL";
+        $query =
+            "DELETE FROM password_reset_tokens WHERE expires_at < NOW() OR used_at IS NOT NULL";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
     }
@@ -292,13 +295,13 @@ class User
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $token);
         $stmt->execute();
-        
+
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             return $result->fetch_assoc();
         }
-        
+
         return false;
     }
 
@@ -315,13 +318,13 @@ class User
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $token);
         $stmt->execute();
-        
+
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             return $result->fetch_assoc();
         }
-        
+
         return false;
     }
 }

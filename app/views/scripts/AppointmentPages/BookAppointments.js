@@ -383,5 +383,5 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       display.textContent = "No date selected";
     }
-    }
+  }
 });

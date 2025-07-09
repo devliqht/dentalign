@@ -14,6 +14,7 @@ class Appointment
     public $appointmentType;
     public $reason;
     public $createdAt;
+    public $status;
 
     public function __construct($db)
     {
@@ -39,8 +40,8 @@ class Appointment
             $query =
                 "INSERT INTO " .
                 $this->table .
-                " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt) VALUES 
-            (?, ?, ?, ?, ?, CURRENT_TIMESTAMP())
+                " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt, Status) VALUES 
+            (?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), 'Pending')
             ";
             error_log("Preparing SQL query: $query");
             error_log(
@@ -151,7 +152,7 @@ class Appointment
             " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
-                  WHERE a.PatientID = ? AND a.DateTime >= NOW()
+                  WHERE a.PatientID = ? AND a.Status = 'Pending'
                   ORDER BY a.DateTime ASC";
 
         $stmt = $this->conn->prepare($query);
@@ -218,12 +219,10 @@ class Appointment
             "Input parameters: patientID=$patientID, doctorID=$doctorID, dateTime=$dateTime, type=$appointmentType"
         );
 
-        // Start transaction and check availability with lock to prevent race conditions
         $this->conn->begin_transaction();
         error_log("Transaction started");
 
         try {
-            // Set transaction timeout to prevent deadlocks
             $this->conn->query("SET SESSION innodb_lock_wait_timeout = 5");
             error_log("Lock timeout set");
 
@@ -457,7 +456,7 @@ class Appointment
             " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
-                  WHERE a.PatientID = ? AND a.DateTime < NOW()
+                  WHERE a.PatientID = ? AND a.Status = 'Completed'
                   ORDER BY a.DateTime DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -689,6 +688,32 @@ class Appointment
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
+
+    public function updateAppointmentStatus($appointmentID) {
+        if (empty($this->status)) {
+            error_log("ERROR: Status is empty or not set");
+            return false;
+        }
+        
+        $sql = 'UPDATE ' . $this->table . ' SET Status = ? WHERE AppointmentID = ?';
+        $stmt = $this->conn->prepare($sql);
+
+        if (!$stmt) {
+            error_log("Failed to prepare statement: " . $this->conn->error);
+            return false;
+        }
+
+        $stmt->bind_param("si", $this->status, $appointmentID);
+
+        if ($stmt->execute()) {
+            return true;
+        }
+
+        error_log("Failed to update appointment status: " . $stmt->error); 
+        return false;
+    }
 }
+
+    
 
 ?>

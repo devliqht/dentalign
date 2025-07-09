@@ -29,7 +29,7 @@ class PaymentItem
         $stmt = $this->conn->prepare($query);
 
         $this->description = htmlspecialchars(strip_tags($this->description));
-        $this->total = $this->amount * $this->quantity; 
+        $this->total = $this->amount * $this->quantity;
 
         $stmt->bind_param(
             "isdid",

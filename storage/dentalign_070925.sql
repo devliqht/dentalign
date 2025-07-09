@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 04, 2025 at 02:30 AM
+-- Generation Time: Jul 09, 2025 at 06:51 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -34,22 +34,24 @@ CREATE TABLE `Appointment` (
   `DateTime` datetime NOT NULL,
   `AppointmentType` varchar(100) DEFAULT NULL,
   `Reason` text DEFAULT NULL,
-  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp()
+  `CreatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `Status` enum('Pending','Approved','Declined','Completed','Rescheduled') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `Appointment`
 --
 
-INSERT INTO `Appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`, `AppointmentType`, `Reason`, `CreatedAt`) VALUES
-(1, 1, 2, '2025-06-22 08:00:00', 'Consultation', 'Lets gooo hello world', '2025-06-20 16:00:18'),
-(8, 1, 3, '2025-06-26 10:00:00', 'Cleaning', 'asgagsagagasga', '2025-06-23 11:54:20'),
-(22, 1, 3, '2025-06-27 08:00:00', 'Consultation', 'hello world hehehe', '2025-06-25 13:46:50'),
-(23, 1, 3, '2025-06-27 09:00:00', 'Cleaning', 'second book of the day lets go', '2025-06-25 13:47:11'),
-(24, 1, 3, '2025-06-30 08:00:00', 'Consultation', 'This ia atestetest', '2025-06-27 14:44:47'),
-(25, 1, 3, '2025-07-07 09:00:00', 'Cleaning', 'Hello worldd', '2025-06-27 14:45:26'),
-(26, 1, 3, '2025-06-29 09:00:00', 'Cleaning', 'sdgdahdasjndsjsj', '2025-06-27 14:54:46'),
-(30, 1, 3, '2025-07-03 08:00:00', 'Consultation', 'hello world pls work', '2025-07-01 14:28:12');
+INSERT INTO `Appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`, `AppointmentType`, `Reason`, `CreatedAt`, `Status`) VALUES
+(1, 1, 2, '2025-06-22 08:00:00', 'Consultation', 'Lets gooo hello world', '2025-06-20 16:00:18', 'Completed'),
+(8, 1, 3, '2025-06-26 10:00:00', 'Cleaning', 'asgagsagagasga', '2025-06-23 11:54:20', 'Completed'),
+(22, 1, 3, '2025-06-27 08:00:00', 'Consultation', 'hello world hehehe', '2025-06-25 13:46:50', 'Completed'),
+(23, 1, 3, '2025-06-27 09:00:00', 'Cleaning', 'second book of the day lets go', '2025-06-25 13:47:11', 'Completed'),
+(24, 1, 3, '2025-06-30 08:00:00', 'Consultation', 'This ia atestetest', '2025-06-27 14:44:47', 'Completed'),
+(25, 1, 3, '2025-07-07 09:00:00', 'Cleaning', 'Hello worldd', '2025-06-27 14:45:26', 'Approved'),
+(26, 1, 3, '2025-06-29 09:00:00', 'Cleaning', 'sdgdahdasjndsjsj', '2025-06-27 14:54:46', 'Completed'),
+(30, 1, 3, '2025-07-03 08:00:00', 'Consultation', 'hello world pls work', '2025-07-01 14:28:12', 'Completed'),
+(31, 1, 3, '2025-07-11 08:00:00', 'Consultation', 'bsaofbaoifhaifia', '2025-07-09 03:02:36', 'Pending');
 
 --
 -- Triggers `Appointment`
@@ -103,9 +105,10 @@ INSERT INTO `AppointmentReport` (`AppointmentReportID`, `PatientRecordID`, `Appo
 (31, 1, 22, '2025-06-25 13:46:50', NULL, NULL, NULL),
 (32, 1, 23, '2025-06-25 13:47:11', NULL, NULL, NULL),
 (33, 1, 24, '2025-06-27 14:44:47', NULL, NULL, NULL),
-(34, 1, 25, '2025-06-27 14:45:26', NULL, NULL, NULL),
+(34, 1, 25, '2025-06-27 14:45:26', '', '', ''),
 (35, 1, 26, '2025-06-27 14:54:46', NULL, NULL, NULL),
-(36, 1, 30, '2025-07-01 14:28:12', NULL, NULL, NULL);
+(36, 1, 30, '2025-07-01 14:28:12', '', 'Hello world', ''),
+(37, 1, 31, '2025-07-09 03:02:36', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -151,8 +154,8 @@ INSERT INTO `dentalchartitem` (`DentalChartItemID`, `DentalChartID`, `ToothNumbe
 (35, 1, '3', 'Healthy', ''),
 (36, 1, '4', 'Healthy', ''),
 (37, 1, '5', 'Healthy', ''),
-(38, 1, '6', 'Treatment Needed', 'Root Canal. Extraction. Crown. Filling. Cavity. Crown. Root Canal'),
-(39, 1, '7', '', ''),
+(38, 1, '6', '', 'Root Canal. Extraction. Crown. Filling. Cavity. Crown. Root Canal'),
+(39, 1, '7', '', 'Cavity. Filling. Crown'),
 (40, 1, '8', '', ''),
 (41, 1, '9', 'Healthy', ''),
 (42, 1, '10', 'Healthy', ''),
@@ -255,6 +258,28 @@ INSERT INTO `Doctor` (`DoctorID`, `Specialization`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `used_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`id`, `user_id`, `token`, `expires_at`, `created_at`, `used_at`) VALUES
+(16, 1, 'a58a7414b72c627b949ee707c692d334edcea29f19683318c378fa9e74c22d24', '2025-07-09 09:18:59', '2025-07-09 08:18:59', '2025-07-09 08:19:31');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `PATIENT`
 --
 
@@ -331,7 +356,7 @@ CREATE TABLE `PaymentItems` (
 --
 
 INSERT INTO `PaymentItems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`, `TreatmentItemID`) VALUES
-(9, 7, 'Cleaning', 696.00, 1, 696.00, '2025-07-03 06:24:21', '2025-07-03 06:24:21', NULL),
+(9, 7, 'Cleaning', 798.00, 1, 798.00, '2025-07-03 06:24:21', '2025-07-04 10:44:38', NULL),
 (10, 8, 'Consultation', 500.00, 1, 500.00, '2025-07-03 08:56:57', '2025-07-03 08:56:57', NULL);
 
 -- --------------------------------------------------------
@@ -355,7 +380,7 @@ CREATE TABLE `Payments` (
 --
 
 INSERT INTO `Payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `UpdatedBy`, `UpdatedAt`, `Notes`) VALUES
-(7, 25, 1, 'Pending', 3, '2025-07-03 08:55:34', NULL),
+(7, 25, 1, 'Pending', 3, '2025-07-04 10:44:38', NULL),
 (8, 1, 1, 'Pending', 3, '2025-07-03 08:56:57', 'First Payment');
 
 -- --------------------------------------------------------
@@ -411,7 +436,7 @@ CREATE TABLE `USER` (
 --
 
 INSERT INTO `USER` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `UserType`, `PasswordHash`) VALUES
-(1, 'Matt Erron', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$vYsisQqh.aCDiV8gixUEV.VhZCUnT4b2Ck9vaqejhG6QAQz0DxEMe'),
+(1, 'Matt Erron', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$YvmV9GhRYzBbZ3DoXve64OnsCmanBI6f8h6CaFUqSwDqf03rXgpW.'),
 (2, 'Matthew Angelo', 'Lumayno', 'matthew.lumayno@gmail.com', '2025-06-19 03:09:10', 'ClinicStaff', '$2y$10$iBfRH9IIaeupUaFEJyOESOG7IhjejpZIJMhUhB0hAzNY0d0qemE9W'),
 (3, 'Jeane ', 'Diputado', 'jeane@gmail.com', '2025-06-21 06:20:13', 'ClinicStaff', '$2y$10$xuTwNTGDGGni2x919pFvXe3l8gEGE3mf.DTIK60goXpQGk2/AFgF6'),
 (4, 'Joseph Gabriel', 'Pascua', 'josephpascua@gmail.com', '2025-06-22 16:38:09', 'ClinicStaff', '$2y$10$MZijGj8xMmoofv78ub.uN.stPpzpjYOs4kTV6IARnNlXs5jklQ7EK'),
@@ -465,6 +490,16 @@ ALTER TABLE `dentalcharts`
 --
 ALTER TABLE `Doctor`
   ADD PRIMARY KEY (`DoctorID`);
+
+--
+-- Indexes for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_token` (`token`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_expires_at` (`expires_at`),
+  ADD KEY `idx_cleanup` (`expires_at`,`used_at`);
 
 --
 -- Indexes for table `PATIENT`
@@ -525,13 +560,13 @@ ALTER TABLE `USER`
 -- AUTO_INCREMENT for table `Appointment`
 --
 ALTER TABLE `Appointment`
-  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `AppointmentReport`
 --
 ALTER TABLE `AppointmentReport`
-  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `dentalchartitem`
@@ -544,6 +579,12 @@ ALTER TABLE `dentalchartitem`
 --
 ALTER TABLE `dentalcharts`
   MODIFY `DentalChartID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `PatientRecord`
@@ -622,6 +663,12 @@ ALTER TABLE `dentalcharts`
 --
 ALTER TABLE `Doctor`
   ADD CONSTRAINT `FK_Doctor_ClinicStaff` FOREIGN KEY (`DoctorID`) REFERENCES `CLINIC_STAFF` (`ClinicStaffID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD CONSTRAINT `password_reset_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `PATIENT`

@@ -123,7 +123,7 @@
                 <!-- Appointment History Table -->
                 <div class="bg-white/60 rounded-2xl border border-gray-200/50">
                     <div class="p-4 border-b border-gray-200/50">
-                        <h3 class="text-2xl font-semibold text-nhd-brown">Completed Appointments</h3>
+                        <h3 class="text-2xl font-semibold text-nhd-brown">List of Appointments</h3>
                     </div>
                     
                     <?php if (!empty($appointmentHistory)): ?>
@@ -312,7 +312,7 @@
                                             <!-- Status -->
                                             <td class="py-2 px-3">
                                                 <span class="bg-green-100/60 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                                                    Completed
+                                                    <?php echo htmlspecialchars($appointment["Status"]);?>
                                                 </span>
                                             </td>
                                             

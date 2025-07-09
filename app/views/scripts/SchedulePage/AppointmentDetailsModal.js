@@ -67,6 +67,7 @@ function populateModal(appointment, report) {
   document.getElementById("oralNotes").value = report.oralNotes || "";
   document.getElementById("diagnosis").value = report.diagnosis || "";
   document.getElementById("xrayImages").value = report.xrayImages || "";
+  document.getElementById("modalStatus").value = appointment.Status || "Pending";
 }
 
 function showModalContent() {
@@ -108,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
         oralNotes: formData.get("oralNotes"),
         diagnosis: formData.get("diagnosis"),
         xrayImages: formData.get("xrayImages"),
+        status: formData.get("modalStatus")
       };
 
       try {

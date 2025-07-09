@@ -204,15 +204,13 @@ class AuthController extends Controller
                     $errorMessage =
                         "Failed to create doctor account. Please contact support.";
                 }
-            } 
-            else if($data["user_type"] === "DentalAssistant") {
+            } elseif ($data["user_type"] === "DentalAssistant") {
                 $success = $this->createDentalAssistant($data);
                 if (!$success) {
                     $errorMessage =
                         "Failed to create dental assistant account. Please contact support.";
                 }
-            } 
-            else {
+            } else {
                 $success = $this->createPatient($data);
                 if (!$success) {
                     $errorMessage =
@@ -283,7 +281,9 @@ class AuthController extends Controller
         $dentalAssistant->firstName = $data["first_name"];
         $dentalAssistant->lastName = $data["last_name"];
         $dentalAssistant->email = $data["email"];
-        $dentalAssistant->passwordHash = $dentalAssistant->hashPassword($data["password"]);
+        $dentalAssistant->passwordHash = $dentalAssistant->hashPassword(
+            $data["password"]
+        );
 
         return $dentalAssistant->createDentalAssistant();
     }
@@ -339,7 +339,13 @@ class AuthController extends Controller
         );
 
         if (!$isValid) {
-            $this->json(["success" => false, "message" => "Please enter a valid email address"], 400);
+            $this->json(
+                [
+                    "success" => false,
+                    "message" => "Please enter a valid email address",
+                ],
+                400
+            );
             return;
         }
 
@@ -358,18 +364,24 @@ class AuthController extends Controller
             if ($emailSent) {
                 $this->json([
                     "success" => true,
-                    "message" => "Password reset link has been sent to your email address. Please check your inbox."
+                    "message" =>
+                        "Password reset link has been sent to your email address. Please check your inbox.",
                 ]);
             } else {
-                $this->json([
-                    "success" => false,
-                    "message" => "Unable to send email at this time. Please try again later or contact support."
-                ], 500);
+                $this->json(
+                    [
+                        "success" => false,
+                        "message" =>
+                            "Unable to send email at this time. Please try again later or contact support.",
+                    ],
+                    500
+                );
             }
         } else {
             $this->json([
                 "success" => true,
-                "message" => "If an account with that email exists, you will receive a password reset link shortly."
+                "message" =>
+                    "If an account with that email exists, you will receive a password reset link shortly.",
             ]);
         }
     }
@@ -385,15 +397,16 @@ class AuthController extends Controller
         }
 
         $user = new User($this->conn);
-        
+
         if ($isSuccess) {
             $userData = $user->getUserByAnyResetToken($token);
-            
+
             // Verify this is actually a used token (legitimate success)
-            if (!$userData || empty($userData['used_at'])) {
+            if (!$userData || empty($userData["used_at"])) {
                 // If success=1 but token wasn't used, something's wrong
                 $data = [
-                    "error" => "This password reset link is invalid or has expired. Please request a new one.",
+                    "error" =>
+                        "This password reset link is invalid or has expired. Please request a new one.",
                     "csrf_token" => $this->generateCsrfToken(),
                 ];
 
@@ -410,10 +423,11 @@ class AuthController extends Controller
         } else {
             // Normal case - only get unused tokens
             $userData = $user->getUserByResetToken($token);
-            
+
             if (!$userData) {
                 $data = [
-                    "error" => "This password reset link is invalid or has expired. Please request a new one.",
+                    "error" =>
+                        "This password reset link is invalid or has expired. Please request a new one.",
                     "csrf_token" => $this->generateCsrfToken(),
                 ];
 
@@ -437,7 +451,9 @@ class AuthController extends Controller
         ];
 
         $layoutConfig = [
-            "title" => $isSuccess ? "Password Reset Successful" : "Reset Password",
+            "title" => $isSuccess
+                ? "Password Reset Successful"
+                : "Reset Password",
             "hideHeader" => true,
             "hideSidebar" => true,
             "hideFooter" => false,
@@ -487,11 +503,17 @@ class AuthController extends Controller
         if ($user->resetPasswordWithToken($data["token"], $data["password"])) {
             // Clean up old sessions for security
             session_regenerate_id(true);
-            
 
-            $this->redirect(BASE_URL . "/reset-password?token=" . urlencode($data["token"]) . "&success=1");
+            $this->redirect(
+                BASE_URL .
+                    "/reset-password?token=" .
+                    urlencode($data["token"]) .
+                    "&success=1"
+            );
         } else {
-            $this->redirectBack("Invalid or expired reset token. Please request a new password reset.");
+            $this->redirectBack(
+                "Invalid or expired reset token. Please request a new password reset."
+            );
         }
     }
 }
