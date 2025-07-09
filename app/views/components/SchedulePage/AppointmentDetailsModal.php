@@ -83,6 +83,16 @@
                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"></textarea>
                                 </div>
                             </div>
+                            <div class="mt-4">
+                                <span class="font-medium text-gray-700">Status:</span>
+                                <select id="modalStatus" name="modalStatus" class="mt-1 px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent text-gray-900">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Approved">Approved</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Rescheduled">Rescheduled</option>
+                                </select>
+                            </div>
                         </div>
                         
                         <!-- Form Actions -->

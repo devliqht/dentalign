@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../config/Email_Config.php';
+require_once __DIR__ . "/../../vendor/autoload.php";
+require_once __DIR__ . "/../../config/Email_Config.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -12,21 +12,21 @@ class EmailService
     private $mailer;
     private $fromEmail;
     private $fromName;
-    
+
     public function __construct()
     {
         $this->fromEmail = FROM_EMAIL;
         $this->fromName = FROM_NAME;
         $this->setupMailer();
     }
-    
+
     /**
      * Setup PHPMailer with Gmail SMTP configuration
      */
     private function setupMailer()
     {
         $this->mailer = new PHPMailer(true);
-        
+
         try {
             $this->mailer->isSMTP();
             $this->mailer->Host = SMTP_HOST;
@@ -35,16 +35,15 @@ class EmailService
             $this->mailer->Password = SMTP_PASSWORD;
             $this->mailer->SMTPSecure = SMTP_SECURE;
             $this->mailer->Port = SMTP_PORT;
-            
+
             $this->mailer->SMTPDebug = SMTP_DEBUG;
-            
+
             $this->mailer->setFrom($this->fromEmail, $this->fromName);
-            
         } catch (Exception $e) {
             error_log("Email setup error: " . $e->getMessage());
         }
     }
-    
+
     /**
      * Send password reset email
      */
@@ -53,34 +52,47 @@ class EmailService
         try {
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            
 
             // THIS IS TEMPORARY BTW, we need to change this on production
-            $resetLink = "http://localhost" . BASE_URL . "/reset-password?token=" . $resetToken;
-            
+            $resetLink =
+                "http://localhost" .
+                BASE_URL .
+                "/reset-password?token=" .
+                $resetToken;
+
             $this->mailer->addAddress($userEmail, $userName);
-            
+
             $this->mailer->isHTML(true);
-            $this->mailer->Subject = 'Password Reset Request - North Hill Dental';
-            $this->mailer->Body = $this->getPasswordResetEmailTemplate($userName, $resetLink);
-            $this->mailer->AltBody = $this->getPasswordResetEmailTextTemplate($userName, $resetLink);
-            
+            $this->mailer->Subject =
+                "Password Reset Request - North Hill Dental";
+            $this->mailer->Body = $this->getPasswordResetEmailTemplate(
+                $userName,
+                $resetLink
+            );
+            $this->mailer->AltBody = $this->getPasswordResetEmailTextTemplate(
+                $userName,
+                $resetLink
+            );
+
             $result = $this->mailer->send();
-            
+
             if ($result) {
-                error_log("Password reset email sent successfully to: " . $userEmail);
+                error_log(
+                    "Password reset email sent successfully to: " . $userEmail
+                );
                 return true;
             } else {
-                error_log("Failed to send password reset email to: " . $userEmail);
+                error_log(
+                    "Failed to send password reset email to: " . $userEmail
+                );
                 return false;
             }
-            
         } catch (Exception $e) {
             error_log("Email sending error: " . $e->getMessage());
             return false;
         }
     }
-    
+
     /**
      * Get HTML email template for password reset
      */
@@ -113,16 +125,22 @@ class EmailService
                 
                 <div class='content'>
                     <h2>Password Reset Request</h2>
-                    <p>Hello " . htmlspecialchars($userName) . ",</p>
+                    <p>Hello " .
+            htmlspecialchars($userName) .
+            ",</p>
                     
                     <p>We received a request to reset your password for your North Hill Dental account. If you made this request, please click the button below to reset your password:</p>
                     
                     <div style='text-align: center;'>
-                        <a href='" . htmlspecialchars($resetLink) . "' class='button'>Reset Password</a>
+                        <a href='" .
+            htmlspecialchars($resetLink) .
+            "' class='button'>Reset Password</a>
                     </div>
                     
                     <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-                    <p style='word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 3px; font-family: monospace;'>" . htmlspecialchars($resetLink) . "</p>
+                    <p style='word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 3px; font-family: monospace;'>" .
+            htmlspecialchars($resetLink) .
+            "</p>
                     
                     <div class='warning'>
                         <strong>Important:</strong> This link will expire in 1 hour for security reasons. If you didn't request this password reset, please ignore this email or contact us if you have concerns.
@@ -140,7 +158,7 @@ class EmailService
         </body>
         </html>";
     }
-    
+
     /**
      * Get plain text email template for password reset
      */
@@ -149,11 +167,15 @@ class EmailService
         return "
 Password Reset Request - North Hill Dental
 
-Hello " . $userName . ",
+Hello " .
+            $userName .
+            ",
 
 We received a request to reset your password for your North Hill Dental account. If you made this request, please visit the following link to reset your password:
 
-" . $resetLink . "
+" .
+            $resetLink .
+            "
 
 This link will expire in 1 hour for security reasons.
 
@@ -166,7 +188,7 @@ Phone: 0927 508 6540
 Email: matt.cabarrubias@gmail.com
         ";
     }
-    
+
     /**
      * Get detailed error information
      */
@@ -174,4 +196,4 @@ Email: matt.cabarrubias@gmail.com
     {
         return $this->mailer->ErrorInfo;
     }
-} 
+}

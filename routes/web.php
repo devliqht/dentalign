@@ -38,7 +38,7 @@ $router->group("GET", "PatientController", [
     "patient/payments" => "payments",
     "patient/dental-chart" => "dentalchart",
     "patient/profile" => "profile",
-    "patient/get-treatment-plan" => "getTreatmentPlan"
+    "patient/get-treatment-plan" => "getTreatmentPlan",
 ]);
 
 $router->group("POST", "PatientController", [

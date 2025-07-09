@@ -74,7 +74,9 @@
         </div>
 
         <form id="resetPasswordForm" class="space-y-4">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
+                $csrf_token
+            ); ?>">
             
             <div class="form-group">
                 <input type="email" id="reset_email" name="email" placeholder="Enter your email" required />

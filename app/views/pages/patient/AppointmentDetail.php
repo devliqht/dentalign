@@ -255,9 +255,7 @@
                     <h4 class="text-lg font-medium text-nhd-brown mb-3">General Appearance & Notes</h4>
                     <p class="text-gray-900 leading-relaxed">
                         <?php echo nl2br(
-                            htmlspecialchars(
-                                $appointmentReport["OralNotes"]
-                            )
+                            htmlspecialchars($appointmentReport["OralNotes"])
                         ); ?>
                     </p>
                 </div>
