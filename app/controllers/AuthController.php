@@ -13,19 +13,6 @@ require_once "app/services/EmailService.php";
 
 class AuthController extends Controller
 {
-    /*
-     *   TBA: Middleware to separate guest and auth methods.
-     *
-     *
-     */
-    protected function initializeMiddleware()
-    {
-        $this->middleware("guest", [
-            "only" => ["showLogin", "showSignup", "login", "signup"],
-        ]);
-        $this->middleware("auth", ["only" => ["home", "logout"]]);
-    }
-
     public function DisplayLoginPage()
     {
         if ($this->isAuthenticated()) {

@@ -12,12 +12,6 @@ require_once "app/models/PaymentItem.php";
 
 class PatientController extends Controller
 {
-    protected function initializeMiddleware()
-    {
-        $this->middleware("auth", ["only" => ["*"]]);
-        $this->middleware("role:Patient", ["only" => ["*"]]);
-    }
-
     public function dashboard()
     {
         $this->requireAuth();

@@ -7,11 +7,6 @@ require_once "app/models/Payment.php";
 
 class SearchController extends Controller
 {
-    protected function initializeMiddleware()
-    {
-        $this->middleware("auth", ["only" => ["*"]]);
-    }
-
     public function search()
     {
         $this->requireAuth();
