@@ -9,6 +9,8 @@ require_once "app/models/Patient.php";
 require_once "app/models/AppointmentReport.php";
 require_once "app/models/Payment.php";
 require_once "app/models/PaymentItem.php";
+require_once "app/models/TreatmentPlan.php";
+require_once "app/models/TreatmentPlanItem.php";
 
 class DoctorController extends Controller
 {
@@ -255,13 +257,35 @@ class DoctorController extends Controller
         $appointmentHistory = $appointmentModel->getAppointmentHistoryByDoctor(
             $doctorID
         );
+        $pendingCancellations = $appointmentModel->getPendingCancellationsByDoctor(
+            $doctorID
+        );
+
+        // Group appointments by status
+        $appointmentsByStatus = [
+            "Pending" => [],
+            "Approved" => [],
+            "Rescheduled" => [],
+            "Completed" => [],
+            "Declined" => [],
+            "Cancelled" => [],
+        ];
+
+        foreach ($appointmentHistory as $appointment) {
+            $status = $appointment["Status"];
+            if (isset($appointmentsByStatus[$status])) {
+                $appointmentsByStatus[$status][] = $appointment;
+            }
+        }
 
         $doctorModel = new Doctor($this->conn);
         $doctorModel->findById($doctorID);
 
         $data = [
             "user" => $user,
-            "appointmentHistory" => $appointmentHistory,
+            "appointmentHistory" => $appointmentsByStatus,
+            "pendingCancellations" => $pendingCancellations,
+            "csrf_token" => $this->generateCsrfToken(),
         ];
 
         $additionalHead =
@@ -839,15 +863,20 @@ class DoctorController extends Controller
                 $appointmentReport->diagnosis = $diagnosis;
                 $appointmentReport->xrayImages = $xrayImages;
 
-                if ($appointmentReport->update() && $appointment->updateAppointmentStatus($appointmentId)) {
+                if (
+                    $appointmentReport->update() &&
+                    $appointment->updateAppointmentStatus($appointmentId)
+                ) {
                     echo json_encode([
                         "success" => true,
-                        "message" => "Appointment and Appointment report updated successfully",
+                        "message" =>
+                            "Appointment and Appointment report updated successfully",
                     ]);
                 } else {
                     echo json_encode([
                         "success" => false,
-                        "message" => "Failed to update appointment and appointment report",
+                        "message" =>
+                            "Failed to update appointment and appointment report",
                     ]);
                 }
             } else {
@@ -1092,7 +1121,6 @@ class DoctorController extends Controller
             return;
         }
 
-        // Check if patient exists
         $patient = new Patient($this->conn);
         $patientData = $patient->getPatientById($patientId);
 
@@ -1125,531 +1153,859 @@ class DoctorController extends Controller
 
         $this->view("pages/staff/doctor/DentalChartEdit", $data, $layoutConfig);
     }
-/*
-    public function createPayment()
+    /**
+     * Sort appointment history data
+     */
+    public function sortAppointmentHistory(
+        $sortOption,
+        $direction,
+        $status = ""
+    ) {
+        $this->requireAuth();
+        $this->hasRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        $user = $this->getAuthUser();
+        $appointmentModel = new Appointment($this->conn);
+        $appointments = $appointmentModel->getAppointmentHistoryByDoctor(
+            $user["id"]
+        );
+
+        // Filter by status if provided and not empty
+        if (!empty($status)) {
+            $appointments = array_filter($appointments, function (
+                $appointment
+            ) use ($status) {
+                return $appointment["Status"] === $status;
+            });
+            // Re-index the array after filtering
+            $appointments = array_values($appointments);
+        }
+
+        $direction = strtolower($direction) === "desc" ? "desc" : "asc";
+
+        if (!empty($appointments) && isset($appointments[0][$sortOption])) {
+            usort($appointments, function ($a, $b) use (
+                $sortOption,
+                $direction
+            ) {
+                $valueA = $a[$sortOption];
+                $valueB = $b[$sortOption];
+
+                // Handle different data types
+                if (is_string($valueA) && is_string($valueB)) {
+                    // For date/time fields, convert to timestamp for proper sorting
+                    if ($sortOption === "DateTime") {
+                        $valueA = strtotime($valueA);
+                        $valueB = strtotime($valueB);
+                    } else {
+                        // Case-insensitive string comparison
+                        $valueA = strtolower($valueA);
+                        $valueB = strtolower($valueB);
+                    }
+                }
+
+                if ($direction === "asc") {
+                    return $valueA <=> $valueB;
+                } else {
+                    return $valueB <=> $valueA;
+                }
+            });
+        }
+
+        header("Content-Type: application/json");
+        echo json_encode($appointments);
+        exit();
+    }
+
+    public function approveCancellation()
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
         $this->requireStaffType("Doctor");
 
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+
+        if (empty($data["appointment_id"])) {
+            $this->redirectBack("Appointment ID is required.");
+            return;
         }
+
+        $appointment = new Appointment($this->conn);
+        $success = $appointment->approveCancellation($data["appointment_id"]);
+
+        if ($success) {
+            $_SESSION["success"] =
+                "Cancellation request approved successfully. The appointment has been cancelled.";
+            $this->redirect(BASE_URL . "/doctor/appointment-history");
+        } else {
+            $this->redirectBack(
+                "Failed to approve cancellation request. Please try again."
+            );
+        }
+    }
+
+    public function denyCancellation()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+
+        if (empty($data["appointment_id"]) || empty($data["new_status"])) {
+            $this->redirectBack("Appointment ID and new status are required.");
+            return;
+        }
+
+        $appointment = new Appointment($this->conn);
+        $success = $appointment->denyCancellation(
+            $data["appointment_id"],
+            $data["new_status"]
+        );
+
+        if ($success) {
+            $_SESSION["success"] =
+                "Cancellation request denied successfully. The appointment status has been restored.";
+            $this->redirect(BASE_URL . "/doctor/appointment-history");
+        } else {
+            $this->redirectBack(
+                "Failed to deny cancellation request. Please try again."
+            );
+        }
+    }
+
+    // ===== TREATMENT PLAN METHODS =====
+
+    public function createTreatmentPlan()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         header("Content-Type: application/json");
 
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             echo json_encode([
                 "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
+                "message" => "Invalid request method",
             ]);
             exit();
         }
 
         try {
-            $appointmentId = $data["appointmentId"] ?? null;
-            $patientId = $data["patientId"] ?? null;
-            $status = $data["status"] ?? "Pending";
-            $notes = $data["notes"] ?? "";
-            $items = $data["items"] ?? [];
+            $input = json_decode(file_get_contents("php://input"), true);
 
-            if (!$appointmentId || !$patientId) {
+            if (!$input || !isset($input["appointmentReportID"])) {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Appointment ID and Patient ID are required",
+                    "message" => "Appointment Report ID is required",
                 ]);
                 exit();
             }
 
-            require_once "app/models/Payment.php";
-            require_once "app/models/PaymentItem.php";
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $treatmentPlan->appointmentReportID = $input["appointmentReportID"];
+            $treatmentPlan->status = $input["status"] ?? "pending";
+            $treatmentPlan->dentistNotes = $input["dentistNotes"] ?? "";
+            $treatmentPlan->assignedAt = date("Y-m-d H:i:s");
 
-            $user = $this->getAuthUser();
+            if ($treatmentPlan->create()) {
+                // Create treatment plan items if provided
+                if (isset($input["items"]) && is_array($input["items"])) {
+                    $treatmentPlanItem = new TreatmentPlanItem($this->conn);
 
-            $payment = new Payment($this->conn);
-            $payment->appointmentID = $appointmentId;
-            $payment->patientID = $patientId;
-            $payment->status = $status;
-            $payment->updatedBy = $user["id"];
-            $payment->notes = $notes;
+                    foreach ($input["items"] as $item) {
+                        $treatmentPlanItem->treatmentPlanID =
+                            $treatmentPlan->treatmentPlanID;
+                        $treatmentPlanItem->toothNumber =
+                            $item["toothNumber"] ?? "";
+                        $treatmentPlanItem->procedureCode =
+                            $item["procedureCode"] ?? "";
+                        $treatmentPlanItem->description =
+                            $item["description"] ?? "";
+                        $treatmentPlanItem->cost = $item["cost"] ?? 0;
+                        $treatmentPlanItem->scheduledDate =
+                            $item["scheduledDate"] ?? null;
+                        $treatmentPlanItem->completedAt =
+                            isset($item["completedAt"]) &&
+                            !empty($item["completedAt"])
+                                ? $item["completedAt"]
+                                : null;
 
-            if ($payment->create()) {
-                // Add payment items
-                if (!empty($items)) {
-                    $paymentItem = new PaymentItem($this->conn);
-                    foreach ($items as $item) {
-                        $paymentItem->paymentID = $payment->paymentID;
-                        $paymentItem->description = $item["description"];
-                        $paymentItem->amount = $item["amount"];
-                        $paymentItem->quantity = $item["quantity"] ?? 1;
-                        $paymentItem->create();
+                        $treatmentPlanItem->create();
                     }
                 }
 
                 echo json_encode([
                     "success" => true,
-                    "message" => "Payment created successfully",
-                    "paymentId" => $payment->paymentID,
+                    "message" => "Treatment plan created successfully",
+                    "treatmentPlanID" => $treatmentPlan->treatmentPlanID,
                 ]);
             } else {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Failed to create payment",
+                    "message" => "Failed to create treatment plan",
                 ]);
             }
         } catch (Exception $e) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Error creating payment: " . $e->getMessage(),
-            ]);
-        }
-        exit();
-    }
-
-    public function updatePayment()
-    {
-        $this->requireAuth();
-        $this->requireRole("ClinicStaff");
-        $this->requireStaffType("Doctor");
-
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
-        }
-
-        header("Content-Type: application/json");
-
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
-            ]);
-            exit();
-        }
-
-        try {
-            $paymentId = $data["paymentId"] ?? null;
-            $status = $data["status"] ?? "";
-            $notes = $data["notes"] ?? "";
-
-            if (!$paymentId) {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Payment ID is required",
-                ]);
-                exit();
-            }
-
-            require_once "app/models/Payment.php";
-            $user = $this->getAuthUser();
-
-            $payment = new Payment($this->conn);
-            if (
-                $payment->updateStatus($paymentId, $status, $user["id"], $notes)
-            ) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Payment updated successfully",
-                ]);
-            } else {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Failed to update payment",
-                ]);
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Error updating payment: " . $e->getMessage(),
-            ]);
-        }
-        exit();
-    }
-
-    public function deletePayment()
-    {
-        $this->requireAuth();
-        $this->requireRole("ClinicStaff");
-        $this->requireStaffType("Doctor");
-
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
-        }
-
-        header("Content-Type: application/json");
-
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
-            ]);
-            exit();
-        }
-
-        try {
-            $paymentId = $data["paymentId"] ?? null;
-
-            if (!$paymentId) {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Payment ID is required",
-                ]);
-                exit();
-            }
-
-            require_once "app/models/PaymentItem.php";
-
-            // Delete payment items first
-            $paymentItem = new PaymentItem($this->conn);
-            $paymentItem->deleteByPayment($paymentId);
-
-            // Delete payment
-            $deleteQuery = "DELETE FROM Payments WHERE PaymentID = ?";
-            $stmt = $this->conn->prepare($deleteQuery);
-            $stmt->bind_param("i", $paymentId);
-
-            if ($stmt->execute()) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Payment deleted successfully",
-                ]);
-            } else {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Failed to delete payment",
-                ]);
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Error deleting payment: " . $e->getMessage(),
-            ]);
-        }
-        exit();
-    }
-
-    public function addPaymentItem()
-    {
-        $this->requireAuth();
-        $this->requireRole("ClinicStaff");
-        $this->requireStaffType("Doctor");
-
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
-        }
-
-        header("Content-Type: application/json");
-
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
-            ]);
-            exit();
-        }
-
-        try {
-            $paymentId = $data["paymentId"] ?? null;
-            $description = $data["description"] ?? "";
-            $amount = $data["amount"] ?? 0;
-            $quantity = $data["quantity"] ?? 1;
-
-            if (!$paymentId || empty($description) || $amount <= 0) {
-                echo json_encode([
-                    "success" => false,
-                    "message" =>
-                        "Payment ID, description, and valid amount are required",
-                ]);
-                exit();
-            }
-
-            require_once "app/models/PaymentItem.php";
-
-            $paymentItem = new PaymentItem($this->conn);
-            $paymentItem->paymentID = $paymentId;
-            $paymentItem->description = $description;
-            $paymentItem->amount = $amount;
-            $paymentItem->quantity = $quantity;
-
-            if ($paymentItem->create()) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Payment item added successfully",
-                    "itemId" => $paymentItem->paymentItemID,
-                ]);
-            } else {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Failed to add payment item",
-                ]);
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Error adding payment item: " . $e->getMessage(),
-            ]);
-        }
-        exit();
-    }
-
-    public function updatePaymentItem()
-    {
-        $this->requireAuth();
-        $this->requireRole("ClinicStaff");
-        $this->requireStaffType("Doctor");
-
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
-        }
-
-        header("Content-Type: application/json");
-
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
-            ]);
-            exit();
-        }
-
-        try {
-            $itemId = $data["itemId"] ?? null;
-            $description = $data["description"] ?? "";
-            $amount = $data["amount"] ?? 0;
-            $quantity = $data["quantity"] ?? 1;
-
-            if (!$itemId || empty($description) || $amount <= 0) {
-                echo json_encode([
-                    "success" => false,
-                    "message" =>
-                        "Item ID, description, and valid amount are required",
-                ]);
-                exit();
-            }
-
-            require_once "app/models/PaymentItem.php";
-
-            $paymentItem = new PaymentItem($this->conn);
-            if (
-                $paymentItem->update($itemId, $description, $amount, $quantity)
-            ) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Payment item updated successfully",
-                ]);
-            } else {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Failed to update payment item",
-                ]);
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Error updating payment item: " . $e->getMessage(),
-            ]);
-        }
-        exit();
-    }
-
-    public function deletePaymentItem()
-    {
-        $this->requireAuth();
-        $this->requireRole("ClinicStaff");
-        $this->requireStaffType("Doctor");
-
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
-        }
-
-        header("Content-Type: application/json");
-
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
-            ]);
-            exit();
-        }
-
-        try {
-            $itemId = $data["itemId"] ?? null;
-
-            if (!$itemId) {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Item ID is required",
-                ]);
-                exit();
-            }
-
-            require_once "app/models/PaymentItem.php";
-
-            $paymentItem = new PaymentItem($this->conn);
-            if ($paymentItem->delete($itemId)) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Payment item deleted successfully",
-                ]);
-            } else {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Failed to delete payment item",
-                ]);
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Error deleting payment item: " . $e->getMessage(),
-            ]);
-        }
-        exit();
-    }
-
-    public function updatePaymentStatus()
-    {
-        $this->requireAuth();
-        $this->requireRole("ClinicStaff");
-        $this->requireStaffType("Doctor");
-
-        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-            header("HTTP/1.1 405 Method Not Allowed");
-            echo json_encode([
-                "success" => false,
-                "message" => "Method not allowed",
-            ]);
-            exit();
-        }
-
-        header("Content-Type: application/json");
-
-        $rawInput = file_get_contents("php://input");
-        $data = json_decode($rawInput, true);
-
-        if (!$data) {
-            echo json_encode([
-                "success" => false,
-                "message" => "Invalid JSON data: " . json_last_error_msg(),
-            ]);
-            exit();
-        }
-
-        try {
-            $paymentId = $data["paymentId"] ?? null;
-            $status = $data["status"] ?? "";
-
-            if (!$paymentId || empty($status)) {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Payment ID and status are required",
-                ]);
-                exit();
-            }
-
-            require_once "app/models/Payment.php";
-            $user = $this->getAuthUser();
-
-            $payment = new Payment($this->conn);
-            if ($payment->updateStatus($paymentId, $status, $user["id"])) {
-                echo json_encode([
-                    "success" => true,
-                    "message" => "Payment status updated successfully",
-                ]);
-            } else {
-                echo json_encode([
-                    "success" => false,
-                    "message" => "Failed to update payment status",
-                ]);
-            }
-        } catch (Exception $e) {
+            error_log("Error creating treatment plan: " . $e->getMessage());
             echo json_encode([
                 "success" => false,
                 "message" =>
-                    "Error updating payment status: " . $e->getMessage(),
+                    "An error occurred while creating the treatment plan",
             ]);
         }
         exit();
     }
-*/
-    public function sortAppointmentHistory($sortOption, $direction) {
-        // 1. Authenticate and authorize the user
+
+    public function getTreatmentPlan()
+    {
         $this->requireAuth();
-        $this->hasRole("ClinicStaff");
+        $this->requireRole("ClinicStaff");
         $this->requireStaffType("Doctor");
-    
-        // 2. Get user ID and fetch data
-        $user = $this->getAuthUser();
-        $appointmentModel = new Appointment($this->conn);
-        $appointments = $appointmentModel->getAppointmentHistoryByDoctor($user["id"]);
-    
-        // 3. Validate the direction to prevent unexpected behavior
-        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
-    
-        // 4. Sort the data if it's not empty and the sort key exists
-        if (!empty($appointments) && isset($appointments[0][$sortOption])) {
-            usort($appointments, function ($a, $b) use ($sortOption, $direction) {
-                if ($direction === 'asc') {
-                    // Ascending order: A vs B
-                    return $a[$sortOption] <=> $b[$sortOption];
-                } else {
-                    // Descending order: B vs A
-                    return $b[$sortOption] <=> $a[$sortOption];
-                }
-            });
+
+        header("Content-Type: application/json");
+
+        $treatmentPlanID = $_GET["treatment_plan_id"] ?? null;
+
+        if (!$treatmentPlanID) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Treatment Plan ID is required",
+            ]);
+            exit();
         }
-    
-        // 5. CRITICAL: Send the JSON response and terminate the script
-        header('Content-Type: application/json');
-        echo json_encode($appointments);
-        exit(); // This is crucial to prevent any other output from being sent
+
+        try {
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            $planDetails = $treatmentPlan->getTreatmentPlanWithDetails(
+                $treatmentPlanID
+            );
+            $planItems = $treatmentPlanItem->findByTreatmentPlanID(
+                $treatmentPlanID
+            );
+
+            if ($planDetails) {
+                echo json_encode([
+                    "success" => true,
+                    "treatmentPlan" => $planDetails,
+                    "items" => $planItems,
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment plan not found",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("Error fetching treatment plan: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while fetching the treatment plan",
+            ]);
+        }
+        exit();
     }
 
+    public function updateTreatmentPlan()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentPlanID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Plan ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlan = new TreatmentPlan($this->conn);
+
+            if ($treatmentPlan->findByID($input["treatmentPlanID"])) {
+                $treatmentPlan->status =
+                    $input["status"] ?? $treatmentPlan->status;
+                $treatmentPlan->dentistNotes =
+                    $input["dentistNotes"] ?? $treatmentPlan->dentistNotes;
+
+                if ($treatmentPlan->update()) {
+                    // Update treatment plan items if provided
+                    if (isset($input["items"]) && is_array($input["items"])) {
+                        $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+                        foreach ($input["items"] as $item) {
+                            if (
+                                isset($item["treatmentItemID"]) &&
+                                !empty($item["treatmentItemID"])
+                            ) {
+                                // Update existing item
+                                if (
+                                    $treatmentPlanItem->findByID(
+                                        $item["treatmentItemID"]
+                                    )
+                                ) {
+                                    $treatmentPlanItem->toothNumber =
+                                        $item["toothNumber"] ??
+                                        $treatmentPlanItem->toothNumber;
+                                    $treatmentPlanItem->procedureCode =
+                                        $item["procedureCode"] ??
+                                        $treatmentPlanItem->procedureCode;
+                                    $treatmentPlanItem->description =
+                                        $item["description"] ??
+                                        $treatmentPlanItem->description;
+                                    $treatmentPlanItem->cost =
+                                        $item["cost"] ??
+                                        $treatmentPlanItem->cost;
+                                    $treatmentPlanItem->scheduledDate =
+                                        $item["scheduledDate"] ??
+                                        $treatmentPlanItem->scheduledDate;
+                                    $treatmentPlanItem->completedAt =
+                                        isset($item["completedAt"]) &&
+                                        !empty($item["completedAt"])
+                                            ? $item["completedAt"]
+                                            : $treatmentPlanItem->completedAt;
+
+                                    $treatmentPlanItem->update();
+                                }
+                            } else {
+                                // Create new item
+                                $treatmentPlanItem->treatmentPlanID =
+                                    $treatmentPlan->treatmentPlanID;
+                                $treatmentPlanItem->toothNumber =
+                                    $item["toothNumber"] ?? "";
+                                $treatmentPlanItem->procedureCode =
+                                    $item["procedureCode"] ?? "";
+                                $treatmentPlanItem->description =
+                                    $item["description"] ?? "";
+                                $treatmentPlanItem->cost = $item["cost"] ?? 0;
+                                $treatmentPlanItem->scheduledDate =
+                                    $item["scheduledDate"] ?? null;
+                                $treatmentPlanItem->completedAt =
+                                    isset($item["completedAt"]) &&
+                                    !empty($item["completedAt"])
+                                        ? $item["completedAt"]
+                                        : null;
+
+                                $treatmentPlanItem->create();
+                            }
+                        }
+                    }
+
+                    echo json_encode([
+                        "success" => true,
+                        "message" => "Treatment plan updated successfully",
+                    ]);
+                } else {
+                    echo json_encode([
+                        "success" => false,
+                        "message" => "Failed to update treatment plan",
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment plan not found",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("Error updating treatment plan: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while updating the treatment plan",
+            ]);
+        }
+        exit();
+    }
+
+    public function deleteTreatmentPlan()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentPlanID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Plan ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlan = new TreatmentPlan($this->conn);
+
+            if ($treatmentPlan->delete($input["treatmentPlanID"])) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Treatment plan deleted successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to delete treatment plan",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("Error deleting treatment plan: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while deleting the treatment plan",
+            ]);
+        }
+        exit();
+    }
+
+    public function getValidAppointmentReports()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        $patientID = $_GET["patient_id"] ?? null;
+
+        if (!$patientID) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Patient ID is required",
+            ]);
+            exit();
+        }
+
+        try {
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $validReports = $treatmentPlan->getValidAppointmentReportsForTreatmentPlan(
+                $patientID
+            );
+
+            echo json_encode([
+                "success" => true,
+                "reports" => $validReports,
+            ]);
+        } catch (Exception $e) {
+            error_log(
+                "Error fetching valid appointment reports: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while fetching appointment reports",
+            ]);
+        }
+        exit();
+    }
+
+    public function addTreatmentPlanItem()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentPlanID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Plan ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+            $treatmentPlanItem->treatmentPlanID = $input["treatmentPlanID"];
+            $treatmentPlanItem->toothNumber = $input["toothNumber"] ?? "";
+            $treatmentPlanItem->procedureCode = $input["procedureCode"] ?? "";
+            $treatmentPlanItem->description = $input["description"] ?? "";
+            $treatmentPlanItem->cost = $input["cost"] ?? 0;
+            $treatmentPlanItem->scheduledDate = $input["scheduledDate"] ?? null;
+            $treatmentPlanItem->completedAt =
+                isset($input["completedAt"]) && !empty($input["completedAt"])
+                    ? $input["completedAt"]
+                    : null;
+
+            if ($treatmentPlanItem->create()) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Treatment plan item added successfully",
+                    "itemID" => $treatmentPlanItem->treatmentItemID,
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to add treatment plan item",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("Error adding treatment plan item: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while adding the treatment plan item",
+            ]);
+        }
+        exit();
+    }
+
+    public function updateTreatmentPlanItem()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentItemID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Item ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            if ($treatmentPlanItem->findByID($input["treatmentItemID"])) {
+                $treatmentPlanItem->toothNumber =
+                    $input["toothNumber"] ?? $treatmentPlanItem->toothNumber;
+                $treatmentPlanItem->procedureCode =
+                    $input["procedureCode"] ??
+                    $treatmentPlanItem->procedureCode;
+                $treatmentPlanItem->description =
+                    $input["description"] ?? $treatmentPlanItem->description;
+                $treatmentPlanItem->cost =
+                    $input["cost"] ?? $treatmentPlanItem->cost;
+                $treatmentPlanItem->scheduledDate =
+                    $input["scheduledDate"] ??
+                    $treatmentPlanItem->scheduledDate;
+                $treatmentPlanItem->completedAt =
+                    isset($input["completedAt"]) &&
+                    !empty($input["completedAt"])
+                        ? $input["completedAt"]
+                        : $treatmentPlanItem->completedAt;
+
+                if ($treatmentPlanItem->update()) {
+                    echo json_encode([
+                        "success" => true,
+                        "message" => "Treatment plan item updated successfully",
+                    ]);
+                } else {
+                    echo json_encode([
+                        "success" => false,
+                        "message" => "Failed to update treatment plan item",
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment plan item not found",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Error updating treatment plan item: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while updating the treatment plan item",
+            ]);
+        }
+        exit();
+    }
+
+    public function deleteTreatmentPlanItem()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentItemID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Item ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            if ($treatmentPlanItem->delete($input["treatmentItemID"])) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Treatment plan item deleted successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to delete treatment plan item",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Error deleting treatment plan item: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while deleting the treatment plan item",
+            ]);
+        }
+        exit();
+    }
+
+    public function markTreatmentItemComplete()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentItemID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Item ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+            $completedAt = $input["completedAt"] ?? null;
+
+            if (
+                $treatmentPlanItem->markAsCompleted(
+                    $input["treatmentItemID"],
+                    $completedAt
+                )
+            ) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Treatment item marked as completed",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to mark treatment item as completed",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Error marking treatment item complete: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while marking the treatment item as completed",
+            ]);
+        }
+        exit();
+    }
+
+    public function markTreatmentItemIncomplete()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid request method",
+            ]);
+            exit();
+        }
+
+        try {
+            $input = json_decode(file_get_contents("php://input"), true);
+
+            if (!$input || !isset($input["treatmentItemID"])) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment Item ID is required",
+                ]);
+                exit();
+            }
+
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            if (
+                $treatmentPlanItem->markAsIncomplete($input["treatmentItemID"])
+            ) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Treatment item marked as incomplete",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to mark treatment item as incomplete",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Error marking treatment item incomplete: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while marking the treatment item as incomplete",
+            ]);
+        }
+        exit();
+    }
+
+    public function getPatientTreatmentPlan()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
+        header("Content-Type: application/json");
+
+        $patientID = $_GET["patient_id"] ?? null;
+
+        if (!$patientID) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Patient ID is required",
+            ]);
+            exit();
+        }
+
+        try {
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            $patientTreatmentPlans = $treatmentPlan->getTreatmentPlansByPatientID(
+                $patientID
+            );
+            $treatmentPlans = [];
+
+            foreach ($patientTreatmentPlans as $plan) {
+                $progress = $treatmentPlan->calculateProgress(
+                    $plan["TreatmentPlanID"]
+                );
+                $items = $treatmentPlanItem->findByTreatmentPlanID(
+                    $plan["TreatmentPlanID"]
+                );
+
+                $completedItems = array_filter($items, function ($item) {
+                    return !empty($item["CompletedAt"]);
+                });
+
+                $treatmentPlans[] = [
+                    "TreatmentPlanID" => $plan["TreatmentPlanID"],
+                    "Status" => $plan["Status"],
+                    "DentistNotes" => $plan["DentistNotes"],
+                    "AssignedAt" => $plan["AssignedAt"],
+                    "DoctorName" => $plan["DoctorName"] ?? "Unknown Doctor",
+                    "AppointmentDate" => $plan["AppointmentDate"] ?? null,
+                    "progress" => round($progress, 1),
+                    "totalItems" => count($items),
+                    "completedItems" => count($completedItems),
+                    "items" => $items,
+                ];
+            }
+
+            echo json_encode([
+                "success" => true,
+                "treatmentPlans" => $treatmentPlans,
+            ]);
+        } catch (Exception $e) {
+            error_log(
+                "Error fetching patient treatment plans: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" => "An error occurred while fetching treatment plans",
+            ]);
+        }
+        exit();
+    }
 }
 ?> 

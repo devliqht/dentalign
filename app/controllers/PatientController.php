@@ -9,6 +9,8 @@ require_once "app/models/PatientRecord.php";
 require_once "app/models/AppointmentReport.php";
 require_once "app/models/Payment.php";
 require_once "app/models/PaymentItem.php";
+require_once "app/models/TreatmentPlan.php";
+require_once "app/models/TreatmentPlanItem.php";
 
 class PatientController extends Controller
 {
@@ -30,6 +32,13 @@ class PatientController extends Controller
         );
 
         $completedAppointments = $appointment->getCompletedAppointmentsByPatient(
+            $user["id"]
+        );
+
+        $cancelledAppointments = $appointment->getCancelledAppointmentsByPatient(
+            $user["id"]
+        );
+        $pendingCancellationAppointments = $appointment->getPendingCancellationsByPatient(
             $user["id"]
         );
 
@@ -113,35 +122,73 @@ class PatientController extends Controller
             "upcoming" => count($upcomingAppointments),
         ];
 
-        // Mock current treatments data (UI only for now)
-        $currentTreatments = [
-            [
-                "id" => 1,
-                "name" => "Orthodontic Treatment",
-                "doctor" => "Dr. Smith",
-                "specialization" => "Orthodontist",
-                "progress" => 65,
-                "next_appointment" => "2024-01-15",
-                "status" => "In Progress",
-                "description" => "Braces treatment for teeth alignment",
-            ],
-            [
-                "id" => 2,
-                "name" => "Root Canal Therapy",
-                "doctor" => "Dr. Johnson",
-                "specialization" => "Endodontist",
-                "progress" => 80,
-                "next_appointment" => "2024-01-20",
-                "status" => "Final Stage",
-                "description" => "Root canal treatment for tooth #14",
-            ],
-        ];
+        // Load real treatment plan data instead of mock data
+        $currentTreatments = [];
+        if ($patientData) {
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            $patientTreatmentPlans = $treatmentPlan->getTreatmentPlansByPatientID(
+                $patientData["PatientID"]
+            );
+
+            foreach ($patientTreatmentPlans as $plan) {
+                $progress = $treatmentPlan->calculateProgress(
+                    $plan["TreatmentPlanID"]
+                );
+                $items = $treatmentPlanItem->findByTreatmentPlanID(
+                    $plan["TreatmentPlanID"]
+                );
+
+                // Get next appointment date from incomplete items
+                $nextAppointment = null;
+                foreach ($items as $item) {
+                    if (
+                        empty($item["CompletedAt"]) &&
+                        !empty($item["ScheduledDate"])
+                    ) {
+                        if (
+                            !$nextAppointment ||
+                            $item["ScheduledDate"] < $nextAppointment
+                        ) {
+                            $nextAppointment = $item["ScheduledDate"];
+                        }
+                    }
+                }
+
+                // Determine status based on progress
+                $status = "In Progress";
+                if ($progress >= 100) {
+                    $status = "Completed";
+                } elseif ($progress >= 80) {
+                    $status = "Final Stage";
+                }
+
+                $currentTreatments[] = [
+                    "id" => $plan["TreatmentPlanID"],
+                    "name" => "Treatment Plan #" . $plan["TreatmentPlanID"],
+                    "doctor" =>
+                        $plan["DoctorName"] ?? "Dr. " . $plan["DentistID"],
+                    "specialization" =>
+                        $plan["DoctorSpecialization"] ?? "General Dentist",
+                    "progress" => round($progress, 1),
+                    "next_appointment" => $nextAppointment ?: "TBD",
+                    "status" => $status,
+                    "description" =>
+                        $plan["DentistNotes"] ?:
+                        "Comprehensive dental treatment plan",
+                    "appointment_report_id" => $plan["AppointmentReportID"],
+                ];
+            }
+        }
 
         $data = [
             "user" => $user,
             "patientData" => $patientData,
             "upcomingAppointments" => $upcomingAppointments,
             "completedAppointments" => $completedAppointments,
+            "cancelledAppointments" => $cancelledAppointments,
+            "pendingCancellationAppointments" => $pendingCancellationAppointments,
             "allAppointments" => $allAppointments,
             "appointmentPayments" => $appointmentPayments,
             "pendingPayments" => $pendingPayments,
@@ -179,6 +226,12 @@ class PatientController extends Controller
         $completedAppointments = $appointment->getCompletedAppointmentsByPatient(
             $user["id"]
         );
+        $cancelledAppointments = $appointment->getCancelledAppointmentsByPatient(
+            $user["id"]
+        );
+        $pendingCancellationAppointments = $appointment->getPendingCancellationsByPatient(
+            $user["id"]
+        );
 
         $payment = new Payment($this->conn);
         $patient = new Patient($this->conn);
@@ -206,6 +259,8 @@ class PatientController extends Controller
             "user" => $user,
             "upcomingAppointments" => $upcomingAppointments,
             "completedAppointments" => $completedAppointments,
+            "cancelledAppointments" => $cancelledAppointments,
+            "pendingCancellationAppointments" => $pendingCancellationAppointments,
             "appointmentPayments" => $appointmentPayments,
         ];
 
@@ -438,6 +493,41 @@ class PatientController extends Controller
             $teethByNumber[$tooth["ToothNumber"]] = $tooth;
         }
 
+        // Load treatment plan data for this patient
+        $treatmentPlans = [];
+        $treatmentPlan = new TreatmentPlan($this->conn);
+        $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+        $patientTreatmentPlans = $treatmentPlan->getTreatmentPlansByPatientID(
+            $patientID
+        );
+
+        foreach ($patientTreatmentPlans as $plan) {
+            $progress = $treatmentPlan->calculateProgress(
+                $plan["TreatmentPlanID"]
+            );
+            $items = $treatmentPlanItem->findByTreatmentPlanID(
+                $plan["TreatmentPlanID"]
+            );
+
+            $completedItems = array_filter($items, function ($item) {
+                return !empty($item["CompletedAt"]);
+            });
+
+            $treatmentPlans[] = [
+                "TreatmentPlanID" => $plan["TreatmentPlanID"],
+                "Status" => $plan["Status"],
+                "DentistNotes" => $plan["DentistNotes"],
+                "AssignedAt" => $plan["AssignedAt"],
+                "DoctorName" => $plan["DoctorName"] ?? "Unknown Doctor",
+                "AppointmentDate" => $plan["AppointmentDate"] ?? null,
+                "progress" => round($progress, 1),
+                "totalItems" => count($items),
+                "completedItems" => count($completedItems),
+                "items" => $items,
+            ];
+        }
+
         $data = [
             "user" => $this->getAuthUser(),
             "dentalChart" => [
@@ -447,6 +537,7 @@ class PatientController extends Controller
                 "CreatedAt" => $dentalChart->createdAt,
             ],
             "teethData" => $teethByNumber,
+            "treatmentPlans" => $treatmentPlans,
             "csrf_token" => $this->generateCsrfToken(),
         ];
 
@@ -811,23 +902,11 @@ class PatientController extends Controller
             $this->redirectBack("Please correct the errors below");
         }
 
-        // future time check
+        // Create appointment datetime
         $appointmentDateTime =
             $data["appointment_date"] . " " . $data["appointment_time"] . ":00";
 
         error_log("Appointment DateTime: " . $appointmentDateTime);
-        error_log("Current time: " . date("Y-m-d H:i:s"));
-        error_log(
-            "Future check result: " .
-                (strtotime($appointmentDateTime) > time() ? "PASSED" : "FAILED")
-        );
-
-        if (strtotime($appointmentDateTime) <= time()) {
-            error_log("FAILURE: Appointment time is not in the future");
-            $this->redirectBack(
-                "Appointment date and time must be in the future"
-            );
-        }
 
         $appointment = new Appointment($this->conn);
 
@@ -931,11 +1010,6 @@ class PatientController extends Controller
             " " .
             $data["new_appointment_time"] .
             ":00";
-        if (strtotime($newDateTime) <= time()) {
-            $this->redirectBack(
-                "New appointment date and time must be in the future"
-            );
-        }
 
         $success = $appointment->rescheduleAppointment(
             $data["appointment_id"],
@@ -965,7 +1039,6 @@ class PatientController extends Controller
             $this->redirectBack("Invalid appointment");
         }
 
-        // Verify the appointment belongs to the current patient
         $appointment = new Appointment($this->conn);
         $appointmentDetails = $appointment->getAppointmentById(
             $data["appointment_id"]
@@ -978,21 +1051,22 @@ class PatientController extends Controller
             $this->redirectBack("Invalid appointment or unauthorized access");
         }
 
-        // Check if appointment is in the future (can't cancel past appointments)
-        if (strtotime($appointmentDetails["DateTime"]) <= time()) {
+        // Check if appointment has payments
+        if ($appointment->hasPayments($data["appointment_id"])) {
             $this->redirectBack(
-                "Cannot cancel appointments that have already occurred"
+                "Cannot cancel appointment that has payments. Please contact the clinic for assistance."
             );
         }
 
         $success = $appointment->cancelAppointment($data["appointment_id"]);
 
         if ($success) {
-            $_SESSION["success"] = "Appointment cancelled successfully!";
+            $_SESSION["success"] =
+                "Cancellation request submitted successfully! Your appointment is now pending cancellation approval from the doctor.";
             $this->redirect(BASE_URL . "/patient/bookings");
         } else {
             $this->redirectBack(
-                "Failed to cancel appointment. Please try again."
+                "Failed to submit cancellation request. Please try again."
             );
         }
     }

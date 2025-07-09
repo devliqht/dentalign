@@ -11,14 +11,18 @@ class DentalAssistantController extends Controller
         $data = [
             "user" => $this->getAuthuser(),
         ];
-        
+
         $layoutConfig = [
             "title" => "Dental Assistant Dashboard",
             "hideHeader" => false,
             "hideFooter" => false,
         ];
 
-        $this->view("pages/staff/dentalassistant/Dashboard", $data, $layoutConfig);
+        $this->view(
+            "pages/staff/dentalassistant/Dashboard",
+            $data,
+            $layoutConfig
+        );
     }
 
     public function paymentManagement()
@@ -96,7 +100,7 @@ class DentalAssistantController extends Controller
                 "success" => true,
                 "appointments" => $appointments,
             ]);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             echo json_encode([
                 "success" => false,
                 "message" => "Error fetching appointments: " . $e->getMessage(),
