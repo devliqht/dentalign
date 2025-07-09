@@ -5,16 +5,6 @@
                             <h1 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">
                                 Appointment History
                             </h1>
-                            <p class="text-gray-600 mb-2">
-                                Dr. <?php echo htmlspecialchars(
-                                    $doctor["firstName"] .
-                                        " " .
-                                        $doctor["lastName"]
-                                ); ?>
-                                • <?php echo htmlspecialchars(
-                                    $doctor["specialization"]
-                                ); ?>
-                            </p>
                             <div class="flex items-center space-x-4 text-sm text-gray-500">
                                 <span class="flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,21 +185,36 @@
                             <?php endforeach; ?>
                         </div>
 
+                        <div id="loading-state" style="display: none; padding: 20px; text-align: center;">
+                            <em>Loading sorted data...</em>
+                        </div>
+
                         <!-- Desktop Table View -->
                         <div class="hidden lg:block overflow-x-auto">
-                            <table class="w-full">
+                            <table class="w-full appoinment-history-table">
                                 <thead>
-                                    <tr class="border-b border-gray-200/60 bg-gray-50/50">
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Date & Time</th>
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Patient</th>
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Contact</th>
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Type</th>
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Reason</th>
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Status</th>
-                                        <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Actions</th>
-                                    </tr>
+                                <tr class="border-b border-gray-200/60 bg-gray-50/50">
+                                    <!-- Add data-sort attribute and a span for the icon -->
+                                    <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm" data-sort="DateTime">
+                                        Date & Time <span class="sort-indicator"></span>
+                                    </th>
+                                    <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm" data-sort="PatientFirstName">
+                                        Patient <span class="sort-indicator"></span>
+                                    </th>
+                                    <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm" data-sort="PatientEmail">
+                                        Contact <span class="sort-indicator"></span>
+                                    </th>
+                                    <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm" data-sort="AppointmentType">
+                                        Type <span class="sort-indicator"></span>
+                                    </th>
+                                    <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Reason</th> <!-- Not sortable -->
+                                    <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm" data-sort="Status">
+                                        Status <span class="sort-indicator"></span>
+                                    </th>
+                                    <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Actions</th> <!-- Not sortable -->
+                                </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200/30">
+                                <tbody id="appointment-history-table" class="divide-y divide-gray-200/30">
                                     <?php foreach (
                                         $appointmentHistory
                                         as $appointment
@@ -366,3 +371,152 @@
 
 <!-- Appointment Details Modal -->
 <?php include "app/views/components/SchedulePage/AppointmentDetailsModal.php"; ?>
+<style>
+    .sortable-header {
+        cursor: pointer;
+        user-select: none; /* Prevents text selection on click */
+    }
+    .sortable-header:hover {
+        background-color: #f0f0f0; /* Or your preferred hover color */
+    }
+    .sort-indicator {
+        display: inline-block;
+        width: 1em;
+        text-align: left;
+    }
+</style>
+<script>
+    // --- STATE MANAGEMENT ---
+    let currentSort = {
+        key: 'DateTime', // Default sort key
+        direction: 'desc' // Default sort direction
+    };
+
+    // --- DOM REFERENCES ---
+    const tableBody = document.getElementById('appointment-history-table');
+    const loadingState = document.getElementById('loading-state');
+    const sortableHeaders = document.querySelectorAll('.sortable-header');
+
+    // --- EVENT LISTENERS ---
+    document.addEventListener('DOMContentLoaded', () => {
+        updateSortIndicators();
+    });
+
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const sortKey = this.dataset.sort;
+
+            if (currentSort.key === sortKey) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.key = sortKey;
+                currentSort.direction = 'asc';
+            }
+            fetchSortedData(currentSort.key, currentSort.direction);
+        });
+    });
+
+    // --- AJAX AND DOM MANIPULATION ---
+    async function fetchSortedData(sortOption, sortDirection) {
+        loadingState.style.display = 'block';
+        tableBody.style.opacity = '0.5';
+
+        try {
+            const url = `${window.BASE_URL}/doctor/sortAppointmentHistory/${sortOption}/${sortDirection}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            
+            const sortedAppointments = await response.json();
+            
+            renderTable(sortedAppointments);
+            updateSortIndicators();
+
+        } catch (error) {
+            console.error("Failed to fetch or sort data:", error);
+            tableBody.innerHTML = `<tr><td colspan="7">Error loading data. Please try again.</td></tr>`;
+        } finally {
+            loadingState.style.display = 'none';
+            tableBody.style.opacity = '1';
+        }
+    }
+
+    /**
+     * CORRECTED HELPER FUNCTION
+     * Safely escapes HTML special characters to prevent XSS.
+     * @param {string} unsafe - The string to escape.
+     * @returns {string} The escaped string.
+     */
+    const escapeHtml = (unsafe) => {
+        if (typeof unsafe !== 'string') return ''; // Return empty string for non-string types
+        return unsafe.replace(/[&<>"']/g, m => ({
+            '&': '&',
+            '<': '<',
+            '>': '>',
+            '"': '"',
+            "'": '' // Replaces single quote with its HTML entity
+        }[m]));
+    };
+
+    function renderTable(appointments) {
+        tableBody.innerHTML = '';
+
+        if (appointments.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7">No appointment history found.</td></tr>`;
+            return;
+        }
+        
+        const rowsHtml = appointments.map(appt => {
+            const appointmentDate = new Date(appt.DateTime);
+            const formattedDate = appointmentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const formattedTime = appointmentDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            
+            const reasonHtml = appt.Reason 
+                ? `<div class="text-sm text-gray-600 truncate" title="${escapeHtml(appt.Reason)}">${escapeHtml(appt.Reason)}</div>`
+                : `<span class="text-gray-400 text-sm italic">-</span>`;
+
+            return `
+                <tr class="hover:bg-white/40 transition-colors duration-200">
+                    <td class="py-2 px-3">
+                        <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded inline-block text-xs">
+                            <div class="font-medium">${formattedDate}</div>
+                            <div class="font-bold">${formattedTime}</div>
+                        </div>
+                    </td>
+                    <td class="py-2 px-3">
+                        <div class="font-medium text-gray-900 text-sm">${escapeHtml(appt.PatientFirstName + ' ' + appt.PatientLastName)}</div>
+                        <div class="text-xs text-gray-500">ID #${String(appt.AppointmentID).padStart(4, '0')}</div>
+                    </td>
+                    <td class="py-2 px-3">
+                        <div class="text-sm text-gray-600">${escapeHtml(appt.PatientEmail)}</div>
+                    </td>
+                    <td class="py-2 px-3">
+                        <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">${escapeHtml(appt.AppointmentType)}</span>
+                    </td>
+                    <td class="py-2 px-3 max-w-xs">${reasonHtml}</td>
+                    <td class="py-2 px-3">
+                        <span class="bg-green-100/60 text-green-800 px-2 py-1 rounded-full text-xs font-medium">${escapeHtml(appt.Status)}</span>
+                    </td>
+                    <td class="py-2 px-3">
+                        <div class="flex space-x-1">
+                            <button onclick="openAppointmentDetailsModal(${appt.AppointmentID})" class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">Details</button>
+                            <button class="bg-gray-200/80 text-gray-700 px-2 py-1 rounded text-xs hover:bg-gray-300/80 transition-colors">Notes</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        tableBody.innerHTML = rowsHtml;
+    }
+
+    function updateSortIndicators() {
+        sortableHeaders.forEach(header => {
+            const indicator = header.querySelector('.sort-indicator');
+            if (header.dataset.sort === currentSort.key) {
+                indicator.textContent = currentSort.direction === 'asc' ? ' ▲' : ' ▼';
+            } else {
+                indicator.textContent = '';
+            }
+        });
+    }
+</script>

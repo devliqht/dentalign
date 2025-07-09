@@ -66,6 +66,7 @@ $router->group("GET", "DoctorController", [
     "patient/get-treatment-plan/{patient_id}" => "getTreatmentPlan",
     "doctor/inbox" => "inbox",
     "staff/profile" => "profile",
+    "doctor/sortAppointmentHistory/{sortOption}/{direction}" => "sortAppointmentHistory", // jeane added this
 ]);
 
 $router->group("POST", "DoctorController", [
