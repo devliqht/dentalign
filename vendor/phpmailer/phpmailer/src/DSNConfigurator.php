@@ -79,12 +79,16 @@ class DSNConfigurator
     {
         $config = $this->parseUrl($dsn);
 
-        if (false === $config || !isset($config['scheme']) || !isset($config['host'])) {
-            throw new Exception('Malformed DSN');
+        if (
+            false === $config ||
+            !isset($config["scheme"]) ||
+            !isset($config["host"])
+        ) {
+            throw new Exception("Malformed DSN");
         }
 
-        if (isset($config['query'])) {
-            parse_str($config['query'], $config['query']);
+        if (isset($config["query"])) {
+            parse_str($config["query"], $config["query"]);
         }
 
         return $config;
@@ -100,18 +104,18 @@ class DSNConfigurator
      */
     private function applyConfig(PHPMailer $mailer, $config)
     {
-        switch ($config['scheme']) {
-            case 'mail':
+        switch ($config["scheme"]) {
+            case "mail":
                 $mailer->isMail();
                 break;
-            case 'sendmail':
+            case "sendmail":
                 $mailer->isSendmail();
                 break;
-            case 'qmail':
+            case "qmail":
                 $mailer->isQmail();
                 break;
-            case 'smtp':
-            case 'smtps':
+            case "smtp":
+            case "smtps":
                 $mailer->isSMTP();
                 $this->configureSMTP($mailer, $config);
                 break;
@@ -119,13 +123,13 @@ class DSNConfigurator
                 throw new Exception(
                     sprintf(
                         'Invalid scheme: "%s". Allowed values: "mail", "sendmail", "qmail", "smtp", "smtps".',
-                        $config['scheme']
+                        $config["scheme"]
                     )
                 );
         }
 
-        if (isset($config['query'])) {
-            $this->configureOptions($mailer, $config['query']);
+        if (isset($config["query"])) {
+            $this->configureOptions($mailer, $config["query"]);
         }
     }
 
@@ -137,28 +141,28 @@ class DSNConfigurator
      */
     private function configureSMTP($mailer, $config)
     {
-        $isSMTPS = 'smtps' === $config['scheme'];
+        $isSMTPS = "smtps" === $config["scheme"];
 
         if ($isSMTPS) {
             $mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
 
-        $mailer->Host = $config['host'];
+        $mailer->Host = $config["host"];
 
-        if (isset($config['port'])) {
-            $mailer->Port = $config['port'];
+        if (isset($config["port"])) {
+            $mailer->Port = $config["port"];
         } elseif ($isSMTPS) {
             $mailer->Port = SMTP::DEFAULT_SECURE_PORT;
         }
 
-        $mailer->SMTPAuth = isset($config['user']) || isset($config['pass']);
+        $mailer->SMTPAuth = isset($config["user"]) || isset($config["pass"]);
 
-        if (isset($config['user'])) {
-            $mailer->Username = $config['user'];
+        if (isset($config["user"])) {
+            $mailer->Username = $config["user"];
         }
 
-        if (isset($config['pass'])) {
-            $mailer->Password = $config['pass'];
+        if (isset($config["pass"])) {
+            $mailer->Password = $config["pass"];
         }
     }
 
@@ -174,13 +178,13 @@ class DSNConfigurator
     {
         $allowedOptions = get_object_vars($mailer);
 
-        unset($allowedOptions['Mailer']);
-        unset($allowedOptions['SMTPAuth']);
-        unset($allowedOptions['Username']);
-        unset($allowedOptions['Password']);
-        unset($allowedOptions['Hostname']);
-        unset($allowedOptions['Port']);
-        unset($allowedOptions['ErrorInfo']);
+        unset($allowedOptions["Mailer"]);
+        unset($allowedOptions["SMTPAuth"]);
+        unset($allowedOptions["Username"]);
+        unset($allowedOptions["Password"]);
+        unset($allowedOptions["Hostname"]);
+        unset($allowedOptions["Port"]);
+        unset($allowedOptions["ErrorInfo"]);
 
         $allowedOptions = \array_keys($allowedOptions);
 
@@ -196,18 +200,18 @@ class DSNConfigurator
             }
 
             switch ($key) {
-                case 'AllowEmpty':
-                case 'SMTPAutoTLS':
-                case 'SMTPKeepAlive':
-                case 'SingleTo':
-                case 'UseSendmailOptions':
-                case 'do_verp':
-                case 'DKIM_copyHeaderFields':
+                case "AllowEmpty":
+                case "SMTPAutoTLS":
+                case "SMTPKeepAlive":
+                case "SingleTo":
+                case "UseSendmailOptions":
+                case "do_verp":
+                case "DKIM_copyHeaderFields":
                     $mailer->$key = (bool) $value;
                     break;
-                case 'Priority':
-                case 'SMTPDebug':
-                case 'WordWrap':
+                case "Priority":
+                case "SMTPDebug":
+                case "WordWrap":
                     $mailer->$key = (int) $value;
                     break;
                 default:
@@ -227,15 +231,15 @@ class DSNConfigurator
      */
     protected function parseUrl($url)
     {
-        if (\PHP_VERSION_ID >= 50600 || false === strpos($url, '?')) {
+        if (\PHP_VERSION_ID >= 50600 || false === strpos($url, "?")) {
             return parse_url($url);
         }
 
-        $chunks = explode('?', $url);
+        $chunks = explode("?", $url);
         if (is_array($chunks)) {
             $result = parse_url($chunks[0]);
             if (is_array($result)) {
-                $result['query'] = $chunks[1];
+                $result["query"] = $chunks[1];
             }
             return $result;
         }

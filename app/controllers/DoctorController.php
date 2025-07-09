@@ -807,6 +807,7 @@ class DoctorController extends Controller
             $oralNotes = $data["oralNotes"] ?? "";
             $diagnosis = $data["diagnosis"] ?? "";
             $xrayImages = $data["xrayImages"] ?? "";
+            $status = $data["status"] ?? "";
 
             if (!$appointmentId) {
                 echo json_encode([
@@ -815,25 +816,33 @@ class DoctorController extends Controller
                 ]);
                 exit();
             }
-
+            $appointment = new Appointment($this->conn);
             $appointmentReport = new AppointmentReport($this->conn);
 
-            // Check if report already exists
+            $appointmentData = $appointment->getAppointmentById($appointmentId);
+            if (!$appointmentData || empty($appointmentData)) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to find appointment.",
+                ]);
+                exit();
+            }
+
             if ($appointmentReport->findByAppointmentID($appointmentId)) {
-                // Update existing report
+                $appointment->status = $status;
                 $appointmentReport->oralNotes = $oralNotes;
                 $appointmentReport->diagnosis = $diagnosis;
                 $appointmentReport->xrayImages = $xrayImages;
 
-                if ($appointmentReport->update()) {
+                if ($appointmentReport->update() && $appointment->updateAppointmentStatus($appointmentId)) {
                     echo json_encode([
                         "success" => true,
-                        "message" => "Appointment report updated successfully",
+                        "message" => "Appointment and Appointment report updated successfully",
                     ]);
                 } else {
                     echo json_encode([
                         "success" => false,
-                        "message" => "Failed to update appointment report",
+                        "message" => "Failed to update appointment and appointment report",
                     ]);
                 }
             } else {
@@ -1134,7 +1143,11 @@ class DoctorController extends Controller
                 '/app/views/scripts/PaymentManagement/PaymentManagement.js"></script>',
         ];
 
-        $this->view("pages/staff/doctor/PaymentManagement", $data, $layoutConfig);
+        $this->view(
+            "pages/staff/doctor/PaymentManagement",
+            $data,
+            $layoutConfig
+        );
     }
 
     public function getAllAppointmentsPayments()
@@ -1217,9 +1230,13 @@ class DoctorController extends Controller
             if (!empty($paymentId)) {
                 $paymentData = $payment->getPaymentWithBreakdown($paymentId);
             } else {
-                $paymentData = $payment->getPaymentByAppointment($appointmentId);
+                $paymentData = $payment->getPaymentByAppointment(
+                    $appointmentId
+                );
                 if ($paymentData) {
-                    $paymentData = $payment->getPaymentWithBreakdown($paymentData["PaymentID"]);
+                    $paymentData = $payment->getPaymentWithBreakdown(
+                        $paymentData["PaymentID"]
+                    );
                 }
             }
 
@@ -1269,7 +1286,8 @@ class DoctorController extends Controller
         } catch (Exception $e) {
             echo json_encode([
                 "success" => false,
-                "message" => "Error fetching payment details: " . $e->getMessage(),
+                "message" =>
+                    "Error fetching payment details: " . $e->getMessage(),
             ]);
         }
         exit();
@@ -1406,7 +1424,9 @@ class DoctorController extends Controller
             $user = $this->getAuthUser();
 
             $payment = new Payment($this->conn);
-            if ($payment->updateStatus($paymentId, $status, $user["id"], $notes)) {
+            if (
+                $payment->updateStatus($paymentId, $status, $user["id"], $notes)
+            ) {
                 echo json_encode([
                     "success" => true,
                     "message" => "Payment updated successfully",
@@ -1531,7 +1551,8 @@ class DoctorController extends Controller
             if (!$paymentId || empty($description) || $amount <= 0) {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Payment ID, description, and valid amount are required",
+                    "message" =>
+                        "Payment ID, description, and valid amount are required",
                 ]);
                 exit();
             }
@@ -1601,7 +1622,8 @@ class DoctorController extends Controller
             if (!$itemId || empty($description) || $amount <= 0) {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Item ID, description, and valid amount are required",
+                    "message" =>
+                        "Item ID, description, and valid amount are required",
                 ]);
                 exit();
             }
@@ -1609,7 +1631,9 @@ class DoctorController extends Controller
             require_once "app/models/PaymentItem.php";
 
             $paymentItem = new PaymentItem($this->conn);
-            if ($paymentItem->update($itemId, $description, $amount, $quantity)) {
+            if (
+                $paymentItem->update($itemId, $description, $amount, $quantity)
+            ) {
                 echo json_encode([
                     "success" => true,
                     "message" => "Payment item updated successfully",
@@ -1747,7 +1771,8 @@ class DoctorController extends Controller
         } catch (Exception $e) {
             echo json_encode([
                 "success" => false,
-                "message" => "Error updating payment status: " . $e->getMessage(),
+                "message" =>
+                    "Error updating payment status: " . $e->getMessage(),
             ]);
         }
         exit();
