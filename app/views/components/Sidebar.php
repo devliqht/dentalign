@@ -9,6 +9,7 @@
         <nav class="p-2">
             <?php
             $userType = $_SESSION["user_type"] ?? "";
+            $staffType = $_SESSION["user_staff"] ?? "";
             $currentPath = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
             $currentPath = str_replace("/dentalign", "", $currentPath);
 

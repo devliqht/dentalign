@@ -36,6 +36,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $user = $this->getAuthUser();
         $doctorID = $user["id"];
@@ -123,6 +124,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $user = $this->getAuthUser();
         $doctorID = $user["id"];
@@ -244,6 +246,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $user = $this->getAuthUser();
         $doctorID = $user["id"];
@@ -288,6 +291,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $user = $this->getAuthUser();
 
@@ -317,6 +321,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $data = [
             "user" => $this->getAuthUser(),
@@ -336,6 +341,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $user = $this->getAuthUser();
         $userModel = new User($this->conn);
@@ -365,6 +371,8 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
+
         $this->validateRequest("POST", true);
 
         $data = $this->sanitize($_POST);
@@ -469,6 +477,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
         $this->validateRequest("POST", true);
 
         // TODO: Handle schedule update logic
@@ -479,6 +488,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
         $this->validateRequest("POST", true);
 
         // TODO: Handle patient record update logic
@@ -489,6 +499,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         header("Content-Type: application/json");
 
@@ -560,6 +571,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         // Don't validate CSRF for JSON API requests
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -687,6 +699,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         header("Content-Type: application/json");
 
@@ -770,6 +783,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -897,6 +911,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         header("Content-Type: application/json");
 
@@ -975,6 +990,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1068,6 +1084,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if (empty($patientId) || !is_numeric($patientId)) {
             $_SESSION["error"] = "Invalid patient ID";
@@ -1113,6 +1130,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         $user = $this->getAuthUser();
 
@@ -1145,6 +1163,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         header("Content-Type: application/json");
 
@@ -1198,6 +1217,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         header("Content-Type: application/json");
 
@@ -1288,6 +1308,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1375,6 +1396,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1441,6 +1463,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1510,6 +1533,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1581,6 +1605,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1648,6 +1673,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1709,6 +1735,7 @@ class DoctorController extends Controller
     {
         $this->requireAuth();
         $this->requireRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
 
         if ($_SERVER["REQUEST_METHOD"] !== "POST") {
             header("HTTP/1.1 405 Method Not Allowed");
@@ -1773,6 +1800,7 @@ class DoctorController extends Controller
         // 1. Authenticate and authorize the user
         $this->requireAuth();
         $this->hasRole("ClinicStaff");
+        $this->requireStaffType("Doctor");
     
         // 2. Get user ID and fetch data
         $user = $this->getAuthUser();

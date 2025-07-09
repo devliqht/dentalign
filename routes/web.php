@@ -49,6 +49,10 @@ $router->group("POST", "PatientController", [
     "patient/profile" => "updateProfile",
 ]);
 
+$router->group("GET", "DentalAssistantController", [
+    "dentalassistant/dashboard" => "dashboard",
+]);
+
 $router->group("GET", "DoctorController", [
     "doctor/dashboard" => "dashboard",
     "doctor/schedule" => "schedule",
