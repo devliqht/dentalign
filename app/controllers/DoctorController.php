@@ -257,16 +257,6 @@ class DoctorController extends Controller
 
         $data = [
             "user" => $user,
-            "doctor" => [
-                "specialization" =>
-                    $doctorModel->specialization ?? "General Practice",
-                "firstName" => $user["user_name"]
-                    ? explode(" ", $user["user_name"])[0]
-                    : "",
-                "lastName" => $user["user_name"]
-                    ? explode(" ", $user["user_name"])[1] ?? ""
-                    : "",
-            ],
             "appointmentHistory" => $appointmentHistory,
         ];
 
@@ -1777,5 +1767,38 @@ class DoctorController extends Controller
         }
         exit();
     }
+
+    public function sortAppointmentHistory($sortOption, $direction) {
+        // 1. Authenticate and authorize the user
+        $this->requireAuth();
+        $this->hasRole("ClinicStaff");
+    
+        // 2. Get user ID and fetch data
+        $user = $this->getAuthUser();
+        $appointmentModel = new Appointment($this->conn);
+        $appointments = $appointmentModel->getAppointmentHistoryByDoctor($user["id"]);
+    
+        // 3. Validate the direction to prevent unexpected behavior
+        $direction = strtolower($direction) === 'desc' ? 'desc' : 'asc';
+    
+        // 4. Sort the data if it's not empty and the sort key exists
+        if (!empty($appointments) && isset($appointments[0][$sortOption])) {
+            usort($appointments, function ($a, $b) use ($sortOption, $direction) {
+                if ($direction === 'asc') {
+                    // Ascending order: A vs B
+                    return $a[$sortOption] <=> $b[$sortOption];
+                } else {
+                    // Descending order: B vs A
+                    return $b[$sortOption] <=> $a[$sortOption];
+                }
+            });
+        }
+    
+        // 5. CRITICAL: Send the JSON response and terminate the script
+        header('Content-Type: application/json');
+        echo json_encode($appointments);
+        exit(); // This is crucial to prevent any other output from being sent
+    }
+
 }
 ?> 
