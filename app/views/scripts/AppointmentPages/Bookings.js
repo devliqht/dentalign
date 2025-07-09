@@ -2,10 +2,24 @@ function showSection(section) {
   const allBtn = document.getElementById("all-btn");
   const upcomingBtn = document.getElementById("upcoming-btn");
   const completedBtn = document.getElementById("completed-btn");
+  const cancelledBtn = document.getElementById("cancelled-btn");
+  const pendingCancellationBtn = document.getElementById(
+    "pending-cancellation-btn",
+  );
   const upcomingSection = document.getElementById("upcoming-section");
   const completedSection = document.getElementById("completed-section");
+  const cancelledSection = document.getElementById("cancelled-section");
+  const pendingCancellationSection = document.getElementById(
+    "pending-cancellation-section",
+  );
 
-  [allBtn, upcomingBtn, completedBtn].forEach((btn) => {
+  [
+    allBtn,
+    upcomingBtn,
+    completedBtn,
+    cancelledBtn,
+    pendingCancellationBtn,
+  ].forEach((btn) => {
     btn.classList.remove("bg-nhd-blue/80", "text-white");
     btn.classList.add("bg-gray-200/80", "text-gray-700");
   });
@@ -13,18 +27,38 @@ function showSection(section) {
   if (section === "all") {
     upcomingSection.style.display = "block";
     completedSection.style.display = "block";
+    cancelledSection.style.display = "block";
+    pendingCancellationSection.style.display = "block";
     allBtn.classList.remove("bg-gray-200/80", "text-gray-700");
     allBtn.classList.add("bg-nhd-blue/80", "text-white");
   } else if (section === "upcoming") {
     upcomingSection.style.display = "block";
     completedSection.style.display = "none";
+    cancelledSection.style.display = "none";
+    pendingCancellationSection.style.display = "none";
     upcomingBtn.classList.remove("bg-gray-200/80", "text-gray-700");
     upcomingBtn.classList.add("bg-nhd-blue/80", "text-white");
   } else if (section === "completed") {
     upcomingSection.style.display = "none";
     completedSection.style.display = "block";
+    cancelledSection.style.display = "none";
+    pendingCancellationSection.style.display = "none";
     completedBtn.classList.remove("bg-gray-200/80", "text-gray-700");
     completedBtn.classList.add("bg-nhd-blue/80", "text-white");
+  } else if (section === "cancelled") {
+    upcomingSection.style.display = "none";
+    completedSection.style.display = "none";
+    cancelledSection.style.display = "block";
+    pendingCancellationSection.style.display = "none";
+    cancelledBtn.classList.remove("bg-gray-200/80", "text-gray-700");
+    cancelledBtn.classList.add("bg-nhd-blue/80", "text-white");
+  } else if (section === "pending-cancellation") {
+    upcomingSection.style.display = "none";
+    completedSection.style.display = "none";
+    cancelledSection.style.display = "none";
+    pendingCancellationSection.style.display = "block";
+    pendingCancellationBtn.classList.remove("bg-gray-200/80", "text-gray-700");
+    pendingCancellationBtn.classList.add("bg-nhd-blue/80", "text-white");
   }
 }
 

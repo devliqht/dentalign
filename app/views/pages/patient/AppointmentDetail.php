@@ -1,3 +1,26 @@
+<?php
+function getAppointmentStatusClass($status)
+{
+    switch (strtolower($status)) {
+        case "pending":
+            return "bg-yellow-100/60 text-yellow-800";
+        case "approved":
+            return "bg-green-100/60 text-green-800";
+        case "rescheduled":
+            return "bg-blue-100/60 text-blue-800";
+        case "completed":
+            return "bg-gray-100/60 text-gray-800";
+        case "declined":
+            return "bg-red-100/60 text-red-800";
+        case "cancelled":
+            return "bg-orange-100/60 text-orange-800";
+        case "pending cancellation":
+            return "bg-purple-100/60 text-purple-800";
+        default:
+            return "bg-gray-100/60 text-gray-600";
+    }
+} ?>
+
 <div class="pb-8">
     <div class="px-4 mb-6">
         <div class="flex items-center mb-4">
@@ -13,7 +36,13 @@
             </div>
         </div>
         <!-- Upcoming appointment actions -->
-        <?php if (strtotime($appointment["DateTime"]) > time()): ?>
+        <?php if (
+            in_array($appointment["Status"], [
+                "Pending",
+                "Approved",
+                "Rescheduled",
+            ])
+        ): ?>
                 <div class="rounded-xl">
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button onclick="openRescheduleModal(<?php echo $appointment[
@@ -25,17 +54,78 @@
     strtotime($appointment["DateTime"])
 ); ?>', '<?php echo date("H:i", strtotime($appointment["DateTime"])); ?>')" 
                                 class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
-                            Reschedule Appointment
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Reschedule
                         </button>
-                        <button onclick="confirmCancel(<?php echo $appointment[
-                            "AppointmentID"
-                        ]; ?>)" 
-                                class="flex-1 px-6 py-3 glass-card bg-red-500/85 text-white rounded-2xl hover:bg-red-600 transition-colors font-medium">
-                            Cancel Appointment
-                        </button>
+                        
+                        <?php if ($appointmentPayment): ?>
+                            <div class="flex-1 px-6 py-3 glass-card bg-gray-300/85 text-gray-600 rounded-2xl font-medium cursor-not-allowed">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                                Cannot Cancel (Payment Made)
+                            </div>
+                        <?php else: ?>
+                            <button onclick="confirmCancel(<?php echo $appointment[
+                                "AppointmentID"
+                            ]; ?>)" 
+                                    class="flex-1 px-6 py-3 glass-card bg-red-500/85 text-white rounded-2xl hover:bg-red-600 transition-colors font-medium">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Cancel Appointment
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if ($appointmentPayment): ?>
+                        <div class="mt-3 p-3 bg-orange-50/60 border border-orange-200 rounded-xl">
+                            <div class="flex items-start text-orange-800 text-sm">
+                                <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>This appointment cannot be cancelled because payment has already been processed. Contact the clinic for assistance with refunds or rescheduling.</span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+        <?php elseif ($appointment["Status"] === "Pending Cancellation"): ?>
+                <div class="rounded-xl bg-purple-50/60 border border-purple-200 p-4">
+                    <div class="flex items-center text-purple-800 mb-3">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="font-medium">Cancellation request submitted</span>
+                    </div>
+                    <p class="text-purple-700 text-sm mb-3">
+                        Your appointment cancellation request has been submitted and is awaiting approval from Dr. <?php echo htmlspecialchars(
+                            $appointment["DoctorFirstName"] .
+                                " " .
+                                $appointment["DoctorLastName"]
+                        ); ?>. 
+                        You will be notified once the doctor reviews your request.
+                    </p>
+                    <div class="bg-white/50 p-3 rounded-lg">
+                        <div class="flex items-center text-sm text-purple-600">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span><strong>Note:</strong> Until approved, this appointment remains scheduled. Please attend if the cancellation is not approved in time.</span>
+                        </div>
                     </div>
                 </div>
-            <?php endif; ?>
+        <?php elseif ($appointment["Status"] === "Cancelled"): ?>
+                <div class="rounded-xl bg-orange-50/60 border border-orange-200 p-4">
+                    <div class="flex items-center text-orange-800">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                        </svg>
+                        <span class="font-medium">This appointment has been cancelled</span>
+                    </div>
+                </div>
+        <?php endif; ?>
     </div>
 
     <div class="px-4 space-y-6">
@@ -104,17 +194,13 @@
                     
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-gray-500">Status</label>
-                        <?php if (
-                            strtotime($appointment["DateTime"]) > time()
-                        ): ?>
-                            <span class="inline-block glass-card border-green-100/40 border-1 shadow-md px-3 py-1 text-sm font-medium rounded-full bg-green-100/40 text-green-800">
-                                Upcoming
-                            </span>
-                        <?php else: ?>
-                            <span class="inline-block glass-card px-3 py-1 bg-nhd-green/70 text-black border-green-100/40 border-1 shadow-md text-sm font-medium rounded-full">
-                                Completed
-                            </span>
-                        <?php endif; ?>
+                        <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full <?php echo getAppointmentStatusClass(
+                            $appointment["Status"]
+                        ); ?>">
+                            <?php echo htmlspecialchars(
+                                $appointment["Status"]
+                            ); ?>
+                        </span>
                     </div>
                     
                     <div>
@@ -281,7 +367,11 @@
                     <h4 class="text-lg font-medium text-gray-600 mb-2">No Medical Report Available</h4>
                     <p class="text-gray-500">
                         <?php if (
-                            strtotime($appointment["DateTime"]) > time()
+                            in_array($appointment["Status"], [
+                                "Pending",
+                                "Approved",
+                                "Rescheduled",
+                            ])
                         ): ?>
                             Medical report will be available after your appointment.
                         <?php else: ?>
@@ -303,11 +393,12 @@
                             <span class="text-2xl font-bold font-mono"><?php if (
                                 $appointmentPayment
                             ): ?>#<?php echo str_pad(
-    $appointmentPayment["PaymentID"],
-    6,
-    "0",
-    STR_PAD_LEFT
-);else: ?>-<?php endif; ?></span>
+                                $appointmentPayment["PaymentID"],
+                                6,
+                                "0",
+                                STR_PAD_LEFT
+                            );
+                            else: ?>-<?php endif; ?></span>
                         </div>
                         <div>
                             <span class="text-sm text-gray-500 block">Status</span>
@@ -361,7 +452,11 @@
                             </svg>
                             <p class="text-yellow-800 text-sm">
                                 <?php if (
-                                    strtotime($appointment["DateTime"]) > time()
+                                    in_array($appointment["Status"], [
+                                        "Pending",
+                                        "Approved",
+                                        "Rescheduled",
+                                    ])
                                 ): ?>
                                     Payment invoice will be generated after your appointment.
                                 <?php else: ?>
@@ -384,7 +479,13 @@
                     Back to Bookings
                 </a>
                 
-                <?php if (strtotime($appointment["DateTime"]) > time()): ?>
+                <?php if (
+                    in_array($appointment["Status"], [
+                        "Pending",
+                        "Approved",
+                        "Rescheduled",
+                    ])
+                ): ?>
                     <button onclick="window.print()" 
                             class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium">
                         Print Appointment Info

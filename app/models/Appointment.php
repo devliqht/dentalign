@@ -1,4 +1,5 @@
 <?php
+
 require_once "AppointmentReport.php";
 require_once "PatientRecord.php";
 
@@ -152,7 +153,7 @@ class Appointment
             " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
-                  WHERE a.PatientID = ? AND a.Status = 'Pending'
+                  WHERE a.PatientID = ? AND a.Status IN ('Pending', 'Approved', 'Rescheduled')
                   ORDER BY a.DateTime ASC";
 
         $stmt = $this->conn->prepare($query);
@@ -367,84 +368,36 @@ class Appointment
         return $stmt->execute();
     }
 
+    public function hasPayments($appointmentID)
+    {
+        $query =
+            "SELECT COUNT(*) as payment_count FROM Payments WHERE AppointmentID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            return $row["payment_count"] > 0;
+        }
+
+        return false;
+    }
+
     public function cancelAppointment($appointmentID)
     {
-        $this->conn->begin_transaction();
+        $query =
+            "UPDATE " .
+            $this->table .
+            " SET Status = 'Pending Cancellation' WHERE AppointmentID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
 
-        try {
-            $checkQuery =
-                "SELECT AppointmentID FROM " .
-                $this->table .
-                " WHERE AppointmentID = ?";
-            $checkStmt = $this->conn->prepare($checkQuery);
-            $checkStmt->bind_param("i", $appointmentID);
-            $checkStmt->execute();
-            $checkResult = $checkStmt->get_result();
-
-            if ($checkResult->num_rows === 0) {
-                throw new Exception("Appointment not found");
-            }
-
-            // Delete associated AppointmentReport first
-            $appointmentReport = new AppointmentReport($this->conn);
-            $appointmentReport->deleteByAppointmentID($appointmentID);
-
-            // Check for payment records and delete them first (due to FK constraint)
-            $paymentCheckQuery =
-                "SELECT COUNT(*) as count FROM Payments WHERE AppointmentID = ?";
-            $paymentStmt = $this->conn->prepare($paymentCheckQuery);
-            $paymentStmt->bind_param("i", $appointmentID);
-            $paymentStmt->execute();
-            $paymentResult = $paymentStmt->get_result();
-            $paymentCount = $paymentResult->fetch_assoc()["count"];
-
-            // Delete payment records first if they exist (due to foreign key constraint)
-            if ($paymentCount > 0) {
-                // First delete payment items
-                $deletePaymentItemsQuery = "DELETE pi FROM PaymentItems pi 
-                                          INNER JOIN Payments p ON pi.PaymentID = p.PaymentID 
-                                          WHERE p.AppointmentID = ?";
-                $deletePaymentItemsStmt = $this->conn->prepare(
-                    $deletePaymentItemsQuery
-                );
-                $deletePaymentItemsStmt->bind_param("i", $appointmentID);
-                $deletePaymentItemsStmt->execute();
-
-                // Then delete payment records
-                $deletePaymentQuery =
-                    "DELETE FROM Payments WHERE AppointmentID = ?";
-                $deletePaymentStmt = $this->conn->prepare($deletePaymentQuery);
-                $deletePaymentStmt->bind_param("i", $appointmentID);
-                if (!$deletePaymentStmt->execute()) {
-                    throw new Exception(
-                        "Failed to delete payment records: " .
-                            $deletePaymentStmt->error
-                    );
-                }
-            }
-
-            // Delete the appointment
-            $query = "DELETE FROM " . $this->table . " WHERE AppointmentID = ?";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bind_param("i", $appointmentID);
-
-            if (!$stmt->execute()) {
-                throw new Exception(
-                    "Failed to cancel appointment: " . $stmt->error
-                );
-            }
-
-            $affectedRows = $stmt->affected_rows;
-            if ($affectedRows === 0) {
-                throw new Exception("No appointment was deleted");
-            }
-
-            $this->conn->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->conn->rollback();
-            return false;
+        if ($stmt->execute()) {
+            return $stmt->affected_rows > 0;
         }
+
+        return false;
     }
 
     public function getCompletedAppointmentsByPatient($patientID)
@@ -456,7 +409,7 @@ class Appointment
             " a
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
-                  WHERE a.PatientID = ? AND a.Status = 'Completed'
+                  WHERE a.PatientID = ? AND a.Status IN ('Completed', 'Declined')
                   ORDER BY a.DateTime DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -468,6 +421,106 @@ class Appointment
         }
 
         return [];
+    }
+
+    public function getCancelledAppointmentsByPatient($patientID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
+                  INNER JOIN USER u ON d.DoctorID = u.UserID
+                  WHERE a.PatientID = ? AND a.Status = 'Cancelled'
+                  ORDER BY a.DateTime DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $patientID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getPendingCancellationsByPatient($patientID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as DoctorFirstName, u.LastName as DoctorLastName, d.Specialization
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
+                  INNER JOIN USER u ON d.DoctorID = u.UserID
+                  WHERE a.PatientID = ? AND a.Status = 'Pending Cancellation'
+                  ORDER BY a.DateTime DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $patientID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function getPendingCancellationsByDoctor($doctorID)
+    {
+        $query =
+            "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
+                  FROM " .
+            $this->table .
+            " a
+                  INNER JOIN USER u ON a.PatientID = u.UserID
+                  WHERE a.DoctorID = ? AND a.Status = 'Pending Cancellation'
+                  ORDER BY a.DateTime ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $doctorID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+
+        return [];
+    }
+
+    public function approveCancellation($appointmentID)
+    {
+        $query =
+            "UPDATE " .
+            $this->table .
+            " SET Status = 'Cancelled' WHERE AppointmentID = ? AND Status = 'Pending Cancellation'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
+
+        if ($stmt->execute()) {
+            return $stmt->affected_rows > 0;
+        }
+
+        return false;
+    }
+
+    public function denyCancellation($appointmentID, $newStatus = "Approved")
+    {
+        $query =
+            "UPDATE " .
+            $this->table .
+            " SET Status = ? WHERE AppointmentID = ? AND Status = 'Pending Cancellation'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("si", $newStatus, $appointmentID);
+
+        if ($stmt->execute()) {
+            return $stmt->affected_rows > 0;
+        }
+
+        return false;
     }
 
     public function getAppointmentById($appointmentID)
@@ -527,7 +580,7 @@ class Appointment
             $this->table .
             " a
                   INNER JOIN USER u ON a.PatientID = u.UserID
-                  WHERE a.DoctorID = ? AND a.DateTime >= NOW()
+                  WHERE a.DoctorID = ? AND a.Status IN ('Pending', 'Approved', 'Rescheduled')
                   ORDER BY a.DateTime ASC";
 
         $stmt = $this->conn->prepare($query);
@@ -543,14 +596,13 @@ class Appointment
 
     public function getTodaysAppointmentsByDoctor($doctorID)
     {
-        // Only get today's appointments that are still in the future
         $query =
             "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
                   FROM " .
             $this->table .
             " a
                   INNER JOIN USER u ON a.PatientID = u.UserID
-                  WHERE a.DoctorID = ? AND DATE(a.DateTime) = CURDATE() AND a.DateTime >= NOW()
+                  WHERE a.DoctorID = ? AND DATE(a.DateTime) = CURDATE() AND a.Status IN ('Pending', 'Approved', 'Rescheduled')
                   ORDER BY a.DateTime ASC";
 
         $stmt = $this->conn->prepare($query);
@@ -566,14 +618,13 @@ class Appointment
 
     public function getAppointmentHistoryByDoctor($doctorID)
     {
-        // Get all past appointments (appointments that are before current date and time)
         $query =
             "SELECT a.*, u.FirstName as PatientFirstName, u.LastName as PatientLastName, u.Email as PatientEmail
                   FROM " .
             $this->table .
             " a
                   INNER JOIN USER u ON a.PatientID = u.UserID
-                  WHERE a.DoctorID = ? AND a.DateTime < NOW()
+                  WHERE a.DoctorID = ?
                   ORDER BY a.DateTime DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -689,13 +740,17 @@ class Appointment
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function updateAppointmentStatus($appointmentID) {
+    public function updateAppointmentStatus($appointmentID)
+    {
         if (empty($this->status)) {
             error_log("ERROR: Status is empty or not set");
             return false;
         }
-        
-        $sql = 'UPDATE ' . $this->table . ' SET Status = ? WHERE AppointmentID = ?';
+
+        $sql =
+            "UPDATE " .
+            $this->table .
+            " SET Status = ? WHERE AppointmentID = ?";
         $stmt = $this->conn->prepare($sql);
 
         if (!$stmt) {
@@ -709,11 +764,7 @@ class Appointment
             return true;
         }
 
-        error_log("Failed to update appointment status: " . $stmt->error); 
+        error_log("Failed to update appointment status: " . $stmt->error);
         return false;
     }
 }
-
-    
-
-?>
