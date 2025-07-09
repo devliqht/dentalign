@@ -1,4 +1,5 @@
 <?php
+
 require_once "app/helpers/LayoutHelper.php";
 
 class Router
@@ -135,4 +136,3 @@ class Router
         return false;
     }
 }
-?>

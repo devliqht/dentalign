@@ -37,7 +37,7 @@ abstract class Controller
                 "name" => $_SESSION["user_name"] ?? "",
                 "email" => $_SESSION["user_email"] ?? "",
                 "type" => $_SESSION["user_type"] ?? "",
-                "staff_type" => $_SESSION["staff_type"] ?? NULL,
+                "staff_type" => $_SESSION["staff_type"] ?? null,
             ];
         }
         return null;
@@ -57,7 +57,7 @@ abstract class Controller
 
     protected function requireStaffType($staffType, $redirectTo = "/login")
     {
-        if (!$this->hasStaffType($staffType)){
+        if (!$this->hasStaffType($staffType)) {
             $this->redirect(BASE_URL . $redirectTo);
             exit();
         }

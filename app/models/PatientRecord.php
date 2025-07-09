@@ -192,5 +192,3 @@ class PatientRecord
         return null;
     }
 }
-
-?>

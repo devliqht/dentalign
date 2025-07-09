@@ -23,11 +23,11 @@
                     <p class="text-sm text-gray-500">
                         <?php
                         $displayType = $userDetails["userType"];
-                        if ($displayType === "ClinicStaff") {
-                            $displayType = "Doctor";
-                        }
-                        echo htmlspecialchars($displayType);
-                        ?>
+                    if ($displayType === "ClinicStaff") {
+                        $displayType = "Doctor";
+                    }
+                    echo htmlspecialchars($displayType);
+                    ?>
                     </p>
                 </div>
             </div>

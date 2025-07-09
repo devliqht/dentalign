@@ -5,7 +5,6 @@
             <h2 class="text-lg font-family-bodoni font-bold tracking-tight text-nhd-blue">North Hill Dental</h2>
         </div>
 
-        <!-- Navigation -->
         <nav class="p-2">
             <?php
             $userType = $_SESSION["user_type"] ?? "";
@@ -49,7 +48,7 @@
                     ],
                 ];
             } elseif ($userType === "ClinicStaff") {
-                if($staffType === "Doctor"){
+                if ($staffType === "Doctor") {
                     $navItems = [
                         [
                             "url" => "/doctor/dashboard",
@@ -77,7 +76,7 @@
                             "label" => "Profile",
                         ],
                     ];
-                } elseif ($staffType === "DentalAssistant"){
+                } elseif ($staffType === "DentalAssistant") {
                     $navItems = [
                         [
                             "url" => "/dentalassistant/dashboard",
@@ -157,5 +156,4 @@
     </div>
 </div>
 
-<!-- Mobile Overlay -->
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden"></div>

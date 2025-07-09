@@ -41,7 +41,6 @@ function filterPatients() {
   }
 }
 
-// Patient detail functions
 async function viewPatientDetail(patientId) {
   try {
     document.getElementById("patient-detail-modal").classList.remove("hidden");
@@ -333,7 +332,6 @@ async function createPatientRecord(patientId) {
   editPatientRecord(null, patientId);
 }
 
-// Navigate to dental chart editing
 function editDentalChart(patientId) {
   window.location.href = `${window.BASE_URL}/doctor/dental-chart-edit/${patientId}`;
 }

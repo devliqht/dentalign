@@ -233,4 +233,3 @@ class Patient extends User
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 }
-?>

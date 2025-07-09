@@ -16,12 +16,10 @@ class PaymentManagement {
   }
 
   bindEvents() {
-    // Page level events
     document
       .getElementById("refreshDataBtn")
       .addEventListener("click", () => this.loadAppointments());
 
-    // Modal events
     document
       .getElementById("closeModal")
       .addEventListener("click", () => this.closeModal());
@@ -29,7 +27,6 @@ class PaymentManagement {
       if (e.target.id === "paymentModal") this.closeModal();
     });
 
-    // Filter events
     document
       .getElementById("filterStatus")
       .addEventListener("change", () => this.applyFilters());
@@ -43,7 +40,6 @@ class PaymentManagement {
       .getElementById("searchPatient")
       .addEventListener("input", () => this.applyFilters());
 
-    // Payment modal events
     document
       .getElementById("addItemBtn")
       .addEventListener("click", () => this.addPaymentItem());
@@ -60,7 +56,6 @@ class PaymentManagement {
       .getElementById("markAsPendingBtn")
       .addEventListener("click", () => this.updatePaymentStatus("Pending"));
 
-    // Payment status change event
     document.getElementById("paymentStatus").addEventListener("change", (e) => {
       this.updateQuickActionButtons(e.target.value);
     });
@@ -247,21 +242,17 @@ class PaymentManagement {
       .value.toLowerCase();
 
     this.filteredAppointments = this.appointments.filter((appointment) => {
-      // Status filter
       if (statusFilter && appointment.PaymentStatus !== statusFilter)
         return false;
 
-      // Doctor filter
       if (doctorFilter && appointment.DoctorName !== doctorFilter) return false;
 
-      // Search filter
       if (
         searchTerm &&
         !appointment.PatientName.toLowerCase().includes(searchTerm)
       )
         return false;
 
-      // Date filter
       if (dateFilter) {
         const appointmentDate = new Date(appointment.DateTime);
         const now = new Date();
@@ -352,7 +343,6 @@ class PaymentManagement {
   populateModal() {
     const appointmentData = this.currentPayment || this.currentAppointment;
 
-    // Populate appointment info
     document.getElementById("modalPatientName").textContent =
       appointmentData.PatientName || "Unknown";
     document.getElementById("modalDoctorName").textContent =
@@ -363,7 +353,6 @@ class PaymentManagement {
     document.getElementById("modalAppointmentType").textContent =
       appointmentData.AppointmentType || "Unknown";
 
-    // Populate payment info
     if (this.currentPayment) {
       document.getElementById("paymentStatus").value =
         this.currentPayment.Status || "Pending";
@@ -386,7 +375,6 @@ class PaymentManagement {
     const container = document.getElementById("paymentItemsContainer");
 
     if (this.paymentItems.length === 0) {
-      // Add default item if none exist
       this.addPaymentItem();
       return;
     }
@@ -552,17 +540,20 @@ class PaymentManagement {
 
   async updateExistingPayment(status, notes, items) {
     // Update payment status and notes
-    const updateResponse = await fetch("/dentalign/dentalassistant/update-payment", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const updateResponse = await fetch(
+      "/dentalign/dentalassistant/update-payment",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          paymentId: this.currentPayment.PaymentID,
+          status: status,
+          notes: notes,
+        }),
       },
-      body: JSON.stringify({
-        paymentId: this.currentPayment.PaymentID,
-        status: status,
-        notes: notes,
-      }),
-    });
+    );
 
     const updateData = await updateResponse.json();
 
@@ -571,7 +562,6 @@ class PaymentManagement {
       return;
     }
 
-    // Update payment items
     await this.updatePaymentItems(items);
 
     this.showToast("Payment updated successfully!", "success");
@@ -582,7 +572,6 @@ class PaymentManagement {
   async updatePaymentItems(items) {
     const paymentId = this.currentPayment.PaymentID;
 
-    // Delete existing items that are not in the current list
     const currentItemIds = items
       .map((item) => item.PaymentItemID)
       .filter(Boolean);
@@ -593,28 +582,29 @@ class PaymentManagement {
     for (const itemId of originalItemIds) {
       if (!currentItemIds.includes(itemId)) {
         console.log("Attempting to delete item ID: ", itemId);
-        
-    const deleteResponse = await fetch("/dentalign/dentalassistant/delete-payment-item", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ itemId: itemId }),
-    });
-    
-    const deleteResult = await deleteResponse.json();
-    console.log("Delete result:", deleteResult);
-    
-    if (!deleteResult.success) {
-      console.error("Failed to delete item:", deleteResult.message);
-    }
+
+        const deleteResponse = await fetch(
+          "/dentalign/dentalassistant/delete-payment-item",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ itemId: itemId }),
+          },
+        );
+
+        const deleteResult = await deleteResponse.json();
+        console.log("Delete result:", deleteResult);
+
+        if (!deleteResult.success) {
+          console.error("Failed to delete item:", deleteResult.message);
+        }
       }
     }
 
-    // Add or update items
     for (const item of items) {
       if (item.PaymentItemID) {
-        // Update existing item
         await fetch("/dentalign/dentalassistant/update-payment-item", {
           method: "POST",
           headers: {
@@ -628,7 +618,6 @@ class PaymentManagement {
           }),
         });
       } else {
-        // Add new item
         await fetch("/dentalign/dentalassistant/add-payment-item", {
           method: "POST",
           headers: {
@@ -652,16 +641,19 @@ class PaymentManagement {
     }
 
     try {
-      const response = await fetch("/dentalign/dentalassistant/update-payment-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "/dentalign/dentalassistant/update-payment-status",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            paymentId: this.currentPayment.PaymentID,
+            status: status,
+          }),
         },
-        body: JSON.stringify({
-          paymentId: this.currentPayment.PaymentID,
-          status: status,
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -709,13 +701,16 @@ class PaymentManagement {
 
   async deletePaymentById(paymentId) {
     try {
-      const response = await fetch("/dentalign/dentalassistant/delete-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "/dentalign/dentalassistant/delete-payment",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ paymentId: paymentId }),
         },
-        body: JSON.stringify({ paymentId: paymentId }),
-      });
+      );
 
       const data = await response.json();
 
@@ -772,7 +767,6 @@ class PaymentManagement {
   }
 }
 
-// Initialize the payment management system when the page loads
 let paymentManager;
 document.addEventListener("DOMContentLoaded", function () {
   paymentManager = new PaymentManagement();

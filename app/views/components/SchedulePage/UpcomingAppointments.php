@@ -8,18 +8,17 @@
             <div class="space-y-4">
                 <?php
                 $groupedAppointments = [];
-                foreach ($upcomingAppointments as $appointment) {
-                    $date = date("Y-m-d", strtotime($appointment["DateTime"]));
-                    if (!isset($groupedAppointments[$date])) {
-                        $groupedAppointments[$date] = [];
-                    }
-                    $groupedAppointments[$date][] = $appointment;
+            foreach ($upcomingAppointments as $appointment) {
+                $date = date("Y-m-d", strtotime($appointment["DateTime"]));
+                if (!isset($groupedAppointments[$date])) {
+                    $groupedAppointments[$date] = [];
                 }
-                ?>
+                $groupedAppointments[$date][] = $appointment;
+            }
+            ?>
                 
                 <?php foreach (
-                    $groupedAppointments
-                    as $date => $appointments
+                    $groupedAppointments as $date => $appointments
                 ): ?>
                     <div class="glass-card rounded-2xl shadow-md p-6 border-2 border-gray-200">
                         <h4 class="text-lg font-semibold text-nhd-brown mb-4 flex items-center">

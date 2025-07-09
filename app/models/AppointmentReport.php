@@ -203,5 +203,3 @@ class AppointmentReport
         return $stmt->execute();
     }
 }
-
-?>

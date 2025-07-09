@@ -73,28 +73,29 @@ class AuthController extends Controller
 
             // Redirect based on user type
             if ($user->userType === "ClinicStaff") {
-                $staffQuery = "SELECT StaffType FROM CLINIC_STAFF WHERE ClinicStaffID = ?";
+                $staffQuery =
+                    "SELECT StaffType FROM CLINIC_STAFF WHERE ClinicStaffID = ?";
                 $stmt = $this->conn->prepare($staffQuery);
                 $stmt->bind_param("i", $user->userID);
                 $stmt->execute();
                 $result = $stmt->get_result();
 
-                if($result->num_rows > 0){
+                if ($result->num_rows > 0) {
                     $row = $result->fetch_assoc();
                     $_SESSION["staff_type"] = $row["StaffType"];
                 } else {
-                    $_SESSION["staff_type"] = NULL;
+                    $_SESSION["staff_type"] = null;
                 }
 
-                if($_SESSION["staff_type"] === "Doctor"){
+                if ($_SESSION["staff_type"] === "Doctor") {
                     $this->redirect(BASE_URL . "/doctor/dashboard");
-                } else if($_SESSION["staff_type"] === "DentalAssistant"){
+                } elseif ($_SESSION["staff_type"] === "DentalAssistant") {
                     $this->redirect(BASE_URL . "/dentalassistant/dashboard");
                 } else {
                     $this->redirect(BASE_URL . "/doctor/dashboard");
                 }
             } else {
-                $_SESSION["staff_type"] = NULL;
+                $_SESSION["staff_type"] = null;
                 $this->redirect(BASE_URL . "/patient/dashboard");
             }
         } else {
@@ -517,4 +518,3 @@ class AuthController extends Controller
         }
     }
 }
-?>

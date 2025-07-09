@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/app/styles/components/Header.css">
     <link rel="icon" type="image/png" href="<?php echo BASE_URL; ?>/public/logo.png"/>
     
-    
     <!-- Additional heads -->
     <?php if (isset($additionalHead)): ?>
         <?php echo $additionalHead; ?>

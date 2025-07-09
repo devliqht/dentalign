@@ -18,7 +18,6 @@ switch (strtolower($payment["Status"])) {
         $statusClass = "bg-blue-100/40 text-blue-800 border-l-blue-500/70";
 }
 
-// Create unique identifiers for this section
 $paymentId = $payment["PaymentID"] ?? $payment["AppointmentID"];
 $sectionPrefix = $sectionPrefix ?? "default";
 $uniqueId = $sectionPrefix . "-" . $paymentId;
@@ -33,11 +32,12 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
                 <span class="text-lg font-bold font-mono"><?php if (
                     $payment["PaymentID"]
                 ): ?>#<?php echo str_pad(
-    $payment["PaymentID"],
-    6,
-    "0",
-    STR_PAD_LEFT
-);else: ?>-<?php endif; ?></span>
+                    $payment["PaymentID"],
+                    6,
+                    "0",
+                    STR_PAD_LEFT
+                );
+                else: ?>-<?php endif; ?></span>
             </div>
             
             <!-- Appointment ID -->

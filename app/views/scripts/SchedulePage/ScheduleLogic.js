@@ -42,7 +42,6 @@ function navigateWeek(direction) {
 }
 
 function updateWeekDisplay() {
-  // Calculate current week start based on original + offset
   const currentWeekStartDate = new Date(originalWeekStart);
   currentWeekStartDate.setDate(
     originalWeekStart.getDate() + currentWeekOffset * 7,
@@ -149,7 +148,6 @@ function formatTime(datetime) {
   });
 }
 
-// Flag to track if calendar event listeners have been set up
 let calendarEventListenersAdded = false;
 
 function initializeCalendar() {
@@ -157,7 +155,6 @@ function initializeCalendar() {
   updateSelectedDateDisplay();
   loadAppointmentsForDate(selectedDate);
 
-  // Only add event listeners once
   if (!calendarEventListenersAdded) {
     document
       .getElementById("prev-month")
@@ -225,7 +222,6 @@ function renderCalendar() {
     const isSelected =
       selectedDate && dayDate.toDateString() === selectedDate.toDateString();
 
-    // Check if there are appointments on this day
     const hasAppointments = allAppointments.some((app) => {
       const appDate = new Date(app.DateTime);
       return appDate.toDateString() === dayDate.toDateString();
@@ -337,7 +333,6 @@ function loadAppointmentsForDate(date) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Check if there's a hash in the URL to determine which section to show
   const hash = window.location.hash.substring(1); // Remove the #
   const validSections = ["today", "calendar", "week", "upcoming"];
 

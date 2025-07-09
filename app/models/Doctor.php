@@ -153,4 +153,3 @@ class Doctor extends User
         return false;
     }
 }
-?>
