@@ -1,0 +1,22 @@
+# Dependencies
+vendor/
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Cache files
+.php-cs-fixer.cache
+
+# Lock files
+composer.lock
+package-lock.json
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db 
