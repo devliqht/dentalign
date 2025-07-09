@@ -37,9 +37,18 @@ abstract class Controller
                 "name" => $_SESSION["user_name"] ?? "",
                 "email" => $_SESSION["user_email"] ?? "",
                 "type" => $_SESSION["user_type"] ?? "",
+                "staff_type" => 
             ];
         }
         return null;
+    }
+
+    /**
+     * Gets employee type (Doctor/DentalAssistant)
+     */
+    protected function getStaffType()
+    {
+        //
     }
 
     /**
