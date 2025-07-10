@@ -87,8 +87,7 @@ function renderPatientDetail(data) {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Patient Info -->
             <div class="lg:col-span-1">
-                <div class="glass-car rounded-2xl p-6 sticky top-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Patient Information</h3>
+                <div class="glass-car rounded-2xl pr-6 sticky top-6">
                     <div class="space-y-4">
                         <div>
                             <label class="text-sm font-medium text-gray-500">Full Name</label>
@@ -237,35 +236,26 @@ function renderPatientDetail(data) {
                                             ? `
                                             <div class="bg-nhd-blue/5 rounded-xl p-4 mt-4">
                                                 <h5 class="font-medium text-nhd-blue mb-3">Appointment Report</h5>
-                                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                                <div class="space-y-3">
                                                     <div>
-                                                        <span class="text-nhd-blue">Blood Pressure:</span>
-                                                        <p class="font-medium">${appointment.report.BloodPressure || "Not recorded"}</p>
+                                                        <span class="text-nhd-blue font-medium">Diagnosis:</span>
+                                                        <p class="text-gray-900 mt-1">${appointment.report.Diagnosis || "Not recorded"}</p>
                                                     </div>
                                                     <div>
-                                                        <span class="text-nhd-blue">Pulse Rate:</span>
-                                                        <p class="font-medium">${appointment.report.PulseRate ? appointment.report.PulseRate + " bpm" : "Not recorded"}</p>
+                                                        <span class="text-nhd-blue font-medium">Oral Notes:</span>
+                                                        <p class="text-gray-900 mt-1">${appointment.report.OralNotes || "Not recorded"}</p>
                                                     </div>
-                                                    <div>
-                                                        <span class="text-nhd-blue">Temperature:</span>
-                                                        <p class="font-medium">${appointment.report.Temperature ? appointment.report.Temperature + "°C" : "Not recorded"}</p>
-                                                    </div>
-                                                    <div>
-                                                        <span class="text-nhd-blue">Respiratory:</span>
-                                                        <p class="font-medium">${appointment.report.RespiratoryRate ? appointment.report.RespiratoryRate + " /min" : "Not recorded"}</p>
-                                                    </div>
+                                                    ${
+                                                      appointment.report.XrayImages
+                                                        ? `
+                                                        <div>
+                                                            <span class="text-nhd-blue font-medium">X-ray Images:</span>
+                                                            <p class="text-gray-900 mt-1">${appointment.report.XrayImages}</p>
+                                                        </div>
+                                                        `
+                                                        : ""
+                                                    }
                                                 </div>
-                                                ${
-                                                  appointment.report
-                                                    .GeneralAppearance
-                                                    ? `
-                                                    <div class="mt-3">
-                                                        <span class="text-blue-700 text-sm">General Appearance:</span>
-                                                        <p class="text-blue-900 mt-1">${appointment.report.GeneralAppearance}</p>
-                                                    </div>
-                                                `
-                                                    : ""
-                                                }
                                             </div>
                                         `
                                             : `
@@ -300,9 +290,25 @@ function renderPatientDetail(data) {
 }
 
 async function editPatientRecord(recordId, patientId) {
+  // If currentPatientData is not available, fetch it first
   if (!currentPatientData) {
-    alert("Please refresh the patient details first.");
-    return;
+    try {
+      const response = await fetch(
+        `${window.BASE_URL}/doctor/get-patient-details?patient_id=${patientId}`
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        currentPatientData = data;
+      } else {
+        alert("Error fetching patient details: " + data.message);
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching patient details:", error);
+      alert("Error fetching patient details. Please try again.");
+      return;
+    }
   }
 
   const { patient, patientRecord } = currentPatientData;

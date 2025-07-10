@@ -151,17 +151,17 @@
                 </svg>
                 Mark All Healthy
             </button>
-            <button onclick="clearAllNotes()" class="glass-card bg-gray-100/80 text-gray-800 px-3 py-2 rounded-2xl hover:bg-gray-200/80 transition-colors w-fit shadow-sm text-sm">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-                Clear All Notes
-            </button>
-            <button onclick="generateReport()" class="glass-card bg-purple-100/80 text-purple-800 px-3 py-2 rounded-2xl hover:bg-purple-200/80 transition-colors w-fit shadow-sm text-sm">
+            <button onclick="generateReport()" class="glass-card bg-gray-100/80 text-gray-800 px-3 py-2 rounded-2xl hover:bg-gray-200/80 border-gray-200 border-1 transition-colors w-fit shadow-sm text-sm">
                 <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 Generate Report
+            </button>
+            <button onclick="clearAllNotes()" class="glass-card bg-gray-100/80 text-gray-800 px-3 py-2 rounded-2xl hover:bg-gray-200/80 border-gray-200 border-1 transition-colors w-fit shadow-sm text-sm">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Clear All Notes
             </button>
         </div>
     </div>
@@ -265,7 +265,7 @@
                     </p>
                 </div>
                 <button onclick="closeToothEditModal()" class="glass-card bg-nhd-blue/80 text-white shadow-md">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -278,22 +278,22 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Tooth Status</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
                             <input type="radio" name="status" value="Healthy" class="sr-only" onchange="updateStatusPreview(this.value)">
                             <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
                             <span class="font-medium">Healthy</span>
                         </label>
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
                             <input type="radio" name="status" value="Watch" class="sr-only" onchange="updateStatusPreview(this.value)">
                             <div class="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
                             <span class="font-medium">Watch</span>
                         </label>
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
                             <input type="radio" name="status" value="Treatment Needed" class="sr-only" onchange="updateStatusPreview(this.value)">
                             <div class="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
                             <span class="font-medium">Treatment Needed</span>
                         </label>
-                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <label class="flex items-center p-3 border-2 border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
                             <input type="radio" name="status" value="" class="sr-only" onchange="updateStatusPreview('')">
                             <div class="w-4 h-4 bg-gray-200 rounded-full mr-3"></div>
                             <span class="font-medium">No Status</span>
@@ -305,12 +305,12 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Common Conditions (Click to add)</label>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="addCondition('Cavity')" class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm hover:bg-red-200 transition-colors">+ Cavity</button>
-                        <button type="button" onclick="addCondition('Filling')" class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 transition-colors">+ Filling</button>
-                        <button type="button" onclick="addCondition('Crown')" class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm hover:bg-purple-200 transition-colors">+ Crown</button>
-                        <button type="button" onclick="addCondition('Root Canal')" class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm hover:bg-orange-200 transition-colors">+ Root Canal</button>
-                        <button type="button" onclick="addCondition('Extraction')" class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm hover:bg-gray-200 transition-colors">+ Extraction</button>
-                        <button type="button" onclick="addCondition('Plaque')" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm hover:bg-yellow-200 transition-colors">+ Plaque</button>
+                        <button type="button" onclick="addCondition('Cavity')" class="px-3 py-1 text-black glass-card bg-gray-200/80 shadow-sm rounded-full text-sm hover:bg-red-200 transition-colors">+ Cavity</button>
+                        <button type="button" onclick="addCondition('Filling')" class="px-3 py-1 text-black glass-card bg-gray-200/80 shadow-sm rounded-full text-sm hover:bg-blue-200 transition-colors">+ Filling</button>
+                        <button type="button" onclick="addCondition('Crown')" class="px-3 py-1 text-black glass-card bg-gray-200/80 shadow-sm rounded-full text-sm hover:bg-purple-200 transition-colors">+ Crown</button>
+                        <button type="button" onclick="addCondition('Root Canal')" class="px-3 py-1 text-black glass-card bg-gray-200/80 shadow-sm rounded-full text-sm hover:bg-orange-200 transition-colors">+ Root Canal</button>
+                        <button type="button" onclick="addCondition('Extraction')" class="px-3 py-1 text-black glass-card bg-gray-200/80 shadow-sm rounded-full text-sm hover:bg-gray-200 transition-colors">+ Extraction</button>
+                        <button type="button" onclick="addCondition('Plaque')" class="px-3 py-1 text-black glass-card bg-gray-200/80 shadow-sm rounded-full text-sm hover:bg-yellow-200 transition-colors">+ Plaque</button>
                     </div>
                 </div>
 
@@ -325,11 +325,11 @@
                 <!-- Action Buttons -->
                 <div class="flex gap-3 pt-6 border-t">
                     <button type="button" onclick="saveToothData()" 
-                            class="flex-1 bg-nhd-blue text-white px-4 py-2 rounded-lg hover:bg-nhd-blue/90 transition-colors">
+                            class="flex-1 bg-nhd-blue/80 glass-card text-white px-4 py-2 rounded-2xl hover:bg-nhd-blue/90 transition-colors">
                         Save Changes
                     </button>
                     <button type="button" onclick="closeToothEditModal()" 
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            class="px-4 py-2 border glass-card bg-red-600/80 hover:bg-red-600 transition-colors">
                         Cancel
                     </button>
                 </div>
@@ -535,12 +535,7 @@ window.BASE_URL = '<?php echo BASE_URL; ?>';
     grid-template-columns: repeat(16, minmax(0, 1fr));
 }
 
-input[type="radio"]:checked + div {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-}
-
 label:has(input[type="radio"]:checked) {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
+    background-color: #b8cce6;
 }
 </style> 

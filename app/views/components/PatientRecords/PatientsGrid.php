@@ -137,7 +137,7 @@
                 <!-- Action Buttons -->
                 <div class="flex flex-col gap-2">
                     <div class="flex gap-2">
-                        <button class="flex-1 glass-card bg-nhd-blue/80 text-white px-3 py-2 rounded-lg text-sm hover:bg-nhd-blue transition-colors"
+                        <button class="flex-1 glass-card bg-nhd-blue/80 text-white px-3 py-2 rounded-2xl text-sm hover:bg-nhd-blue transition-colors"
                                 onclick="viewPatientDetail(<?php echo $patient[
                                         "PatientID"
                                     ]; ?>)">

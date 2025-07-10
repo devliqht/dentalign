@@ -108,7 +108,7 @@
                 <input type="hidden" id="edit-record-id" name="recordId">
                 <input type="hidden" id="edit-patient-id" name="patientId">
                 
-                <div id="edit-patient-info" class="bg-gray-50 rounded-xl p-4 mb-6">
+                <div id="edit-patient-info" class="bg-gray-50 rounded-xl mb-6">
                     <!-- Patient info will be loaded here -->
                 </div>
 
@@ -132,10 +132,10 @@
                 </div>
 
                 <div class="flex gap-4 pt-4">
-                    <button type="submit" class="flex-1 px-6 py-3 text-nhd-pale glass-card bg-nhd-blue/80 transition-colors">
+                    <button type="submit" class="flex-1 px-6 py-3 text-white glass-card bg-nhd-blue/80 hover:bg-nhd-blue transition-colors">
                         Save Changes
                     </button>
-                    <button type="button" onclick="closeEditRecord()" class="px-6 py-3 border text-nhd-pale glass-card bg-nhd-blue/80 transition-colors">
+                    <button type="button" onclick="closeEditRecord()" class="px-6 py-3 border text-white glass-card bg-red-600/80 hover:bg-red-600 transition-colors">
                         Cancel
                     </button>
                 </div>

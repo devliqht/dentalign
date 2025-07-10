@@ -21,120 +21,27 @@ function getAppointmentStatusClass($status)
     }
 } ?>
 
-<div class="pb-8">
-    <div class="px-4 mb-6">
-        <div class="flex items-center mb-4">
-            <a href="<?php echo BASE_URL; ?>/patient/bookings" 
-               class="glass-card bg-gray-100/80 hover:bg-gray-200/80 rounded-full p-2 transition-colors mr-4">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-            </a>
-            <div>
-                <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Appointment Details</h2>
-                <p class="text-gray-600">View your appointment information and medical report</p>
+<div class="pb-6">
+    <div class="px-4 mb-4">
+        <div class="flex items-center mb-3 justify-between">
+            <div class="flex flex-row items-center">
+                <a href="<?php echo BASE_URL; ?>/patient/bookings" 
+                class="glass-card bg-gray-100/80 hover:bg-gray-200/80 rounded-full p-2 transition-colors mr-3">
+                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
+                <div>
+                    <h2 class="text-3xl font-bold text-nhd-brown mb-1 font-family-bodoni tracking-tight">Appointment Details</h2>
+                    <p class="text-gray-600 text-sm">View your appointment information and medical report</p>
+                </div>
             </div>
-        </div>
-        <!-- Upcoming appointment actions -->
-        <?php if (
-            in_array($appointment["Status"], [
-                "Pending",
-                "Approved",
-                "Rescheduled",
-            ])
-        ): ?>
-                <div class="rounded-xl">
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <button onclick="openRescheduleModal(<?php echo $appointment[
-                            "AppointmentID"
-                        ]; ?>, <?php echo $appointment[
-    "DoctorID"
-]; ?>, '<?php echo date(
-    "Y-m-d",
-    strtotime($appointment["DateTime"])
-); ?>', '<?php echo date("H:i", strtotime($appointment["DateTime"])); ?>')" 
-                                class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            Reschedule
-                        </button>
-                        
-                        <?php if ($appointmentPayment): ?>
-                            <div class="flex-1 px-6 py-3 glass-card bg-gray-300/85 text-gray-600 rounded-2xl font-medium cursor-not-allowed">
-                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                </svg>
-                                Cannot Cancel (Payment Made)
-                            </div>
-                        <?php else: ?>
-                            <button onclick="confirmCancel(<?php echo $appointment[
-                                "AppointmentID"
-                            ]; ?>)" 
-                                    class="flex-1 px-6 py-3 glass-card bg-red-500/85 text-white rounded-2xl hover:bg-red-600 transition-colors font-medium">
-                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                                Cancel Appointment
-                            </button>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <?php if ($appointmentPayment): ?>
-                        <div class="mt-3 p-3 bg-orange-50/60 border border-orange-200 rounded-xl">
-                            <div class="flex items-start text-orange-800 text-sm">
-                                <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span>This appointment cannot be cancelled because payment has already been processed. Contact the clinic for assistance with refunds or rescheduling.</span>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </div>
-        <?php elseif ($appointment["Status"] === "Pending Cancellation"): ?>
-                <div class="rounded-xl bg-purple-50/60 border border-purple-200 p-4">
-                    <div class="flex items-center text-purple-800 mb-3">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span class="font-medium">Cancellation request submitted</span>
-                    </div>
-                    <p class="text-purple-700 text-sm mb-3">
-                        Your appointment cancellation request has been submitted and is awaiting approval from Dr. <?php echo htmlspecialchars(
-                            $appointment["DoctorFirstName"] .
-                                " " .
-                                $appointment["DoctorLastName"]
-                        ); ?>. 
-                        You will be notified once the doctor reviews your request.
-                    </p>
-                    <div class="bg-white/50 p-3 rounded-lg">
-                        <div class="flex items-center text-sm text-purple-600">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span><strong>Note:</strong> Until approved, this appointment remains scheduled. Please attend if the cancellation is not approved in time.</span>
-                        </div>
-                    </div>
-                </div>
-        <?php elseif ($appointment["Status"] === "Cancelled"): ?>
-                <div class="rounded-xl bg-orange-50/60 border border-orange-200 p-4">
-                    <div class="flex items-center text-orange-800">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
-                        </svg>
-                        <span class="font-medium">This appointment has been cancelled</span>
-                    </div>
-                </div>
-        <?php endif; ?>
-    </div>
-
-    <div class="px-4 space-y-6">
-        <!-- Appointment Information Card -->
-        <div class="glass-card rounded-l-none rounded-r-2xl shadow-sm border-2 border-gray-200 border-l-4 border-l-nhd-blue/70 p-6">
-        <div class="text-center mb-4">
-                <h3 class="text-xl font-semibold text-nhd-blue mb-4 font-family-sans">Appointment ID</h3>
-                <div class="glass-card bg-white border-nhd-blue/20 border-1 text-nhd-blue px-6 py-4 rounded-2xl inline-block shadow-sm">
-                    <span class="text-4xl font-bold font-mono tracking-wider">#<?php echo str_pad(
+            <div>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <h3 class="text-xl font-semibold text-nhd-brown mb-2 md:mb-0 font-family-bodoni tracking-tighter"></h3>
+                <div class="glass-card bg-white border-nhd-blue/20 border-1 text-nhd-blue px-4 py-2 rounded-xl shadow-sm">
+                    <span class="text-xs font-medium uppercase tracking-wider block text-center">ID</span>
+                    <span class="text-2xl font-bold font-mono tracking-wider">#<?php echo str_pad(
                         $appointment["AppointmentID"],
                         6,
                         "0",
@@ -142,59 +49,98 @@ function getAppointmentStatusClass($status)
                     ); ?></span>
                 </div>
             </div>
-            <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni tracking-tighter">Appointment Information</h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Appointment Type</label>
-                        <p class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars(
-                            $appointment["AppointmentType"]
-                        ); ?></p>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Doctor</label>
-                        <p class="text-lg text-gray-900">
-                            Dr. <?php echo htmlspecialchars(
-                                $appointment["DoctorFirstName"] .
-                                    " " .
-                                    $appointment["DoctorLastName"]
-                            ); ?>
-                        </p>
-                        <p class="text-sm text-gray-500"><?php echo htmlspecialchars(
-                            $appointment["Specialization"]
-                        ); ?></p>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
-                        <p class="text-gray-900"><?php echo htmlspecialchars(
-                            $appointment["Reason"]
-                        ); ?></p>
+            </div>
+        </div>
+
+        <!-- Status Messages for Pending Cancellation or Cancelled -->
+        <?php if ($appointment["Status"] === "Pending Cancellation"): ?>
+            <div class="rounded-xl bg-purple-50/60 border border-purple-200 p-4 mb-4">
+                <div class="flex items-center text-purple-800 mb-2">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="font-medium">Cancellation request submitted</span>
+                </div>
+                <p class="text-purple-700 text-sm mb-2">
+                    Your appointment cancellation request has been submitted and is awaiting approval from Dr. <?php echo htmlspecialchars(
+                        $appointment["DoctorFirstName"] .
+                            " " .
+                            $appointment["DoctorLastName"]
+                    ); ?>. 
+                    You will be notified once the doctor reviews your request.
+                </p>
+                <div class="bg-white/50 p-3 rounded-lg">
+                    <div class="flex items-center text-sm text-purple-600">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span><strong>Note:</strong> Until approved, this appointment remains scheduled. Please attend if the cancellation is not approved in time.</span>
                     </div>
                 </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Date & Time</label>
-                        <p class="text-lg font-semibold text-gray-900">
-                            <?php echo date(
-                                "M j, Y",
-                                strtotime($appointment["DateTime"])
-                            ); ?>
-                        </p>
-                        <p class="text-gray-600">
-                            <?php echo date(
-                                "g:i A",
-                                strtotime($appointment["DateTime"])
-                            ); ?>
-                        </p>
-                    </div>
-                    
-                    <div class="flex flex-col">
-                        <label class="text-sm font-medium text-gray-500">Status</label>
-                        <span class="inline-block glass-card px-3 py-1 text-sm font-medium rounded-full <?php echo getAppointmentStatusClass(
+            </div>
+        <?php elseif ($appointment["Status"] === "Cancelled"): ?>
+            <div class="rounded-xl bg-orange-50/60 border border-orange-200 p-4 mb-4">
+                <div class="flex items-center text-orange-800">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                    </svg>
+                    <span class="font-medium">This appointment has been cancelled</span>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="px-4 space-y-4">
+        <!-- Appointment Information Card -->
+        <div>
+        
+            
+            <div class="flex flex-wrap gap-4">
+                <!-- Appointment Type -->
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[200px]">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Appointment Type</label>
+                    <p class="text-base font-semibold text-gray-900 mt-1"><?php echo htmlspecialchars(
+                        $appointment["AppointmentType"]
+                    ); ?></p>
+                </div>
+
+                <!-- Doctor Info -->
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[200px]">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</label>
+                    <p class="text-base text-gray-900 mt-1">
+                        Dr. <?php echo htmlspecialchars(
+                            $appointment["DoctorFirstName"] .
+                                " " .
+                                $appointment["DoctorLastName"]
+                        ); ?>
+                    </p>
+                    <p class="text-xs text-gray-500"><?php echo htmlspecialchars(
+                        $appointment["Specialization"]
+                    ); ?></p>
+                </div>
+
+                <!-- Date & Time -->
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[200px]">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</label>
+                    <p class="text-base font-semibold text-gray-900 mt-1">
+                        <?php echo date(
+                            "M j, Y",
+                            strtotime($appointment["DateTime"])
+                        ); ?>
+                    </p>
+                    <p class="text-xs text-gray-600">
+                        <?php echo date(
+                            "g:i A",
+                            strtotime($appointment["DateTime"])
+                        ); ?>
+                    </p>
+                </div>
+
+                <!-- Status -->
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[150px] <?php echo getAppointmentStatusClass($appointment["Status"]); ?>">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</label>
+                    <div class="mt-1">
+                        <span class="inline-block glass-card px-2 py-1 text-xs font-medium rounded-full w-fit <?php echo getAppointmentStatusClass(
                             $appointment["Status"]
                         ); ?>">
                             <?php echo htmlspecialchars(
@@ -202,33 +148,44 @@ function getAppointmentStatusClass($status)
                             ); ?>
                         </span>
                     </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Booked On</label>
-                        <p class="text-gray-600">
-                            <?php echo date(
-                                "M j, Y g:i A",
-                                strtotime($appointment["CreatedAt"])
-                            ); ?>
-                        </p>
-                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 mt-4">
+                <!-- Reason for Visit -->
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[300px]">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Reason for Visit</label>
+                    <p class="text-gray-900 text-sm mt-1"><?php echo htmlspecialchars(
+                        $appointment["Reason"]
+                    ); ?></p>
+                </div>
+
+                <!-- Booked On -->
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[200px]">
+                    <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Booked On</label>
+                    <p class="text-gray-600 text-sm mt-1">
+                        <?php echo date(
+                            "M j, Y g:i A",
+                            strtotime($appointment["CreatedAt"])
+                        ); ?>
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- Medical Report Card -->
-        <div class="glass-card rounded-l-none rounded-r-2xl shadow-sm border-l-4 border-l-green-500/70 p-6 border-2 border-gray-200">
-            <h3 class="text-2xl font-semibold text-nhd-brown mb-4 font-family-bodoni tracking-tighter">Medical Report</h3>
+        <div class="glass-card rounded-l-none rounded-r-2xl shadow-sm border-l-4 border-l-green-500/70 p-5 border-2 border-gray-200">
+            <h3 class="text-xl font-semibold text-nhd-brown mb-4 font-family-bodoni tracking-tighter">Medical Report</h3>
             
             <?php if ($appointmentReport): ?>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     <!-- Vital Signs -->
-                    <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 shadow-md">
-                        <h4 class="text-lg font-medium text-nhd-brown mb-3">Vital Signs</h4>
-                        <div class="space-y-3">
+                    <div class="glass-card border-gray-200 border-2 rounded-xl p-4 shadow-md">
+                        <h4 class="text-base font-medium text-nhd-brown mb-3">Vital Signs</h4>
+                        <div class="space-y-2">
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Diagnosis</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php echo $appointmentReport["Diagnosis"]
                                         ? htmlspecialchars(
                                             $appointmentReport["Diagnosis"]
@@ -239,7 +196,7 @@ function getAppointmentStatusClass($status)
                             
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Oral Notes</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php echo $appointmentReport["OralNotes"]
                                         ? $appointmentReport["OralNotes"] . ""
                                         : "Not recorded"; ?>
@@ -248,7 +205,7 @@ function getAppointmentStatusClass($status)
                             
                             <div>
                                 <label class="text-sm font-medium text-gray-500">X-Ray Images (if Applicable)</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php echo $appointmentReport["XrayImages"]
                                         ? $appointmentReport["XrayImages"] . ""
                                         : "Not recorded"; ?>
@@ -259,12 +216,12 @@ function getAppointmentStatusClass($status)
 
                     <!-- Patient Physical Info -->
                     <?php if ($patientRecord): ?>
-                    <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 shadow-md">
-                        <h4 class="text-lg font-medium text-nhd-brown mb-3">Physical Information</h4>
-                        <div class="space-y-3">
+                    <div class="glass-card border-gray-200 border-2 rounded-xl p-4 shadow-md">
+                        <h4 class="text-base font-medium text-nhd-brown mb-3">Physical Information</h4>
+                        <div class="space-y-2">
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Height</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php echo $patientRecord["height"]
                                         ? $patientRecord["height"] . " cm"
                                         : "Not recorded"; ?>
@@ -273,7 +230,7 @@ function getAppointmentStatusClass($status)
                             
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Weight</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php echo $patientRecord["weight"]
                                         ? $patientRecord["weight"] . " kg"
                                         : "Not recorded"; ?>
@@ -282,7 +239,7 @@ function getAppointmentStatusClass($status)
                             
                             <div>
                                 <label class="text-sm font-medium text-gray-500">BMI</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php if (
                                         $patientRecord["height"] &&
                                         $patientRecord["weight"]
@@ -303,12 +260,12 @@ function getAppointmentStatusClass($status)
                     <?php endif; ?>
 
                     <!-- Report Details -->
-                    <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 shadow-md">
-                        <h4 class="text-lg font-medium text-nhd-brown mb-3">Report Information</h4>
-                        <div class="space-y-3">
+                    <div class="glass-card border-gray-200 border-2 rounded-xl p-4 shadow-md">
+                        <h4 class="text-base font-medium text-nhd-brown mb-3">Report Information</h4>
+                        <div class="space-y-2">
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Report Created</label>
-                                <p class="text-gray-900 font-medium">
+                                <p class="text-gray-900 font-medium text-sm">
                                     <?php echo date(
                                         "M j, Y g:i A",
                                         strtotime(
@@ -337,9 +294,9 @@ function getAppointmentStatusClass($status)
 
                 <!-- General Appearance and Notes -->
                 <?php if ($appointmentReport["OralNotes"]): ?>
-                <div class="glass-card bg-gray-50/50 border-gray-200 border-2 rounded-2xl p-4 shadow-md">
-                    <h4 class="text-lg font-medium text-nhd-brown mb-3">General Appearance & Notes</h4>
-                    <p class="text-gray-900 leading-relaxed">
+                <div class="glass-card bg-gray-50/50 border-gray-200 border-2 rounded-xl p-4 shadow-md">
+                    <h4 class="text-base font-medium text-nhd-brown mb-3">General Appearance & Notes</h4>
+                    <p class="text-gray-900 leading-relaxed text-sm">
                         <?php echo nl2br(
                             htmlspecialchars($appointmentReport["OralNotes"])
                         ); ?>
@@ -349,9 +306,9 @@ function getAppointmentStatusClass($status)
 
                 <!-- Allergies Section -->
                 <?php if ($patientRecord && $patientRecord["allergies"]): ?>
-                <div class="glass-card border-gray-200 border-2 rounded-2xl p-4 mt-4 shadow-md">
-                    <h4 class="text-lg font-medium text-red-800 mb-3">⚠️ Known Allergies</h4>
-                    <p class="text-red-900">
+                <div class="glass-card border-gray-200 border-2 rounded-xl p-4 mt-3 shadow-md">
+                    <h4 class="text-base font-medium text-red-800 mb-3">⚠️ Known Allergies</h4>
+                    <p class="text-red-900 text-sm">
                         <?php echo nl2br(
                             htmlspecialchars($patientRecord["allergies"])
                         ); ?>
@@ -360,12 +317,12 @@ function getAppointmentStatusClass($status)
                 <?php endif; ?>
 
             <?php else: ?>
-                <div class="glass-card bg-gray-50/50 rounded-xl p-8 text-center">
-                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="glass-card bg-gray-50/50 rounded-xl p-6 text-center">
+                    <svg class="w-10 h-10 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <h4 class="text-lg font-medium text-gray-600 mb-2">No Medical Report Available</h4>
-                    <p class="text-gray-500">
+                    <h4 class="text-base font-medium text-gray-600 mb-2">No Medical Report Available</h4>
+                    <p class="text-gray-500 text-sm">
                         <?php if (
                             in_array($appointment["Status"], [
                                 "Pending",
@@ -383,14 +340,14 @@ function getAppointmentStatusClass($status)
         </div>
 
         <!-- Payment Information Section -->
-        <div class="glass-card bg-white/80 rounded-2xl shadow-md border-2 border-nhd-brown/20 p-6">
+        <div class="glass-card bg-white/80 rounded-2xl shadow-md border-2 border-nhd-brown/20 p-5">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-semibold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Payment Information</h3>
+                    <h3 class="text-lg font-semibold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Payment Information</h3>
                     <div class="flex items-center space-x-4">
-                        <div class="glass-card bg-nhd-brown/10 shadow-md text-nhd-brown px-4 py-2 rounded-lg">
+                        <div class="glass-card bg-nhd-brown/10 shadow-md text-nhd-brown px-3 py-2 rounded-lg">
                             <span class="text-xs font-medium uppercase tracking-wider block">Payment ID</span>
-                            <span class="text-2xl font-bold font-mono"><?php if (
+                            <span class="text-xl font-bold font-mono"><?php if (
                                 $appointmentPayment
                             ): ?>#<?php echo str_pad(
                                 $appointmentPayment["PaymentID"],
@@ -422,7 +379,7 @@ function getAppointmentStatusClass($status)
                 </div>
                 <div class="text-right">
                     <span class="text-sm text-gray-500 block">Amount</span>
-                    <span class="text-2xl font-bold text-nhd-brown">₱<?php echo $appointmentPayment
+                    <span class="text-xl font-bold text-nhd-brown">₱<?php echo $appointmentPayment
                         ? number_format(
                             $appointmentPayment["total_amount"] ?? 0,
                             2
@@ -437,17 +394,17 @@ function getAppointmentStatusClass($status)
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
-                            View Payment Details
+                            View Details
                         </a>
                     </div>
                     <?php endif; ?>
                 </div>
             </div>
             <?php if (!$appointmentPayment): ?>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <div class="glass-card bg-nhd-brown/15 shadow-md border-1 rounded-xl p-4">
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <div class="glass-card bg-nhd-brown/15 shadow-md border-1 rounded-xl p-3">
                         <div class="flex items-center">
-                            <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                             </svg>
                             <p class="text-yellow-800 text-sm">
@@ -470,15 +427,37 @@ function getAppointmentStatusClass($status)
         </div>
 
         <!-- Action Buttons -->
-        <div class="space-y-4">
-            
-            <!-- General actions -->
-            <div class="flex flex-col sm:flex-row gap-3">
+        <div class="pt-2 border-t border-gray-200">
+            <div class="flex flex-wrap gap-2 items-center justify-end">
+                <!-- Back to Bookings -->
                 <a href="<?php echo BASE_URL; ?>/patient/bookings" 
-                   class="flex-1 px-6 py-3 glass-card bg-gray-100/80 text-gray-700 shadow-sm border-gray-200 border-1 rounded-2xl hover:bg-gray-200/80 transition-colors font-medium text-center">
+                   class="px-4 py-2 glass-card bg-gray-100/80 text-gray-700 shadow-sm border-gray-200 border-1 rounded-xl hover:bg-gray-200/80 transition-colors font-medium text-sm">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
                     Back to Bookings
                 </a>
                 
+                <!-- Print Button -->
+                <button onclick="window.print()" 
+                        class="px-4 py-2 glass-card bg-nhd-brown/85 text-white rounded-xl hover:bg-nhd-brown transition-colors font-medium text-sm">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    <?php if (
+                        in_array($appointment["Status"], [
+                            "Pending",
+                            "Approved",
+                            "Rescheduled",
+                        ])
+                    ): ?>
+                        Print Info
+                    <?php else: ?>
+                        Print Report
+                    <?php endif; ?>
+                </button>
+
+                <!-- Reschedule Button (only for active appointments) -->
                 <?php if (
                     in_array($appointment["Status"], [
                         "Pending",
@@ -486,17 +465,54 @@ function getAppointmentStatusClass($status)
                         "Rescheduled",
                     ])
                 ): ?>
-                    <button onclick="window.print()" 
-                            class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium">
-                        Print Appointment Info
+                    <button onclick="openRescheduleModal(<?php echo $appointment[
+                        "AppointmentID"
+                    ]; ?>, <?php echo $appointment[
+    "DoctorID"
+]; ?>, '<?php echo date(
+    "Y-m-d",
+    strtotime($appointment["DateTime"])
+); ?>', '<?php echo date("H:i", strtotime($appointment["DateTime"])); ?>')" 
+                            class="px-4 py-2 glass-card bg-nhd-blue/85 text-white rounded-xl hover:bg-nhd-blue transition-colors font-medium text-sm">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Reschedule
                     </button>
-                <?php else: ?>
-                    <button onclick="window.print()" 
-                            class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium">
-                        Print Medical Report
-                    </button>
+                    
+                    <!-- Cancel Button -->
+                    <?php if ($appointmentPayment): ?>
+                        <div class="px-4 py-2 glass-card shadow-sm bg-gray-300/85 text-gray-600 rounded-xl font-medium cursor-not-allowed text-sm">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            Cannot Cancel
+                        </div>
+                    <?php else: ?>
+                        <button onclick="confirmCancel(<?php echo $appointment[
+                            "AppointmentID"
+                        ]; ?>)" 
+                                class="px-4 py-2 glass-card bg-red-500/85 text-white rounded-xl hover:bg-red-600 transition-colors font-medium text-sm">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Cancel
+                        </button>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
+            
+            <!-- Payment restriction notice -->
+            <?php if ($appointmentPayment && in_array($appointment["Status"], ["Pending", "Approved", "Rescheduled"])): ?>
+                <div class="mt-3 p-3 bg-orange-50/60 border border-orange-200 rounded-xl">
+                    <div class="flex items-start text-orange-800 text-sm">
+                        <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>This appointment cannot be cancelled because payment has already been processed. Contact the clinic for assistance with refunds or rescheduling.</span>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
