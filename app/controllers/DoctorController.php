@@ -84,12 +84,6 @@ class DoctorController extends Controller
             "doctor" => [
                 "specialization" =>
                     $doctorModel->specialization ?? "General Practice",
-                "firstName" => $user["user_name"]
-                    ? explode(" ", $user["user_name"])[0]
-                    : "",
-                "lastName" => $user["user_name"]
-                    ? explode(" ", $user["user_name"])[1] ?? ""
-                    : "",
             ],
             "selectedDate" => $selectedDate,
             "todaysAppointments" => $todaysAppointments,
