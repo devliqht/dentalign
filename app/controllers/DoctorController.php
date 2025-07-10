@@ -1315,7 +1315,6 @@ class DoctorController extends Controller
             $treatmentPlan->assignedAt = date("Y-m-d H:i:s");
 
             if ($treatmentPlan->create()) {
-                // Create treatment plan items if provided
                 if (isset($input["items"]) && is_array($input["items"])) {
                     $treatmentPlanItem = new TreatmentPlanItem($this->conn);
 
