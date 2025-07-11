@@ -48,33 +48,44 @@ class TreatmentPlanItem
         return false;
     }
 
+    public function isChargedToAccount($treatmentItemID)
+    {
+        $query = "SELECT COUNT(*) as count FROM PaymentItems WHERE TreatmentItemID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $treatmentItemID);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+
+        return $result['count'] > 0;
+    }
+
     public function findByTreatmentPlanID($treatmentPlanID)
     {
         $query =
             "SELECT 
-                    TreatmentItemID,
-                    TreatmentPlanID,
-                    ToothNumber,
-                    ProcedureCode,
-                    Description,
-                    Cost,
-                    ScheduledDate,
-                    CreatedAt,
-                    CompletedAt
+                    tpi.TreatmentItemID,
+                    tpi.TreatmentPlanID,
+                    tpi.ToothNumber,
+                    tpi.ProcedureCode,
+                    tpi.Description,
+                    tpi.Cost,
+                    tpi.ScheduledDate,
+                    tpi.CreatedAt,
+                    tpi.CompletedAt,
+                    CASE WHEN pi.PaymentItemID IS NOT NULL THEN 1 ELSE 0 END as IsChargedToAccount
                   FROM " .
             $this->table .
-            " 
-                  WHERE TreatmentPlanID = ?
-                  ORDER BY ScheduledDate ASC, CreatedAt ASC";
+            " tpi
+                  LEFT JOIN PaymentItems pi ON tpi.TreatmentItemID = pi.TreatmentItemID
+                  WHERE tpi.TreatmentPlanID = ?
+                  ORDER BY tpi.ScheduledDate ASC, tpi.CreatedAt ASC";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $treatmentPlanID);
+        $stmt->execute();
 
-        if ($stmt->execute()) {
-            $result = $stmt->get_result();
-            return $result->fetch_all(MYSQLI_ASSOC);
-        }
-        return [];
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function findByID($treatmentItemID)
@@ -153,7 +164,25 @@ class TreatmentPlanItem
             " SET CompletedAt = ? WHERE TreatmentItemID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("si", $completedAt, $treatmentItemID);
-        return $stmt->execute();
+
+        if ($stmt->execute()) {
+            $this->autoCreatePaymentItem($treatmentItemID);
+            return true;
+        }
+
+        return false;
+    }
+
+    private function autoCreatePaymentItem($treatmentItemID)
+    {
+        try {
+            require_once "app/models/PaymentItem.php";
+
+            $paymentItem = new PaymentItem($this->conn);
+            $paymentItem->createFromTreatmentPlanItem($treatmentItemID, null);
+        } catch (Exception $e) {
+            error_log("Failed to auto-create PaymentItem for TreatmentItemID {$treatmentItemID}: " . $e->getMessage());
+        }
     }
 
     public function markAsIncomplete($treatmentItemID)
@@ -164,7 +193,26 @@ class TreatmentPlanItem
             " SET CompletedAt = NULL WHERE TreatmentItemID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $treatmentItemID);
-        return $stmt->execute();
+
+        if ($stmt->execute()) {
+            // Auto-remove PaymentItem when TreatmentPlanItem is marked incomplete
+            $this->autoRemovePaymentItem($treatmentItemID);
+            return true;
+        }
+
+        return false;
+    }
+
+    private function autoRemovePaymentItem($treatmentItemID)
+    {
+        try {
+            require_once "app/models/PaymentItem.php";
+
+            $paymentItem = new PaymentItem($this->conn);
+            $paymentItem->removeByTreatmentItemID($treatmentItemID);
+        } catch (Exception $e) {
+            error_log("Failed to auto-remove PaymentItem for TreatmentItemID {$treatmentItemID}: " . $e->getMessage());
+        }
     }
 
     public function delete($treatmentItemID)

@@ -315,7 +315,7 @@
                 <div class="grid grid-cols-7 gap-1 mb-2">
                     <?php
                     $daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-                    foreach ($daysOfWeek as $day): ?>
+            foreach ($daysOfWeek as $day): ?>
                         <div class="text-center text-xs font-medium text-gray-600 py-1"><?php echo $day; ?></div>
                     <?php endforeach; ?>
                 </div>
@@ -323,7 +323,7 @@
                 <div class="grid grid-cols-7 gap-1">
                     <?php for ($i = 0; $i < 7; $i++):
                         $currentDate = date("Y-m-d", strtotime($startOfWeek . " +" . $i . " days"));
-                        $dayAppointments = array_filter($weekAppointments, function($app) use ($currentDate) {
+                        $dayAppointments = array_filter($weekAppointments, function ($app) use ($currentDate) {
                             return date("Y-m-d", strtotime($app["DateTime"])) === $currentDate;
                         });
                         $isToday = $currentDate === date("Y-m-d");

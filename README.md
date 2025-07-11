@@ -68,6 +68,42 @@ Dentalign is a comprehensive clinic management system designed specifically for 
 
 <img src="public/screenshots/ss11.png" alt="Mobile Interface" width="800"/>
 
+<img src="public/screenshots/ss12.png" alt="Patient Registration" width="800"/>
+
+<img src="public/screenshots/ss13.png" alt="Medical History Form" width="800"/>
+
+<img src="public/screenshots/ss14.png" alt="Treatment History" width="800"/>
+
+<img src="public/screenshots/ss15.png" alt="Prescription Management" width="800"/>
+
+<img src="public/screenshots/ss16.png" alt="Billing History" width="800"/>
+
+<img src="public/screenshots/ss17.png" alt="Appointment Details" width="800"/>
+
+<img src="public/screenshots/ss18.png" alt="Staff Schedule" width="800"/>
+
+<img src="public/screenshots/ss19.png" alt="Inventory Management" width="800"/>
+
+<img src="public/screenshots/ss20.png" alt="Reports Generation" width="800"/>
+
+<img src="public/screenshots/ss21.png" alt="User Settings" width="800"/>
+
+<img src="public/screenshots/ss22.png" alt="System Settings" width="800"/>
+
+<img src="public/screenshots/ss23.png" alt="Audit Logs" width="800"/>
+
+<img src="public/screenshots/ss24.png" alt="Patient Communications" width="800"/>
+
+<img src="public/screenshots/ss25.png" alt="Document Management" width="800"/>
+
+<img src="public/screenshots/ss26.png" alt="Treatment Planning" width="800"/>
+
+<img src="public/screenshots/ss27.png" alt="Lab Orders" width="800"/>
+
+<img src="public/screenshots/ss28.png" alt="Insurance Claims" width="800"/>
+
+<img src="public/screenshots/ss29.png" alt="Patient Education" width="800"/>
+
 ## 📦 Installation
 
 ### Prerequisites

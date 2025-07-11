@@ -1,6 +1,6 @@
  <!-- FOOTER -->
  <?php if (!isset($hideFooter) || !$hideFooter): ?>
-                <footer class="glass-card bg-nhd-blue/85 text-white rounded-2xl">
+                <footer class="bg-nhd-blue rounded-none text-white">
                     <div class="max-w-full mx-auto px-6 py-8">
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             

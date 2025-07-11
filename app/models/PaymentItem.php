@@ -11,6 +11,7 @@ class PaymentItem
     public $amount;
     public $quantity;
     public $total;
+    public $treatmentItemID;
 
     public function __construct($db)
     {
@@ -23,8 +24,8 @@ class PaymentItem
             "INSERT INTO " .
             $this->table .
             " 
-                  (PaymentID, Description, Amount, Quantity, Total) 
-                  VALUES (?, ?, ?, ?, ?)";
+                  (PaymentID, Description, Amount, Quantity, Total, TreatmentItemID) 
+                  VALUES (?, ?, ?, ?, ?, ?)";
 
         $stmt = $this->conn->prepare($query);
 
@@ -32,12 +33,13 @@ class PaymentItem
         $this->total = $this->amount * $this->quantity;
 
         $stmt->bind_param(
-            "isdid",
+            "isdidi",
             $this->paymentID,
             $this->description,
             $this->amount,
             $this->quantity,
-            $this->total
+            $this->total,
+            $this->treatmentItemID
         );
 
         if ($stmt->execute()) {
@@ -141,5 +143,110 @@ class PaymentItem
             $this->conn->rollback();
             return false;
         }
+    }
+
+    public function createFromTreatmentPlanItem($treatmentItemID, $appointmentID)
+    {
+        // Get TreatmentPlanItem details
+        require_once "app/models/TreatmentPlanItem.php";
+        require_once "app/models/TreatmentPlan.php";
+        require_once "app/models/Payment.php";
+
+        $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+        if (!$treatmentPlanItem->findByID($treatmentItemID)) {
+            return false;
+        }
+
+        // Get the appointment ID from the TreatmentPlan
+        $treatmentPlan = new TreatmentPlan($this->conn);
+        if (!$treatmentPlan->findByID($treatmentPlanItem->treatmentPlanID)) {
+            return false;
+        }
+
+        // Get the appointmentID from the AppointmentReport
+        $appointmentQuery = "SELECT AppointmentID FROM AppointmentReport WHERE AppointmentReportID = ?";
+        $stmt = $this->conn->prepare($appointmentQuery);
+        $stmt->bind_param("i", $treatmentPlan->appointmentReportID);
+        $stmt->execute();
+        $appointmentResult = $stmt->get_result()->fetch_assoc();
+
+        if (!$appointmentResult) {
+            return false;
+        }
+
+        $appointmentID = $appointmentResult['AppointmentID'];
+
+        // Get or create Payment for this appointment
+        $payment = new Payment($this->conn);
+        $existingPayment = $payment->getPaymentByAppointment($appointmentID);
+
+        if ($existingPayment) {
+            $paymentID = $existingPayment['PaymentID'];
+        } else {
+            // Get patient ID from appointment
+            $patientQuery = "SELECT PatientID FROM Appointment WHERE AppointmentID = ?";
+            $stmt = $this->conn->prepare($patientQuery);
+            $stmt->bind_param("i", $appointmentID);
+            $stmt->execute();
+            $patientResult = $stmt->get_result()->fetch_assoc();
+
+            if (!$patientResult) {
+                return false;
+            }
+
+            // Create new payment
+            $payment->appointmentID = $appointmentID;
+            $payment->patientID = $patientResult['PatientID'];
+            $payment->status = 'Pending';
+            $payment->notes = 'Auto-created from completed treatment';
+            $payment->deadlineDate = date('Y-m-d', strtotime('+30 days'));
+            $payment->paymentMethod = 'Cash';
+
+            if (!$payment->create()) {
+                return false;
+            }
+            $paymentID = $payment->paymentID;
+        }
+
+        // Check if PaymentItem already exists for this TreatmentPlanItem
+        $checkQuery = "SELECT PaymentItemID FROM PaymentItems WHERE TreatmentItemID = ?";
+        $stmt = $this->conn->prepare($checkQuery);
+        $stmt->bind_param("i", $treatmentItemID);
+        $stmt->execute();
+        $existing = $stmt->get_result()->fetch_assoc();
+
+        if ($existing) {
+            // Already charged
+            return true;
+        }
+
+        // Create PaymentItem from TreatmentPlanItem
+        $this->paymentID = $paymentID;
+        $this->description = $treatmentPlanItem->description ?: "Treatment: " . $treatmentPlanItem->procedureCode;
+        $this->amount = $treatmentPlanItem->cost;
+        $this->quantity = 1;
+        $this->treatmentItemID = $treatmentItemID;
+
+        return $this->create();
+    }
+
+    public function isChargedToAccount($treatmentItemID)
+    {
+        $query = "SELECT COUNT(*) as count FROM PaymentItems WHERE TreatmentItemID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $treatmentItemID);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+
+        return $result['count'] > 0;
+    }
+
+    public function removeByTreatmentItemID($treatmentItemID)
+    {
+        $query = "DELETE FROM " . $this->table . " WHERE TreatmentItemID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $treatmentItemID);
+
+        return $stmt->execute();
     }
 } ?> 

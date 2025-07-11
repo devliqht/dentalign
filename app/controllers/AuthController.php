@@ -118,7 +118,8 @@ class AuthController extends Controller
             "title" => "Sign Up",
             "hideHeader" => true,
             "hideSidebar" => true,
-            "hideFooter" => true,
+            "hideFooter" => false,
+            "bodyStyle" => "background-image: url('" . BASE_URL . "/public/low.svg'); background-size: 100%;",
         ];
 
         unset($_SESSION["error"], $_SESSION["success"]);

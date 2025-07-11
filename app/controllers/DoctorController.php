@@ -43,7 +43,7 @@ class DoctorController extends Controller
             "total" => count($allAppointments),
             "upcoming" => count($upcomingAppointments),
             "today" => count($todaysAppointments),
-            "completed" => count(array_filter($appointmentHistory, function($app) {
+            "completed" => count(array_filter($appointmentHistory, function ($app) {
                 return $app["Status"] === "Completed";
             })),
             "cancellation_requests" => count($pendingCancellations)
@@ -72,7 +72,7 @@ class DoctorController extends Controller
             "appointmentStats" => $appointmentStats,
             "upcomingAppointments" => array_slice($upcomingAppointments, 0, 5),
             "todaysAppointments" => $todaysAppointments,
-            "recentlyCompletedAppointments" => array_slice(array_filter($appointmentHistory, function($app) {
+            "recentlyCompletedAppointments" => array_slice(array_filter($appointmentHistory, function ($app) {
                 return $app["Status"] === "Completed";
             }), 0, 5),
             "recentPatientVisits" => $recentPatientVisits,

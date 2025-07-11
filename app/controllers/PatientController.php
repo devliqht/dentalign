@@ -1727,5 +1727,192 @@ class PatientController extends Controller
 
         return $html;
     }
+
+    public function getTreatmentPlan()
+    {
+        $this->requireAuth();
+        $this->requireRole("Patient");
+
+        header("Content-Type: application/json");
+
+        $user = $this->getAuthUser();
+        $patientID = $_GET["patient_id"] ?? null;
+
+        // For patients, they can only access their own treatment plans
+        $patient = new Patient($this->conn);
+        $patientData = $patient->getPatientByUserId($user["id"]);
+
+        if (!$patientData || ($patientID && $patientData["PatientID"] != $patientID)) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Access denied",
+            ]);
+            exit();
+        }
+
+        try {
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+
+            $patientTreatmentPlans = $treatmentPlan->getTreatmentPlansByPatientID(
+                $patientData["PatientID"]
+            );
+            $treatmentPlans = [];
+
+            foreach ($patientTreatmentPlans as $plan) {
+                $progress = $treatmentPlan->calculateProgress(
+                    $plan["TreatmentPlanID"]
+                );
+                $items = $treatmentPlanItem->findByTreatmentPlanID(
+                    $plan["TreatmentPlanID"]
+                );
+
+                $treatmentPlans[] = [
+                    "TreatmentPlanID" => $plan["TreatmentPlanID"],
+                    "Status" => $plan["Status"],
+                    "DentistNotes" => $plan["DentistNotes"],
+                    "AssignedAt" => $plan["AssignedAt"],
+                    "DoctorName" => $plan["DoctorName"],
+                    "AppointmentDate" => $plan["AppointmentDate"],
+                    "progress" => round($progress, 1),
+                    "totalItems" => count($items),
+                    "completedItems" => count(
+                        array_filter($items, function ($item) {
+                            return !empty($item["CompletedAt"]);
+                        })
+                    ),
+                    "items" => $items,
+                ];
+            }
+
+            echo json_encode([
+                "success" => true,
+                "treatmentPlans" => $treatmentPlans,
+            ]);
+        } catch (Exception $e) {
+            error_log(
+                "Error fetching patient treatment plans: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" => "An error occurred while fetching treatment plans",
+            ]);
+        }
+        exit();
+    }
+
+    public function getTreatmentPlanDetails()
+    {
+        $this->requireAuth();
+        $this->requireRole("Patient");
+
+        header("Content-Type: application/json");
+
+        $user = $this->getAuthUser();
+        $treatmentPlanID = $_GET["treatment_plan_id"] ?? null;
+
+        if (!$treatmentPlanID) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Treatment Plan ID is required",
+            ]);
+            exit();
+        }
+
+        try {
+            $patient = new Patient($this->conn);
+            $patientData = $patient->getPatientByUserId($user["id"]);
+
+            if (!$patientData) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Patient data not found",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/TreatmentPlan.php";
+            require_once "app/models/TreatmentPlanItem.php";
+
+            $treatmentPlan = new TreatmentPlan($this->conn);
+            $treatmentPlanDetails = $treatmentPlan->getTreatmentPlanWithDetails($treatmentPlanID);
+
+            if (!$treatmentPlanDetails) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Treatment plan not found",
+                ]);
+                exit();
+            }
+
+            // Verify that this treatment plan belongs to the logged-in patient
+            $appointmentQuery = "SELECT PatientID FROM Appointment WHERE AppointmentID = ?";
+            $stmt = $this->conn->prepare($appointmentQuery);
+            $stmt->bind_param("i", $treatmentPlanDetails["AppointmentID"]);
+            $stmt->execute();
+            $appointmentResult = $stmt->get_result()->fetch_assoc();
+
+            if (!$appointmentResult || $appointmentResult["PatientID"] != $patientData["PatientID"]) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Access denied",
+                ]);
+                exit();
+            }
+
+            // Get treatment plan items with charge status
+            $treatmentPlanItem = new TreatmentPlanItem($this->conn);
+            $items = $treatmentPlanItem->findByTreatmentPlanID($treatmentPlanID);
+
+            // Get progress
+            $progress = $treatmentPlan->calculateProgress($treatmentPlanID);
+
+            // Get appointment details
+            $appointmentDetailsQuery = "
+                SELECT 
+                    a.AppointmentID,
+                    a.DateTime as AppointmentDate,
+                    a.AppointmentType,
+                    CONCAT(u.FirstName, ' ', u.LastName) as DoctorName,
+                    d.Specialization
+                FROM Appointment a
+                INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
+                INNER JOIN USER u ON d.DoctorID = u.UserID
+                WHERE a.AppointmentID = ?
+            ";
+            $stmt = $this->conn->prepare($appointmentDetailsQuery);
+            $stmt->bind_param("i", $treatmentPlanDetails["AppointmentID"]);
+            $stmt->execute();
+            $appointmentDetails = $stmt->get_result()->fetch_assoc();
+
+            $response = [
+                "TreatmentPlanID" => $treatmentPlanDetails["TreatmentPlanID"],
+                "Status" => $treatmentPlanDetails["Status"],
+                "DentistNotes" => $treatmentPlanDetails["DentistNotes"],
+                "AssignedAt" => $treatmentPlanDetails["AssignedAt"],
+                "DoctorName" => $treatmentPlanDetails["DoctorName"],
+                "progress" => round($progress, 1),
+                "items" => $items,
+                "AppointmentID" => $appointmentDetails["AppointmentID"],
+                "AppointmentDate" => $appointmentDetails["AppointmentDate"],
+                "AppointmentType" => $appointmentDetails["AppointmentType"],
+                "Specialization" => $appointmentDetails["Specialization"],
+            ];
+
+            echo json_encode([
+                "success" => true,
+                "treatmentPlan" => $response,
+            ]);
+        } catch (Exception $e) {
+            error_log(
+                "Error fetching treatment plan details: " . $e->getMessage()
+            );
+            echo json_encode([
+                "success" => false,
+                "message" => "An error occurred while fetching treatment plan details",
+            ]);
+        }
+        exit();
+    }
 }
 ?> 

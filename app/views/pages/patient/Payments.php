@@ -294,6 +294,155 @@ function renderPaymentDesktopActions($payment, $user)
     return ob_get_clean();
 }
 
+function calculatePaymentStats($payments)
+{
+    $stats = [
+        'total_billing' => 0,
+        'overdue_payments' => 0,
+        'nearest_deadline' => null,
+        'pending_payments' => 0
+    ];
+
+    $today = date('Y-m-d');
+    $nearestDate = null;
+    $nearestPayment = null;
+
+    foreach ($payments as $payment) {
+        // Total billing
+        if (isset($payment['total_amount']) && $payment['total_amount'] > 0) {
+            $stats['total_billing'] += $payment['total_amount'];
+        }
+
+        // Overdue payments
+        if ((isset($payment['is_overdue']) && $payment['is_overdue']) ||
+            (strtolower($payment['Status']) === 'overdue')) {
+            $stats['overdue_payments']++;
+        }
+
+        // Pending payments
+        if (strtolower($payment['Status']) === 'pending') {
+            $stats['pending_payments']++;
+        }
+
+        // Nearest deadline
+        if (!empty($payment['DeadlineDate'])) {
+            $deadlineDate = $payment['DeadlineDate'];
+            // Only consider future deadlines
+            if ($deadlineDate >= $today) {
+                if ($nearestDate === null || $deadlineDate < $nearestDate) {
+                    $nearestDate = $deadlineDate;
+                    $nearestPayment = $payment;
+                }
+            }
+        }
+    }
+
+    $stats['nearest_deadline'] = $nearestPayment;
+    return $stats;
+}
+
+function renderPaymentStatsCards($payments)
+{
+    $stats = calculatePaymentStats($payments);
+    ?>
+    <div class="px-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Billing Card -->
+            <div class="glass-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-600 text-sm font-medium mb-1">Total Billing</p>
+                        <p class="text-2xl font-bold text-blue-900">
+                            ₱<?php echo number_format($stats['total_billing'], 2); ?>
+                        </p>
+                    </div>
+                    <div class="bg-blue-500/20 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overdue Payments Card -->
+            <div class="glass-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-red-600 text-sm font-medium mb-1">Overdue Payments</p>
+                        <p class="text-2xl font-bold text-red-900">
+                            <?php echo $stats['overdue_payments']; ?>
+                        </p>
+                        <?php if ($stats['overdue_payments'] > 0): ?>
+                            <p class="text-xs text-red-500 mt-1">Requires attention</p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="bg-red-500/20 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Deadline Card -->
+            <div class="glass-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-600 text-sm font-medium mb-1">Next Deadline</p>
+                        <?php if ($stats['nearest_deadline']): ?>
+                            <?php
+                            $deadline = strtotime($stats['nearest_deadline']['DeadlineDate']);
+                            $today = strtotime(date('Y-m-d'));
+                            $daysLeft = ($deadline - $today) / (60 * 60 * 24);
+                            ?>
+                            <p class="text-2xl font-bold text-orange-900">
+                                <?php if ($daysLeft == 0): ?>
+                                    Today
+                                <?php elseif ($daysLeft == 1): ?>
+                                    Tomorrow
+                                <?php else: ?>
+                                    <?php echo round($daysLeft); ?> days
+                                <?php endif; ?>
+                            </p>
+                            <p class="text-xs text-orange-600 mt-1">
+                                <?php echo date("M j, Y", $deadline); ?>
+                            </p>
+                        <?php else: ?>
+                            <p class="text-2xl font-bold text-orange-900">None</p>
+                            <p class="text-xs text-orange-500 mt-1">No upcoming deadlines</p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="bg-orange-500/20 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Payments Card -->
+            <div class="glass-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-600 text-sm font-medium mb-1">Pending Payments</p>
+                        <p class="text-2xl font-bold text-yellow-900">
+                            <?php echo $stats['pending_payments']; ?>
+                        </p>
+                        <?php if ($stats['pending_payments'] > 0): ?>
+                            <p class="text-xs text-yellow-600 mt-1">Awaiting payment</p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="bg-yellow-500/20 p-3 rounded-xl">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}
 
 ?>
 
@@ -301,11 +450,16 @@ function renderPaymentDesktopActions($payment, $user)
     <div class="px-4 mb-6">
         <div class="flex items-center mb-4">
             <div>
-                <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Payment History</h2>
+                <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tighter">Payment History</h2>
                 <p class="text-gray-600">View your payment records and invoice details</p>
             </div>
         </div>
     </div>
+
+    <!-- Stats Cards -->
+    <?php if (!empty($payments)): ?>
+        <?php renderPaymentStatsCards($payments); ?>
+    <?php endif; ?>
 
     <!-- Filter Section -->
     <div class="px-4 mb-6">
