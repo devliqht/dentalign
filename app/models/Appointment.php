@@ -2,6 +2,7 @@
 
 require_once "AppointmentReport.php";
 require_once "PatientRecord.php";
+require_once "Payment.php";
 
 class Appointment
 {
@@ -103,6 +104,16 @@ class Appointment
             error_log(
                 "AppointmentReport will be created automatically by database trigger"
             );
+
+            // Create a default Payment entry for the new appointment
+            $payment = new Payment($this->conn);
+            if (!$payment->createForAppointment($this->appointmentID, $this->patientID, $this->dateTime)) {
+                error_log("WARNING: Failed to create payment entry for appointment");
+                // Don't fail the appointment creation if payment creation fails
+                // This is a non-critical operation
+            } else {
+                error_log("Payment entry created successfully for appointment");
+            }
 
             if (!$useExistingTransaction) {
                 $this->conn->commit();
@@ -296,7 +307,6 @@ class Appointment
 
     public function getAllTimeSlotsWithStatus($doctorID, $date)
     {
-        // Define clinic hours (8 AM to 6 PM, 1-hour slots)
         $allTimeSlots = [];
         for ($hour = 8; $hour < 18; $hour++) {
             $timeSlot = sprintf("%02d:00", $hour);
@@ -335,7 +345,6 @@ class Appointment
 
     public function rescheduleAppointment($appointmentID, $newDateTime)
     {
-        // first check if the appointment exists and belongs to the current session
         $checkQuery =
             "SELECT DoctorID FROM " . $this->table . " WHERE AppointmentID = ?";
         $checkStmt = $this->conn->prepare($checkQuery);
@@ -347,13 +356,12 @@ class Appointment
 
         $result = $checkStmt->get_result();
         if ($result->num_rows === 0) {
-            return false; // Appointment doesn't exist
+            return false;
         }
 
         $appointment = $result->fetch_assoc();
         $doctorID = $appointment["DoctorID"];
 
-        // Check if the new time slot is available
         if (!$this->checkDoctorAvailability($doctorID, $newDateTime)) {
             return false; // new time slot is not available
         }
@@ -371,14 +379,14 @@ class Appointment
     public function hasPayments($appointmentID)
     {
         $query =
-            "SELECT COUNT(*) as payment_count FROM Payments WHERE AppointmentID = ?";
+            "SELECT COUNT(*) as active_payment_count FROM Payments WHERE AppointmentID = ? AND Status != 'Cancelled'";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $appointmentID);
 
         if ($stmt->execute()) {
             $result = $stmt->get_result();
             $row = $result->fetch_assoc();
-            return $row["payment_count"] > 0;
+            return $row["active_payment_count"] > 0;
         }
 
         return false;

@@ -54,13 +54,13 @@ function getStatusHeaderClass($status)
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        Total appointments: <?php 
+                        Total appointments: <?php
                         $totalAppointments = 0;
-                        foreach ($appointmentHistory as $status => $appointments) {
-                            $totalAppointments += count($appointments);
-                        }
-                        echo $totalAppointments;
-                        ?>
+foreach ($appointmentHistory as $status => $appointments) {
+    $totalAppointments += count($appointments);
+}
+echo $totalAppointments;
+?>
                     </span>
                 </div>
             </div>
@@ -124,45 +124,45 @@ function getStatusHeaderClass($status)
     </div>
 
     <!-- Pending Cancellation Requests Section -->
-    <?php 
+    <?php
     if (!empty($pendingCancellations)) {
         renderPendingCancellationTable($pendingCancellations, $csrf_token);
     }
-    ?>
+?>
 
     <!-- Appointment History Sections by Status -->
     <?php
-    $statusOrder = ["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"];
-    $hasAnyAppointments = false;
-    foreach ($statusOrder as $status) {
-        if (!empty($appointmentHistory[$status])) {
-            $hasAnyAppointments = true;
-            break;
-        }
+$statusOrder = ["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"];
+$hasAnyAppointments = false;
+foreach ($statusOrder as $status) {
+    if (!empty($appointmentHistory[$status])) {
+        $hasAnyAppointments = true;
+        break;
     }
-    ?>
+}
+?>
 
     <?php if ($hasAnyAppointments): ?>
         <?php foreach ($statusOrder as $status): ?>
             <?php if (!empty($appointmentHistory[$status])): ?>
-                <?php 
-                // Prepare section data
-                $sectionId = strtolower(str_replace(" ", "-", $status));
+                <?php
+            // Prepare section data
+            $sectionId = strtolower(str_replace(" ", "-", $status));
                 $sectionTitle = $status . ' Appointments <span class="text-sm font-normal text-gray-600">(' . count($appointmentHistory[$status]) . ' appointments)</span>';
                 $emptyMessage = "No {$status} appointments";
                 $emptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>';
-                
+
                 // Render the section using the reusable component
                 renderSortableAppointmentTable(
-                    $appointmentHistory[$status], 
+                    $appointmentHistory[$status],
                     [], // No payment data for doctor view
-                    $sectionId, 
-                    $sectionTitle, 
-                    $emptyMessage, 
-                    $emptyIcon, 
-                    $user, 
+                    $sectionId,
+                    $sectionTitle,
+                    $emptyMessage,
+                    $emptyIcon,
+                    $user,
                     false // This is doctor view, not patient view
                 );
                 ?>

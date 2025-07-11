@@ -75,7 +75,7 @@ class PaginationManager {
     initializeSection(sectionId) {
         this.paginationStates[sectionId] = {
             currentPage: 1,
-            rowsPerPage: 5,
+            rowsPerPage: 10,
             totalRows: 0,
             totalPages: 1
         };
@@ -215,35 +215,50 @@ class SortableTableManager {
     constructor() {
         this.sortStates = {};
         this.paginationManager = new PaginationManager();
+        this.initialized = false;
+        this.boundHandleSort = this.handleSort.bind(this);
+        // Auto-initialize but allow manual re-initialization
         this.init();
     }
 
     init() {
+        // Always allow re-initialization to handle dynamic content
+        
+        // Remove any existing listeners first to prevent duplicates
+        document.querySelectorAll('.sortable-header').forEach(header => {
+            header.removeEventListener('click', this.boundHandleSort);
+        });
+        
         const sortableHeaders = document.querySelectorAll('.sortable-header');
         
         sortableHeaders.forEach(header => {
-            header.addEventListener('click', () => {
-                const table = header.closest('table');
-                const section = table.getAttribute('data-section');
-                const sortKey = header.getAttribute('data-sort');
-                
-                if (!this.sortStates[section]) {
-                    this.sortStates[section] = { key: null, direction: 'asc' };
-                }
-                
-                if (this.sortStates[section].key === sortKey) {
-                    this.sortStates[section].direction = this.sortStates[section].direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    this.sortStates[section].key = sortKey;
-                    this.sortStates[section].direction = 'asc';
-                }
-                
-                this.sortTableBySection(section, sortKey, this.sortStates[section].direction);
-                this.updateSortIndicators(table, sortKey, this.sortStates[section].direction);
-                
-                this.paginationManager.refreshPagination(section);
-            });
+            header.addEventListener('click', this.boundHandleSort);
         });
+        
+        this.initialized = true;
+    }
+    
+    handleSort(event) {
+        const header = event.currentTarget;
+        const table = header.closest('table');
+        const section = table.getAttribute('data-section');
+        const sortKey = header.getAttribute('data-sort');
+        
+        if (!this.sortStates[section]) {
+            this.sortStates[section] = { key: null, direction: 'asc' };
+        }
+        
+        if (this.sortStates[section].key === sortKey) {
+            this.sortStates[section].direction = this.sortStates[section].direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortStates[section].key = sortKey;
+            this.sortStates[section].direction = 'asc';
+        }
+        
+        this.sortTableBySection(section, sortKey, this.sortStates[section].direction);
+        this.updateSortIndicators(table, sortKey, this.sortStates[section].direction);
+        
+        this.paginationManager.refreshPagination(section);
     }
 
     sortTableBySection(section, sortKey, direction) {
@@ -305,6 +320,59 @@ class SortableTableManager {
                             aValue = a.querySelector('.px-2.py-1.rounded-full')?.textContent.toLowerCase() || '';
                             bValue = b.querySelector('.px-2.py-1.rounded-full')?.textContent.toLowerCase() || '';
                             break;
+                        case 'PaymentID':
+                        case 'AppointmentID':
+                            const aIdText = a.querySelector('.bg-nhd-blue\\/10')?.textContent || '';
+                            const bIdText = b.querySelector('.bg-nhd-blue\\/10')?.textContent || '';
+                            if (sortKey === 'PaymentID') {
+                                const aMatch = aIdText.match(/Payment #(\d+)/);
+                                const bMatch = bIdText.match(/Payment #(\d+)/);
+                                aValue = aMatch ? parseInt(aMatch[1]) : 0;
+                                bValue = bMatch ? parseInt(bMatch[1]) : 0;
+                            } else {
+                                const aMatch = aIdText.match(/Appt #(\d+)/);
+                                const bMatch = bIdText.match(/Appt #(\d+)/);
+                                aValue = aMatch ? parseInt(aMatch[1]) : 0;
+                                bValue = bMatch ? parseInt(bMatch[1]) : 0;
+                            }
+                            break;
+                        case 'DoctorName':
+                            aValue = a.querySelector('h4')?.textContent.toLowerCase() || '';
+                            bValue = b.querySelector('h4')?.textContent.toLowerCase() || '';
+                            break;
+                        case 'DeadlineDate':
+                            const aDueDateEl = a.querySelector('.text-sm.text-gray-600');
+                            const bDueDateEl = b.querySelector('.text-sm.text-gray-600');
+                            if (aDueDateEl && bDueDateEl) {
+                                const aDueText = aDueDateEl.textContent;
+                                const bDueText = bDueDateEl.textContent;
+                                if (aDueText.includes('Due:') && bDueText.includes('Due:')) {
+                                    aValue = new Date(aDueText.replace('Due:', '').trim());
+                                    bValue = new Date(bDueText.replace('Due:', '').trim());
+                                } else {
+                                    aValue = aDueText.includes('Due:') ? new Date(aDueText.replace('Due:', '').trim()) : new Date('9999-12-31');
+                                    bValue = bDueText.includes('Due:') ? new Date(bDueText.replace('Due:', '').trim()) : new Date('9999-12-31');
+                                }
+                            } else {
+                                aValue = new Date('9999-12-31');
+                                bValue = new Date('9999-12-31');
+                            }
+                            break;
+                        case 'PaymentMethod':
+                            aValue = a.querySelector('.bg-gray-100\\/60')?.textContent.toLowerCase() || '';
+                            bValue = b.querySelector('.bg-gray-100\\/60')?.textContent.toLowerCase() || '';
+                            break;
+                        case 'Amount':
+                            const aMobileAmountEl = a.querySelector('.text-lg.font-semibold.text-nhd-brown');
+                            const bMobileAmountEl = b.querySelector('.text-lg.font-semibold.text-nhd-brown');
+                            if (aMobileAmountEl && bMobileAmountEl) {
+                                aValue = parseFloat(aMobileAmountEl.textContent.replace('₱', '').replace(',', '')) || 0;
+                                bValue = parseFloat(bMobileAmountEl.textContent.replace('₱', '').replace(',', '')) || 0;
+                            } else {
+                                aValue = aMobileAmountEl ? parseFloat(aMobileAmountEl.textContent.replace('₱', '').replace(',', '')) || 0 : 0;
+                                bValue = bMobileAmountEl ? parseFloat(bMobileAmountEl.textContent.replace('₱', '').replace(',', '')) || 0 : 0;
+                            }
+                            break;
                         default:
                             return 0;
                     }
@@ -343,8 +411,11 @@ class SortableTableManager {
                             break;
                             
                         case 'Status':
-                            aValue = a.querySelector('td:nth-child(5) span')?.textContent.toLowerCase() || '';
-                            bValue = b.querySelector('td:nth-child(5) span')?.textContent.toLowerCase() || '';
+                            // Try different column positions for different table types
+                            let aStatusEl = a.querySelector('td:nth-child(4) span.px-2.py-1.rounded-full') || a.querySelector('td:nth-child(5) span');
+                            let bStatusEl = b.querySelector('td:nth-child(4) span.px-2.py-1.rounded-full') || b.querySelector('td:nth-child(5) span');
+                            aValue = aStatusEl?.textContent.toLowerCase() || '';
+                            bValue = bStatusEl?.textContent.toLowerCase() || '';
                             break;
                             
                         case 'Reason':
@@ -352,6 +423,73 @@ class SortableTableManager {
                             const bReasonEl = b.querySelector('td:nth-child(5) .text-sm');
                             aValue = aReasonEl?.textContent.toLowerCase() || '';
                             bValue = bReasonEl?.textContent.toLowerCase() || '';
+                            break;
+                            
+                        // PaymentManagement table specific columns
+                        case 'PatientName':
+                            aValue = a.querySelector('td:nth-child(2) .font-medium')?.textContent.toLowerCase() || '';
+                            bValue = b.querySelector('td:nth-child(2) .font-medium')?.textContent.toLowerCase() || '';
+                            break;
+                            
+                        case 'DoctorName':
+                            aValue = a.querySelector('td:nth-child(3) .font-medium')?.textContent.toLowerCase() || '';
+                            bValue = b.querySelector('td:nth-child(3) .font-medium')?.textContent.toLowerCase() || '';
+                            break;
+                            
+                        case 'TotalAmount':
+                            const aAmountText = a.querySelector('td:nth-child(4) .font-medium')?.textContent || '₱0';
+                            const bAmountText = b.querySelector('td:nth-child(4) .font-medium')?.textContent || '₱0';
+                            aValue = parseFloat(aAmountText.replace('₱', '').replace(',', '')) || 0;
+                            bValue = parseFloat(bAmountText.replace('₱', '').replace(',', '')) || 0;
+                            break;
+                            
+                        case 'PaymentStatus':
+                            aValue = a.querySelector('td:nth-child(5) .status-badge')?.textContent.toLowerCase() || '';
+                            bValue = b.querySelector('td:nth-child(5) .status-badge')?.textContent.toLowerCase() || '';
+                            break;
+                            
+                        case 'PaymentID':
+                            const aPaymentText = a.querySelector('td:nth-child(1)')?.textContent || '';
+                            const bPaymentText = b.querySelector('td:nth-child(1)')?.textContent || '';
+                            aValue = parseInt(aPaymentText.replace('#', '').replace(/\D/g, '')) || 0;
+                            bValue = parseInt(bPaymentText.replace('#', '').replace(/\D/g, '')) || 0;
+                            break;
+                            
+                        case 'AppointmentID':
+                            const aApptText = a.querySelector('td:nth-child(2)')?.textContent || '';
+                            const bApptText = b.querySelector('td:nth-child(2)')?.textContent || '';
+                            aValue = parseInt(aApptText.replace('#', '').replace(/\D/g, '')) || 0;
+                            bValue = parseInt(bApptText.replace('#', '').replace(/\D/g, '')) || 0;
+                            break;
+                            
+                        case 'DeadlineDate':
+                            const aDeadlineEl = a.querySelector('td:nth-child(5) .text-sm.text-gray-900');
+                            const bDeadlineEl = b.querySelector('td:nth-child(5) .text-sm.text-gray-900');
+                            if (aDeadlineEl && bDeadlineEl) {
+                                aValue = new Date(aDeadlineEl.textContent.trim());
+                                bValue = new Date(bDeadlineEl.textContent.trim());
+                            } else {
+                                // Handle "No deadline" cases - put them at the end
+                                aValue = aDeadlineEl ? new Date(aDeadlineEl.textContent.trim()) : new Date('9999-12-31');
+                                bValue = bDeadlineEl ? new Date(bDeadlineEl.textContent.trim()) : new Date('9999-12-31');
+                            }
+                            break;
+                            
+                        case 'PaymentMethod':
+                            aValue = a.querySelector('td:nth-child(6) span')?.textContent.toLowerCase() || '';
+                            bValue = b.querySelector('td:nth-child(6) span')?.textContent.toLowerCase() || '';
+                            break;
+                            
+                        case 'Amount':
+                            const aAmountEl = a.querySelector('td:nth-child(7) .text-sm.font-semibold');
+                            const bAmountEl = b.querySelector('td:nth-child(7) .text-sm.font-semibold');
+                            if (aAmountEl && bAmountEl) {
+                                aValue = parseFloat(aAmountEl.textContent.replace('₱', '').replace(',', '')) || 0;
+                                bValue = parseFloat(bAmountEl.textContent.replace('₱', '').replace(',', '')) || 0;
+                            } else {
+                                aValue = aAmountEl ? parseFloat(aAmountEl.textContent.replace('₱', '').replace(',', '')) || 0 : 0;
+                                bValue = bAmountEl ? parseFloat(bAmountEl.textContent.replace('₱', '').replace(',', '')) || 0 : 0;
+                            }
                             break;
                             
                         default:

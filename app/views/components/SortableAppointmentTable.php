@@ -1,5 +1,26 @@
 <?php
-function renderSortableAppointmentTable($appointments, $appointmentPayments, $sectionId, $sectionTitle, $emptyMessage, $emptyIcon, $user, $isPatientView = true) {
+function getPaymentStatusClass($status)
+{
+    switch (strtolower($status)) {
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800';
+        case 'paid':
+            return 'bg-green-100 text-green-800';
+        case 'overdue':
+            return 'bg-red-100 text-red-800';
+        case 'failed':
+            return 'bg-red-100 text-red-800';
+        case 'refunded':
+            return 'bg-blue-100 text-blue-800';
+        case 'cancelled':
+            return 'bg-gray-100 text-gray-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function renderSortableAppointmentTable($appointments, $appointmentPayments, $sectionId, $sectionTitle, $emptyMessage, $emptyIcon, $user, $isPatientView = true)
+{
     $hasPayments = !empty($appointmentPayments) && $isPatientView;
     ?>
     
@@ -281,7 +302,8 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
     <?php
 }
 
-function renderTableRow($appointment, $user, $appointmentPayments, $sectionId, $hasPayments, $isPatientView = true) {
+function renderTableRow($appointment, $user, $appointmentPayments, $sectionId, $hasPayments, $isPatientView = true)
+{
     ob_start();
     ?>
     <tr class="hover:bg-nhd-blue/10 cursor-pointer transition-colors duration-200 border-b-1 border-gray-200"
@@ -364,12 +386,13 @@ function renderTableRow($appointment, $user, $appointmentPayments, $sectionId, $
     return ob_get_clean();
 }
 
-function renderPaymentInfo($appointment, $appointmentPayments, $isMobile = false) {
+function renderPaymentInfo($appointment, $appointmentPayments, $isMobile = false)
+{
     ob_start();
     if (isset($appointmentPayments[$appointment["AppointmentID"]])) {
         $payment = $appointmentPayments[$appointment["AppointmentID"]];
-        $statusClass = strtolower($payment["Status"]) === "paid" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800";
-        
+        $statusClass = getPaymentStatusClass($payment["Status"]);
+
         if ($isMobile) {
             ?>
             <span class="font-mono">#<?php echo str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT); ?></span>
@@ -389,23 +412,26 @@ function renderPaymentInfo($appointment, $appointmentPayments, $isMobile = false
             <?php
         }
     } else {
+        $statusClass = getPaymentStatusClass('pending');
         if ($isMobile) {
-            echo '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-xl">Pending</span>';
+            echo '<span class="' . $statusClass . ' text-xs px-2 py-1 rounded-xl">Pending</span>';
             echo '<span class="ml-2 text-nhd-brown font-semibold">₱0.00</span>';
         } else {
-            echo '<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-xl">Pending</span>';
+            echo '<span class="' . $statusClass . ' text-xs px-2 py-1 rounded-xl">Pending</span>';
             echo '<span class="text-nhd-brown font-semibold ml-2">₱0.00</span>';
         }
     }
     return ob_get_clean();
 }
 
-function renderMobileActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView = true) {
+function renderMobileActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView = true)
+{
     ob_start();
-    
+
     if ($isPatientView) {
         if ($sectionId === 'upcoming') {
-            if (isset($appointmentPayments[$appointment["AppointmentID"]])) {
+            $hasActivePayment = isset($appointmentPayments[$appointment["AppointmentID"]]) && $appointmentPayments[$appointment["AppointmentID"]]["Status"] !== "Cancelled";
+            if ($hasActivePayment) {
                 ?>
                 <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                         class="bg-gray-500/80 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors">
@@ -452,16 +478,18 @@ function renderMobileActions($appointment, $user, $appointmentPayments, $section
         </button>
         <?php
     }
-    
+
     return ob_get_clean();
 }
 
-function renderDesktopActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView = true) {
+function renderDesktopActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView = true)
+{
     ob_start();
-    
+
     if ($isPatientView) {
         if ($sectionId === 'upcoming') {
-            if (isset($appointmentPayments[$appointment["AppointmentID"]])) {
+            $hasActivePayment = isset($appointmentPayments[$appointment["AppointmentID"]]) && $appointmentPayments[$appointment["AppointmentID"]]["Status"] !== "Cancelled";
+            if ($hasActivePayment) {
                 ?>
                 <div class="flex items-center space-x-1">
                     <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
@@ -514,17 +542,18 @@ function renderDesktopActions($appointment, $user, $appointmentPayments, $sectio
         </div>
         <?php
     }
-    
+
     return ob_get_clean();
 }
 
-function renderPaginationControls($sectionId, $position = 'bottom') {
+function renderPaginationControls($sectionId, $position = 'bottom')
+{
     ob_start();
     ?>
     <div class="pagination-controls pagination-<?php echo $position; ?> flex justify-between items-center px-4 py-3 bg-gray-50/30 <?php echo $position === 'top' ? 'border-b' : 'border-t'; ?> border-gray-200/50" data-section="<?php echo $sectionId; ?>">
         <!-- Left side: Showing X-Y of Z entries -->
         <div class="pagination-info text-sm text-gray-600">
-            <span id="pagination-info-<?php echo $sectionId; ?>">Showing 1-5 of 0 entries</span>
+            <span id="pagination-info-<?php echo $sectionId; ?>">Showing 1-10 of 0 entries</span>
         </div>
         
         <!-- Center: Rows per page -->
@@ -533,8 +562,8 @@ function renderPaginationControls($sectionId, $position = 'bottom') {
             <select id="rowsPerPage-<?php echo $sectionId; ?>" 
                     class="text-sm border border-gray-300 rounded px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-nhd-blue/50 focus:border-nhd-blue/50"
                     onchange="handleRowsPerPageChange('<?php echo $sectionId; ?>', this.value)">
-                <option value="5" selected>5</option>
-                <option value="10">10</option>
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
                 <option value="15">15</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
@@ -572,8 +601,11 @@ function renderPaginationControls($sectionId, $position = 'bottom') {
     return ob_get_clean();
 }
 
-function renderPendingCancellationTable($pendingCancellations, $csrf_token) {
-    if (empty($pendingCancellations)) return;
+function renderPendingCancellationTable($pendingCancellations, $csrf_token)
+{
+    if (empty($pendingCancellations)) {
+        return;
+    }
     ?>
     
     <div class="bg-red-50/60 mb-8">

@@ -1,3 +1,83 @@
+<?php
+// Include the SortableAppointmentTable component
+require_once __DIR__ . '/../../../components/SortableAppointmentTable.php';
+
+// Function to render payment management table
+function renderPaymentManagementTable($appointments, $appointmentPayments, $user)
+{
+    ?>
+    <div class="glass-card rounded-2xl border-gray-200 border-1 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-nhd-blue font-family-bodoni">Appointments & Payments</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full payment-table" id="paymentManagementTable">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DateTime">
+                            Date & Time 
+                            <span class="sort-indicator ml-1">
+                                <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                    <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                </svg>
+                                <span class="sort-icon-active hidden"></span>
+                            </span>
+                        </th>
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientFirstName">
+                            Patient 
+                            <span class="sort-indicator ml-1">
+                                <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                    <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                </svg>
+                                <span class="sort-icon-active hidden"></span>
+                            </span>
+                        </th>
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorFirstName">
+                            Doctor 
+                            <span class="sort-indicator ml-1">
+                                <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                    <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                </svg>
+                                <span class="sort-icon-active hidden"></span>
+                            </span>
+                        </th>
+
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="TotalAmount">
+                            Amount 
+                            <span class="sort-indicator ml-1">
+                                <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                    <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                </svg>
+                                <span class="sort-icon-active hidden"></span>
+                            </span>
+                        </th>
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PaymentStatus">
+                            Payment Status 
+                            <span class="sort-indicator ml-1">
+                                <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                    <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                </svg>
+                                <span class="sort-icon-active hidden"></span>
+                            </span>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="appointmentsTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Table rows will be dynamically generated -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php
+}
+?>
+
 <div class="px-4 pb-8">
     <!-- Page Header -->
     <div class="mb-8">
@@ -13,6 +93,60 @@
                     <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
                     </svg>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Configuration -->
+    <div class="glass-card bg-blue-50/50 rounded-2xl border-blue-200 border-1 shadow-sm mb-6 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-nhd-blue">Overdue Payment Configuration</h3>
+            <button id="editConfigBtn" class="glass-card bg-nhd-blue text-white px-4 py-2 rounded-xl shadow-sm hover:bg-nhd-blue/90 transition-colors">
+                <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                </svg>Edit Configuration
+            </button>
+        </div>
+        
+        <div id="configDisplay" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glass-card bg-white/60 p-4 rounded-xl shadow-none border-1 border-gray-200">
+                <p class="text-sm text-gray-600">Overdue Fee Percentage</p>
+                <p class="text-2xl font-bold text-nhd-blue" id="currentPercentage">5.00%</p>
+            </div>
+            <div class="glass-card bg-white/60 p-4 rounded-xl shadow-none border-1 border-gray-200">
+                <p class="text-sm text-gray-600">Grace Period</p>
+                <p class="text-2xl font-bold text-nhd-blue" id="currentGracePeriod">0 days</p>
+            </div>
+            <div class="glass-card bg-white/60 p-4 rounded-xl shadow-none border-1 border-gray-200">
+                <p class="text-sm text-gray-600">Last Updated</p>
+                <p class="text-sm font-medium text-gray-700" id="lastUpdated">Never</p>
+            </div>
+        </div>
+        
+        <div id="configForm" class="hidden mt-4 p-4 bg-white/60 rounded-xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Overdue Fee Percentage (%)</label>
+                    <input type="number" id="overduePercentage" step="0.01" min="0" max="100" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Grace Period (Days)</label>
+                    <input type="number" id="gracePeriodDays" min="0" max="365" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Configuration Name</label>
+                <input type="text" id="configName" placeholder="Enter configuration name..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+            </div>
+            <div class="flex space-x-3">
+                <button id="saveConfigBtn" class="glass-card bg-green-500 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-green-600 transition-colors">
+                    <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>Save Configuration
+                </button>
+                <button id="cancelConfigBtn" class="glass-card bg-gray-500 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-gray-600 transition-colors">
+                    Cancel
                 </button>
             </div>
         </div>
@@ -86,6 +220,8 @@
                     <option value="Pending">Pending</option>
                     <option value="Overdue">Overdue</option>
                     <option value="Cancelled">Cancelled</option>
+                    <option value="Failed">Failed</option>
+                    <option value="Refunded">Refunded</option>
                 </select>
             </div>
             <div>
@@ -112,28 +248,7 @@
     </div>
 
     <!-- Appointments Table -->
-    <div class="glass-card rounded-2xl border-gray-200 border-1 shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-gray-200">
-            <h3 class="text-xl font-semibold text-nhd-blue font-family-bodoni">Appointments & Payments</h3>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full payment-table">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Doctor</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Status</th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="appointmentsTableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- Table rows will be dynamically generated -->
-                </tbody>
-            </table>
-        </div>
+    <div id="appointments-table-container">
         <div id="loadingSpinner" class="text-center py-8">
             <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-nhd-blue bg-white">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-nhd-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -150,14 +265,22 @@
             </svg>
             <p>No appointments found</p>
         </div>
+        <div id="appointments-table-content">
+            <!-- SortableAppointmentTable will be rendered here -->
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div id="pagination-controls-container" class="hidden">
+            <?php echo renderPaginationControls('payment-management'); ?>
+        </div>
     </div>
 </div>
 
 <!-- Payment Management Modal -->
-<div id="paymentModal" class="payment-modal fixed inset-0 bg-gray-600/50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="payment-modal-content relative top-20 mx-auto p-5 max-w-4xl shadow-lg rounded-2xl bg-white">
+<div id="paymentModal" class="payment-modal fixed inset-0 bg-gray-600/50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="payment-modal-content w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-lg rounded-2xl bg-white">
         <!-- Modal Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+        <div class="flex items-center justify-between pb-4 border-b border-gray-200 p-5">
             <h3 class="text-2xl font-semibold text-nhd-brown font-family-sans" id="modalTitle">Payment Management</h3>
             <button id="closeModal" class="glass-card bg-nhd-blue/80 text-white text-sm transition-colors">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -167,7 +290,7 @@
         </div>
 
         <!-- Modal Content -->
-        <div class="py-6">
+        <div class="p-5 pt-6">
             <!-- Appointment Info -->
             <div id="appointmentInfo" class="glass-card border-gray-200 border-1 p-4 shadow-sm rounded-xl mb-6">
                 <h4 class="font-semibold text-nhd-blue mb-2">Appointment Dates</h4>
@@ -191,7 +314,7 @@
                 </div>
             </div>
 
-            <!-- Payment Status and Notes -->
+            <!-- Payment Status and Details -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
@@ -203,6 +326,26 @@
                     </select>
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                    <select id="paymentMethod" class="w-full h-fit text-sm p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                        <option value="Cash">Cash</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Check">Check</option>
+                        <option value="Digital Wallet">Digital Wallet</option>
+                        <option value="Insurance">Insurance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deadline Date</label>
+                    <input type="date" id="deadlineDate" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Proof of Payment</label>
+                    <input type="text" id="proofOfPayment" placeholder="Receipt number, transaction ID, etc..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                </div>
+                <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                     <input type="text" id="paymentNotes" placeholder="Payment notes..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
                 </div>
@@ -212,7 +355,7 @@
             <div class="mb-6">
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="text-lg font-semibold text-nhd-blue">Payment Items</h4>
-                    <button id="addItemBtn" class="glass-card bg-nhd-blue text-white px-4 py-2 rounded-2xl text-sm shadow-sm hover:bg-green-600 transition-colors">
+                    <button id="addItemBtn" class="glass-card bg-white/80 border-gray-200 border-1 text-nhd-blue px-4 py-2 rounded-2xl text-sm shadow-sm hover:bg-gray-200 transition-colors">
                         <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
                         </svg>Add Item
@@ -295,6 +438,10 @@
     @apply bg-gray-100 text-gray-800;
 }
 
+.status-overdue {
+    @apply bg-red-100 text-red-800;
+}
+
 @media (max-width: 768px) {
     .container {
         padding-left: 1rem;
@@ -305,9 +452,9 @@
         font-size: 0.875rem;
     }
     
-    .modal-content {
-        width: 95%;
-        margin: 10px auto;
+    .payment-modal-content {
+        max-width: 95%;
+        max-height: 85vh;
     }
 }
-</style> 
+</style>

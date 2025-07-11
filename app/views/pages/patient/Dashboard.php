@@ -14,7 +14,7 @@
     <!-- Stats Cards Row -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Total Appointments -->
-        <div class="glass-card bg-nhd-blue/10 border-2 border-nhd-blue/60 rounded-2xl p-6 shadow-md">
+        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-nhd-blue/80">Total Appointments</p>
@@ -31,7 +31,7 @@
         </div>
 
         <!-- Completed Appointments -->
-        <div class="glass-card bg-green-50/50 border-2 border-nhd-green rounded-2xl p-6 shadow-md">
+        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-green-700">Completed</p>
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Upcoming Appointments -->
-        <div class="glass-card bg-yellow-50/50 border-2 border-yellow-600 rounded-2xl p-6 shadow-md">
+        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-yellow-700">Upcoming</p>
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Pending Payments -->
-        <div class="glass-card bg-red-50/50 border-2 border-red-200 rounded-2xl p-6 shadow-md">
+        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-red-700">Pending Payments</p>
@@ -199,7 +199,7 @@
                                         <a href="<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
 ]; ?>/<?php echo $appointment["AppointmentID"]; ?>" 
-                                           class="inline-flex items-center glass-card mt-2 px-3 py-1 text-sm bg-nhd-blue/80 text-white rounded-2xl hover:bg-nhd-blue transition-colors">
+                                           class="inline-flex items-center glass-card mt-2 px-3 py-1 text-sm bg-gray-200/80 text-black rounded-2xl shadow-sm border-1 border-gray-200 hover:bg-gray-200 transition-colors">
                                             View Details
                                         </a>
                                     </div>
@@ -313,7 +313,7 @@
                                             echo "To be scheduled";
                                         } ?></span>
                                     </span>
-                                    <a href="<?php echo BASE_URL; ?>/patient/dentalchart" class="glass-card bg-nhd-blue/80 text-white px-4 py-2 font-medium hover:bg-nhd-blue transition-colors">View Details</a>
+                                    <a href="<?php echo BASE_URL; ?>/patient/dental-chart" class="glass-card bg-nhd-blue/80 text-white px-4 py-2 font-medium hover:bg-nhd-blue transition-colors">View Details</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -333,7 +333,73 @@
         <!-- Right Column: Quick Info & Week View -->
         <div class="space-y-8">
             <!-- Pending Payments Summary -->
-            <?php if (!empty($pendingPayments)): ?>
+            <?php if (!empty($deadlinePayments)): ?>
+                <div class="glass-card rounded-2xl p-6 border-l-4 border-yellow-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-nhd-brown">Upcoming Payment Deadlines</h3>
+                        <a href="<?php echo BASE_URL; ?>/patient/payments" class="text-nhd-blue hover:text-nhd-blue/80 text-sm font-medium">
+                            View All
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <?php foreach ($deadlinePayments as $payment): ?>
+                            <div class="flex items-center justify-between p-3 bg-yellow-50/50 rounded-lg">
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900"><?php echo htmlspecialchars(
+                                        $payment["AppointmentType"]
+                                    ); ?></p>
+                                    <p class="text-sm text-gray-600">
+                                        Appointment: <?php echo date(
+                                            "M j, Y",
+                                            strtotime(
+                                                $payment["AppointmentDateTime"]
+                                            )
+                                        ); ?>
+                                    </p>
+                                    <?php if (!empty($payment["DeadlineDate"])): ?>
+                                        <p class="text-xs text-gray-500">
+                                            <?php
+                                            $deadline = strtotime($payment["DeadlineDate"]);
+                                        $today = strtotime(date("Y-m-d"));
+                                        $daysLeft = ($deadline - $today) / (60 * 60 * 24);
+
+                                        if ($daysLeft < 0) {
+                                            echo '<span class="text-red-600 font-medium">Overdue by ' . abs(round($daysLeft)) . ' days</span>';
+                                        } elseif ($daysLeft == 0) {
+                                            echo '<span class="text-orange-600 font-medium">Due today</span>';
+                                        } elseif ($daysLeft <= 7) {
+                                            echo '<span class="text-orange-600 font-medium">Due in ' . round($daysLeft) . ' days</span>';
+                                        } else {
+                                            echo 'Due in ' . round($daysLeft) . ' days';
+                                        }
+                            ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-bold text-yellow-800">₱<?php echo number_format(
+                                        $payment["total_amount"],
+                                        2
+                                    ); ?></span>
+                                    <?php if (isset($payment["is_overdue"]) && $payment["is_overdue"] && $payment["overdue_amount"] > 0): ?>
+                                        <p class="text-xs text-red-600">
+                                            +₱<?php echo number_format($payment["overdue_amount"], 2); ?> overdue fee
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    
+                    <div class="text-center mt-4 pt-3 border-t border-yellow-200">
+                        <a href="<?php echo BASE_URL; ?>/patient/payments" 
+                           class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
+                            View all payments →
+                        </a>
+                    </div>
+                </div>
+            <?php elseif (!empty($pendingPayments)): ?>
                 <div class="glass-card rounded-2xl p-6 border-l-4 border-yellow-500">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-bold text-nhd-brown">Pending Payments</h3>
@@ -714,7 +780,7 @@
     <!-- Quick Actions Section -->
     <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
-           class="glass-card bg-nhd-blue/10 border-2 border-nhd-blue/20 rounded-2xl p-6 hover:bg-nhd-blue/15 transition-all group shadow-sm">
+           class="glass-card border-gray-200 border-2 rounded-2xl p-6 shadow-sm group">
             <div class="flex items-center">
                 <div class="p-3 bg-nhd-blue/20 rounded-full mr-4 group-hover:bg-nhd-blue/30 transition-colors">
                     <svg class="w-6 h-6 text-nhd-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -729,7 +795,7 @@
         </a>
 
         <a href="<?php echo BASE_URL; ?>/patient/payments" 
-           class="glass-card bg-green-50/50 border-2 border-green-200 rounded-2xl p-6 hover:bg-green-100/50 transition-all group shadow-sm">
+           class="glass-card border-gray-200 border-2 rounded-2xl p-6 shadow-sm group">
             <div class="flex items-center">
                 <div class="p-3 bg-green-200/50 rounded-full mr-4 group-hover:bg-green-300/50 transition-colors">
                     <svg class="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -744,7 +810,7 @@
         </a>
 
         <a href="<?php echo BASE_URL; ?>/patient/profile" 
-           class="glass-card bg-yellow-50/50 border-2 border-yellow-200 rounded-2xl p-6 hover:bg-yellow-100/50 transition-all group shadow-sm">
+           class="glass-card border-gray-200 border-2 rounded-2xl p-6 shadow-sm group">
             <div class="flex items-center">
                 <div class="p-3 bg-yellow-200/50 rounded-full mr-4 group-hover:bg-yellow-300/50 transition-colors">
                     <svg class="w-6 h-6 text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">

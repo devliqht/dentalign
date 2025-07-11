@@ -139,15 +139,15 @@
                     <div class="flex gap-2">
                         <button class="flex-1 glass-card bg-nhd-blue/80 text-white px-3 py-2 rounded-2xl text-sm hover:bg-nhd-blue transition-colors"
                                 onclick="viewPatientDetail(<?php echo $patient[
-                                        "PatientID"
-                                    ]; ?>)">
+                                            "PatientID"
+                                        ]; ?>)">
                             View Details
                         </button>
                         <?php if ($patient["RecordID"]): ?>
                             <button class="glass-card bg-gray-200/80 text-gray-700 px-3 py-2 rounded-2xl text-sm shadow-sm hover:bg-gray-300/80 transition-colors"
                                     onclick="editPatientRecord(<?php echo $patient[
-                                            "RecordID"
-                                        ]; ?>, <?php echo $patient[
+                                                "RecordID"
+                                            ]; ?>, <?php echo $patient[
     "PatientID"
 ]; ?>)">
                                 Edit Record
@@ -155,8 +155,8 @@
                         <?php else: ?>
                             <button class="glass-card bg-green-200/80 text-green-700 px-3 py-2 rounded-2xl text-sm hover:bg-green-300/80 transition-colors"
                                     onclick="createPatientRecord(<?php echo $patient[
-                                            "PatientID"
-                                        ]; ?>)">
+                                                "PatientID"
+                                            ]; ?>)">
                                 Create Record
                             </button>
                         <?php endif; ?>
@@ -165,8 +165,8 @@
                     <!-- Dental Chart Button -->
                     <button class="w-full glass-card bg-nhd-green/80 text-white px-3 py-2 rounded-2xl text-sm hover:bg-nhd-green shadow-sm transition-colors flex items-center justify-center"
                             onclick="editDentalChart(<?php echo $patient[
-                                    "PatientID"
-                                ]; ?>)">
+                                        "PatientID"
+                                    ]; ?>)">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>

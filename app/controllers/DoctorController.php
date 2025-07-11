@@ -20,9 +20,66 @@ class DoctorController extends Controller
         $this->requireRole("ClinicStaff");
         $this->requireStaffType("Doctor");
 
+        $user = $this->getAuthUser();
+        $doctorID = $user["id"];
+
+        // Initialize models
+        $appointmentModel = new Appointment($this->conn);
+        $doctorModel = new Doctor($this->conn);
+        $patientModel = new Patient($this->conn);
+
+        // Get doctor information
+        $doctorModel->findById($doctorID);
+
+        // Get appointment statistics
+        $allAppointments = $appointmentModel->getAppointmentsByDoctor($doctorID);
+        $upcomingAppointments = $appointmentModel->getUpcomingAppointmentsByDoctor($doctorID);
+        $todaysAppointments = $appointmentModel->getTodaysAppointmentsByDoctor($doctorID);
+        $appointmentHistory = $appointmentModel->getAppointmentHistoryByDoctor($doctorID);
+        $pendingCancellations = $appointmentModel->getPendingCancellationsByDoctor($doctorID);
+
+        // Calculate stats
+        $appointmentStats = [
+            "total" => count($allAppointments),
+            "upcoming" => count($upcomingAppointments),
+            "today" => count($todaysAppointments),
+            "completed" => count(array_filter($appointmentHistory, function($app) {
+                return $app["Status"] === "Completed";
+            })),
+            "cancellation_requests" => count($pendingCancellations)
+        ];
+
+        // Get recent patient visits (from appointment history, last 10)
+        $recentPatientVisits = array_slice($appointmentHistory, 0, 10);
+
+        // Get this week's appointments for mini calendar
+        $startOfWeek = date("Y-m-d", strtotime("monday this week"));
+        $endOfWeek = date("Y-m-d", strtotime("sunday this week"));
+        $weekAppointments = $appointmentModel->getAppointmentsByDoctorAndDateRange(
+            $doctorID,
+            $startOfWeek,
+            $endOfWeek
+        );
+
         $data = [
-            "user" => $this->getAuthUser(),
-            // TODO: Fetch today's appointments, recent patients, etc.
+            "user" => $user,
+            "doctor" => [
+                "specialization" => $doctorModel->specialization ?? "General Practice",
+                "firstName" => $doctorModel->firstName,
+                "lastName" => $doctorModel->lastName,
+                "email" => $doctorModel->email
+            ],
+            "appointmentStats" => $appointmentStats,
+            "upcomingAppointments" => array_slice($upcomingAppointments, 0, 5),
+            "todaysAppointments" => $todaysAppointments,
+            "recentlyCompletedAppointments" => array_slice(array_filter($appointmentHistory, function($app) {
+                return $app["Status"] === "Completed";
+            }), 0, 5),
+            "recentPatientVisits" => $recentPatientVisits,
+            "pendingCancellations" => array_slice($pendingCancellations, 0, 5),
+            "weekAppointments" => $weekAppointments,
+            "startOfWeek" => $startOfWeek,
+            "endOfWeek" => $endOfWeek
         ];
 
         $layoutConfig = [

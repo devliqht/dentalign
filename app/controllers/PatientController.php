@@ -80,6 +80,7 @@ class PatientController extends Controller
 
         $appointmentPayments = [];
         $pendingPayments = [];
+        $deadlinePayments = [];
         $totalPendingAmount = 0;
         $totalPaidAmount = 0;
 
@@ -95,18 +96,26 @@ class PatientController extends Controller
                 $paymentRecord["total_amount"] =
                     $paymentWithBreakdown["total_amount"] ?? 0;
 
+                // Copy overdue calculation results from getPaymentWithBreakdown
+                $paymentRecord["original_amount"] = $paymentWithBreakdown["original_amount"] ?? $paymentRecord["total_amount"];
+                $paymentRecord["is_overdue"] = $paymentWithBreakdown["is_overdue"] ?? false;
+                $paymentRecord["overdue_amount"] = $paymentWithBreakdown["overdue_amount"] ?? 0;
+
                 $appointmentPayments[
                     $paymentRecord["AppointmentID"]
                 ] = $paymentRecord;
 
                 // Track pending payments
-                if (strtolower($paymentRecord["Status"]) === "pending") {
+                if (strtolower($paymentRecord["Status"]) === "pending" || strtolower($paymentRecord["Status"]) === "overdue") {
                     $pendingPayments[] = $paymentRecord;
                     $totalPendingAmount += $paymentRecord["total_amount"];
                 } elseif (strtolower($paymentRecord["Status"]) === "paid") {
                     $totalPaidAmount += $paymentRecord["total_amount"];
                 }
             }
+
+            // Get payments sorted by deadline (closest due dates first)
+            $deadlinePayments = $payment->getPaymentsByDeadline($patientData["PatientID"], 5);
         }
 
         $patientPhysicalInfo = null;
@@ -192,6 +201,7 @@ class PatientController extends Controller
             "allAppointments" => $allAppointments,
             "appointmentPayments" => $appointmentPayments,
             "pendingPayments" => $pendingPayments,
+            "deadlinePayments" => $deadlinePayments,
             "totalPendingAmount" => $totalPendingAmount,
             "totalPaidAmount" => $totalPaidAmount,
             "patientPhysicalInfo" => $patientPhysicalInfo,
@@ -249,6 +259,12 @@ class PatientController extends Controller
                 $paymentRecord["items"] = $paymentWithBreakdown["items"] ?? [];
                 $paymentRecord["total_amount"] =
                     $paymentWithBreakdown["total_amount"] ?? 0;
+
+                // Copy overdue calculation results from getPaymentWithBreakdown
+                $paymentRecord["original_amount"] = $paymentWithBreakdown["original_amount"] ?? $paymentRecord["total_amount"];
+                $paymentRecord["is_overdue"] = $paymentWithBreakdown["is_overdue"] ?? false;
+                $paymentRecord["overdue_amount"] = $paymentWithBreakdown["overdue_amount"] ?? 0;
+
                 $appointmentPayments[
                     $paymentRecord["AppointmentID"]
                 ] = $paymentRecord;
@@ -1051,10 +1067,10 @@ class PatientController extends Controller
             $this->redirectBack("Invalid appointment or unauthorized access");
         }
 
-        // Check if appointment has payments
+        // Check if appointment has active payments (non-cancelled)
         if ($appointment->hasPayments($data["appointment_id"])) {
             $this->redirectBack(
-                "Cannot cancel appointment that has payments. Please contact the clinic for assistance."
+                "Cannot cancel appointment that has active payments. Please contact the clinic for assistance."
             );
         }
 
@@ -1126,6 +1142,11 @@ class PatientController extends Controller
             $appointmentPayment["items"] = $paymentWithBreakdown["items"] ?? [];
             $appointmentPayment["total_amount"] =
                 $paymentWithBreakdown["total_amount"] ?? 0;
+
+            // Copy overdue calculation results from getPaymentWithBreakdown
+            $appointmentPayment["original_amount"] = $paymentWithBreakdown["original_amount"] ?? $appointmentPayment["total_amount"];
+            $appointmentPayment["is_overdue"] = $paymentWithBreakdown["is_overdue"] ?? false;
+            $appointmentPayment["overdue_amount"] = $paymentWithBreakdown["overdue_amount"] ?? 0;
         }
 
         $data = [
@@ -1329,85 +1350,222 @@ class PatientController extends Controller
     {
         $statusClass = "";
         $statusText = htmlspecialchars($payment["Status"]);
+        $statusIcon = "";
+        $deadlineInfo = "";
+        $urgencyClass = "";
+
         switch (strtolower($payment["Status"])) {
             case "paid":
-                $statusClass = "bg-green-100/40 text-green-800";
+                $statusClass = "bg-green-100 text-green-800 border-green-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
                 break;
             case "pending":
-                $statusClass = "bg-yellow-100/40 text-yellow-800";
+                $statusClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>';
                 break;
             case "overdue":
-                $statusClass = "bg-red-100/40 text-red-800";
+                $statusClass = "bg-red-100 text-red-800 border-red-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>';
+                break;
+            case "cancelled":
+                $statusClass = "bg-gray-100 text-gray-800 border-gray-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
+                break;
+            case "failed":
+                $statusClass = "bg-red-100 text-red-800 border-red-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>';
+                break;
+            case "refunded":
+                $statusClass = "bg-blue-100 text-blue-800 border-blue-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>';
                 break;
             default:
-                $statusClass = "bg-blue-100/40 text-blue-800";
+                $statusClass = "bg-blue-100 text-blue-800 border-blue-200";
+                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>';
+        }
+
+        if (!empty($payment["DeadlineDate"])) {
+            $deadline = strtotime($payment["DeadlineDate"]);
+            $today = strtotime(date("Y-m-d"));
+            $daysLeft = ($deadline - $today) / (60 * 60 * 24);
+
+            if ($daysLeft < 0) {
+                $deadlineInfo = '<span class="text-red-600 font-bold">⚠️ Overdue by ' . abs(round($daysLeft)) . ' days</span>';
+                $urgencyClass = "border-l-4 border-red-500 bg-red-50/50";
+            } elseif ($daysLeft == 0) {
+                $deadlineInfo = '<span class="text-orange-600 font-bold">⏰ Due today</span>';
+                $urgencyClass = "border-l-4 border-orange-500 bg-orange-50/50";
+            } elseif ($daysLeft <= 7) {
+                $deadlineInfo = '<span class="text-orange-600 font-bold">📅 Due in ' . round($daysLeft) . ' days</span>';
+                $urgencyClass = "border-l-4 border-orange-500 bg-orange-50/50";
+            } else {
+                $deadlineInfo = '<span class="text-gray-600">📅 Due in ' . round($daysLeft) . ' days</span>';
+                $urgencyClass = "border-l-4 border-blue-500 bg-blue-50/50";
+            }
         }
 
         $html =
             '
         <div class="space-y-6">
             <!-- Payment Header -->
-            <div class="text-center">
-                <div class="glass-card bg-blue-100/60 text-blue-800 px-6 py-4 rounded-2xl inline-block mb-4">
-                    <span class="text-3xl font-bold font-mono">#' .
-            str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT) .
-            '</span>
-                </div>
-                <div class="flex justify-center">
-                    <span class="inline-block glass-card px-4 py-2 text-sm font-medium rounded-full ' .
-            $statusClass .
-            '">
-                        ' .
-            $statusText .
-            '
-                    </span>
+            <div class="glass-card shadow-sm border-1 border-gray-200 rounded-2xl p-6">
+                <div class="flex flex-row justify-between items-center">
+                    <!-- Left Side: Payment Info, Status, and Deadline -->
+                    <div class="flex flex-row items-center space-x-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full">
+                            <svg class="w-8 h-8 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+
+                        <div class="flex flex-col space-y-3">
+                            <div class="text-3xl font-bold font-mono text-nhd-blue">#' .
+                                str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT) .
+                            '</div>
+                            
+                            <div class="flex flex-col space-y-2">
+                                <span class="inline-flex items-center w-fit glass-card shadow-none px-4 py-2 text-base font-bold rounded-full border-2 ' .
+                        $statusClass .
+                        '">
+                                    ' . $statusIcon . $statusText .
+                        '
+                                </span>
+                        ' .  '
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Total Amount -->
+                    <div class="text-right">';
+
+        if (isset($payment["is_overdue"]) && $payment["is_overdue"] && isset($payment["overdue_amount"]) && $payment["overdue_amount"] > 0) {
+            $html .= '
+                        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                            <div class="text-4xl font-bold text-red-600 mb-2">₱' . number_format($payment["total_amount"], 2) . '</div>
+                            <div class="text-sm text-red-700 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span>Original:</span>
+                                    <span class="font-semibold">₱' . number_format($payment["original_amount"] ?? 0, 2) . '</span>
+                                </div>
+                                <div class="flex justify-between items-center text-red-800">
+                                    <span>Overdue Fee:</span>
+                                    <span class="font-bold">+₱' . number_format($payment["overdue_amount"] ?? 0, 2) . '</span>
+                                </div>
+                            </div>
+                        </div>';
+        } else {
+            $html .= '
+                        <div class="bg-white border-2 border-gray-200 rounded-xl p-4">
+                            <div class="text-4xl font-bold text-black mb-2">₱' . number_format($payment["total_amount"], 2) . '</div>
+
+                        </div>';
+        }
+
+        $html .= '
+                    </div>
                 </div>
             </div>
-
+            
             <!-- Appointment Information -->
-            <div class="glass-card bg-gray-50/50 rounded-xl p-6">
-                <h4 class="text-xl font-semibold text-nhd-brown mb-4 font-family-bodoni">Appointment Information</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Appointment Type</label>
-                        <p class="text-lg font-semibold text-gray-900">' .
+            <div class="glass-card bg-gray-50/50 rounded-xl p-6 shadow-sm">
+                <h4 class="text-xl font-semibold text-nhd-brown mb-4 font-family-sans flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                    </svg>
+                    Appointment Information
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Appointment Type</label>
+                            <p class="text-lg font-semibold text-gray-900 bg-white px-3 py-2 rounded-lg border-1 border-gray-200">' .
             htmlspecialchars($payment["AppointmentType"]) .
             '</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Doctor</label>
-                        <p class="text-lg text-gray-900">' .
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Doctor</label>
+                            <div class="bg-white px-3 py-2 rounded-lg border-1 border-gray-200">
+                                <p class="text-lg font-semibold text-gray-900">Dr. ' .
             htmlspecialchars($payment["DoctorName"]) .
             '</p>
-                        <p class="text-sm text-gray-500">' .
+                                <p class="text-sm text-gray-500">' .
             htmlspecialchars($payment["Specialization"]) .
             '</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Date & Time</label>
-                        <p class="text-lg font-semibold text-gray-900">' .
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Date & Time</label>
+                            <div class="bg-white px-3 py-2 rounded-lg border-1 border-gray-200">
+                                <p class="text-lg font-semibold text-gray-900">' .
             date("M j, Y", strtotime($payment["AppointmentDateTime"])) .
             '</p>
-                        <p class="text-gray-600">' .
+                                <p class="text-gray-600">' .
             date("g:i A", strtotime($payment["AppointmentDateTime"])) .
             '</p>
-                    </div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-500">Appointment ID</label>
-                        <p class="text-lg font-mono font-semibold text-gray-900">#' .
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Appointment ID</label>
+                            <p class="text-lg font-mono font-semibold text-gray-900 bg-white px-3 py-2 rounded-lg border-1 border-gray-200">#' .
             str_pad($payment["AppointmentID"], 6, "0", STR_PAD_LEFT) .
             '</p>
+                        </div>
+                    </div>
+                </div>';
+
+        // Add payment details section
+        $html .= '
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h5 class="text-xl font-semibold text-nhd-brown mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        Payment Details
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Payment Method</label>
+                            <div class="bg-white px-3 py-2 rounded-lg border-1 border-gray-200">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    ' . htmlspecialchars($payment["PaymentMethod"] ?? 'Cash') . '
+                                </span>
+                            </div>
+                        </div>';
+
+        if (!empty($payment["DeadlineDate"])) {
+            $html .= '
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Payment Deadline</label>
+                            <div class="bg-white px-3 py-2 rounded-lg border-1 border-gray-200">
+                                <p class="text-lg font-semibold text-gray-900">' . date("M j, Y", strtotime($payment["DeadlineDate"])) . '</p>
+                                ' . (!empty($deadlineInfo) ? '<div class="text-sm">' . $deadlineInfo . '</div>' : '') . '
+                            </div>
+                        </div>';
+        }
+
+        $html .= '
                     </div>
                 </div>';
 
         if (!empty($payment["Reason"])) {
             $html .=
                 '
-                <div class="mt-4">
-                    <label class="text-sm font-medium text-gray-500">Reason for Visit</label>
-                    <p class="text-gray-700">' .
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <label class="text-lg font-semibold text-nhd-brown mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        Reason for Visit
+                    </label>
+                    <div class="bg-white px-4 py-3 rounded-lg border-1 border-gray-200">
+                        <p class="text-gray-700">' .
                 nl2br(htmlspecialchars($payment["Reason"])) .
                 '</p>
+                    </div>
                 </div>';
         }
 
@@ -1416,51 +1574,81 @@ class PatientController extends Controller
 
         if (!empty($payment["items"])) {
             $html .= '
-            <div class="glass-card shadow-none bg-blue-50/50 rounded-xl p-6">
-                <h4 class="text-xl font-semibold text-nhd-brown mb-4">Payment Breakdown</h4>
-                <div class="space-y-3">';
+            <div class="glass-card bg-white rounded-xl shadow-sm p-6 border-2 border-gray-200">
+                <h4 class="text-xl font-semibold text-nhd-brown mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
+                    </svg>
+                    Payment Breakdown
+                </h4>
+                <div class="bg-white rounded-lg overflow-hidden">
+                    <div class="divide-y divide-gray-200">';
 
             foreach ($payment["items"] as $item) {
                 $html .=
                     '
-                    <div class="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0">
-                        <div class="flex-1">
-                            <p class="text-gray-900 font-medium">' .
+                        <div class="flex justify-between items-center py-3 hover:bg-gray-50 transition-colors">
+                            <div class="flex-1">
+                                <p class="text-gray-900 font-medium">' .
                     htmlspecialchars($item["Description"]) .
                     "</p>";
 
                 if ($item["Quantity"] > 1) {
                     $html .=
                         '
-                            <p class="text-sm text-gray-500">
-                                ₱' .
+                                <p class="text-sm text-gray-500 mt-1">
+                                    ₱' .
                         number_format($item["Amount"], 2) .
                         " × " .
                         $item["Quantity"] .
-                        '
-                            </p>';
+                        ' items
+                                </p>';
                 }
 
                 $html .=
                     '
-                        </div>
-                        <div class="text-right">
-                            <p class="text-gray-900 font-semibold">₱' .
-                    number_format($item["Total"], 2) .
-                    '</p>
-                        </div>
-                    </div>';
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-nhd-brown">₱' .
+                                number_format($item["Total"], 2) .
+                                '</p>
+                            </div>
+                        </div>';
             }
 
-            $html .=
-                '
-                    <div class="border-t border-gray-300 pt-4 mt-4">
+            $html .= '
+                    </div>
+                    <div class="py-4 border-t-1 border-nhd-blue">
                         <div class="flex justify-between items-center">
-                            <p class="text-xl font-bold text-nhd-brown">Total Amount</p>
-                            <p class="text-2xl font-bold text-nhd-brown">₱' .
+                            <p class="text-xl font-bold text-nhd-brown flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Total Amount
+                            </p>
+                            <p class="text-3xl font-bold text-nhd-brown">₱' .
                 number_format($payment["total_amount"], 2) .
                 '</p>
-                        </div>
+                        </div>';
+
+            // Add overdue breakdown if applicable
+            if (isset($payment["is_overdue"]) && $payment["is_overdue"] && isset($payment["overdue_amount"]) && $payment["overdue_amount"] > 0) {
+                $html .= '
+                        <div class="mt-3 pt-3 border-t border-red-200 bg-red-50 rounded-lg p-3">
+                            <div class="text-sm text-red-700 space-y-1">
+                                <div class="flex justify-between">
+                                    <span>Subtotal:</span>
+                                    <span class="font-semibold">₱' . number_format($payment["original_amount"] ?? 0, 2) . '</span>
+                                </div>
+                                <div class="flex justify-between text-red-800">
+                                    <span>Overdue Fee:</span>
+                                    <span class="font-bold">+ ₱' . number_format($payment["overdue_amount"] ?? 0, 2) . '</span>
+                                </div>
+                            </div>
+                        </div>';
+            }
+
+            $html .= '
                     </div>
                 </div>
             </div>';
@@ -1470,11 +1658,18 @@ class PatientController extends Controller
         if (!empty($payment["Notes"])) {
             $html .=
                 '
-            <div class="glass-card bg-green-50/50 shadow-none rounded-xl p-6">
-                <h4 class="text-lg font-medium text-nhd-brown mb-2">Payment Notes</h4>
-                <p class="text-gray-700">' .
+            <div class="glass-card bg-green-50/50 shadow-none rounded-xl p-6 border-l-4 border-green-400">
+                <h4 class="text-lg font-semibold text-nhd-brown mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    Payment Notes
+                </h4>
+                <div class="bg-white rounded-lg p-4 border border-green-200">
+                    <p class="text-gray-700">' .
                 nl2br(htmlspecialchars($payment["Notes"])) .
                 '</p>
+                </div>
             </div>';
         }
 
@@ -1482,31 +1677,51 @@ class PatientController extends Controller
         $html .=
             '
             <div class="glass-card bg-gray-50/50 rounded-xl p-6">
-                <h4 class="text-lg font-medium text-nhd-brown mb-3">Payment Timeline</h4>
-                <div class="space-y-2">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Payment Created:</span>
-                        <span class="font-medium">' .
+                <h4 class="text-lg font-semibold text-nhd-brown mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                    </svg>
+                    Payment Timeline
+                </h4>
+                <div class="bg-white rounded-lg border-1 border-gray-200 p-4 space-y-3">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-gray-600 font-medium">Payment Created:</span>
+                        <span class="font-semibold text-gray-900">' .
             date("M j, Y g:i A", strtotime($payment["UpdatedAt"])) .
             '</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Last Updated:</span>
-                        <span class="font-medium">' .
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span class="text-gray-600 font-medium">Last Updated:</span>
+                        <span class="font-semibold text-gray-900">' .
             date("M j, Y g:i A", strtotime($payment["UpdatedAt"])) .
             '</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Status:</span>
-                        <span class="font-medium ' .
-            ($payment["Status"] === "paid"
-                ? "text-green-600"
-                : "text-yellow-600") .
-            '">' .
-            $statusText .
+                    <div class="flex justify-between items-center py-2">
+                        <span class="text-gray-600 font-medium">Status:</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold border ' .
+            $statusClass .
+            '">' . $statusIcon . $statusText .
             '</span>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-6">
+                <button onclick="window.print()" 
+                        class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-semibold flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zM5 14H4v-3h1v3zm1 0v2h6v-2H6zm8 0h1v-3h-1v3z" clip-rule="evenodd"></path>
+                    </svg>
+                    Print Invoice
+                </button>
+                <button onclick="closePaymentModal()" 
+                        class="flex-1 px-6 py-3 glass-card bg-gray-500/85 text-white rounded-2xl hover:bg-gray-600 transition-colors font-semibold flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    Close
+                </button>
             </div>
         </div>';
 

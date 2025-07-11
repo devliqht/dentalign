@@ -369,9 +369,9 @@ function selectRescheduleTimeSlot(timeSlot, button) {
   }
 }
 
-document
-  .getElementById("rescheduleForm")
-  .addEventListener("submit", function (e) {
+const rescheduleForm = document.getElementById("rescheduleForm");
+if (rescheduleForm) {
+  rescheduleForm.addEventListener("submit", function (e) {
     if (!rescheduleSelectedDate || !rescheduleSelectedTime) {
       e.preventDefault();
       alert(
@@ -380,6 +380,7 @@ document
       return false;
     }
   });
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   showSection("all");

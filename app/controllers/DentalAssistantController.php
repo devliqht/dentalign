@@ -39,11 +39,13 @@ class DentalAssistantController extends Controller
             "title" => "Payment Management",
             "hideHeader" => false,
             "hideFooter" => false,
-            "additionalHead" =>
-                '<link rel="stylesheet" href="' .
-                BASE_URL .
-                '/app/styles/views/PaymentManagement.css">',
             "additionalScripts" =>
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/Toast.js"></script>' .
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/SortableTable.js"></script>' .
                 '<script src="' .
                 BASE_URL .
                 '/app/views/scripts/PaymentManagement/PaymentManagement.js"></script>',
@@ -95,6 +97,55 @@ class DentalAssistantController extends Controller
 
             $result = $this->conn->query($query);
             $appointments = $result->fetch_all(MYSQLI_ASSOC);
+
+            // Apply overdue calculations to appointments with payments
+            require_once "app/models/OverdueConfig.php";
+            $overdueConfig = new OverdueConfig($this->conn);
+
+            foreach ($appointments as &$appointment) {
+                if ($appointment['PaymentID']) {
+                    // Get payment items for accurate total calculation
+                    $itemsQuery = "SELECT SUM(Total) as total_amount FROM PaymentItems WHERE PaymentID = ?";
+                    $itemsStmt = $this->conn->prepare($itemsQuery);
+                    $itemsStmt->bind_param("i", $appointment['PaymentID']);
+                    $itemsStmt->execute();
+                    $itemsResult = $itemsStmt->get_result()->fetch_assoc();
+
+                    $originalAmount = $itemsResult['total_amount'] ?? $appointment['TotalAmount'];
+                    $appointment['TotalAmount'] = $originalAmount;
+                    $appointment['OriginalAmount'] = $originalAmount;
+
+                    // Check if payment has a deadline date
+                    $deadlineQuery = "SELECT DeadlineDate FROM Payments WHERE PaymentID = ?";
+                    $deadlineStmt = $this->conn->prepare($deadlineQuery);
+                    $deadlineStmt->bind_param("i", $appointment['PaymentID']);
+                    $deadlineStmt->execute();
+                    $deadlineResult = $deadlineStmt->get_result()->fetch_assoc();
+                    $deadlineDate = $deadlineResult['DeadlineDate'] ?? null;
+
+                    // Calculate overdue amount if applicable
+                    if ($deadlineDate && $overdueConfig->isPaymentOverdue($deadlineDate) &&
+                        strtolower($appointment['PaymentStatus']) === 'pending') {
+                        $appointment['TotalAmount'] = $overdueConfig->calculateOverdueAmount(
+                            $originalAmount,
+                            $deadlineDate
+                        );
+                        $appointment['IsOverdue'] = true;
+                        $appointment['OverdueAmount'] = $appointment['TotalAmount'] - $originalAmount;
+                        $appointment['PaymentStatus'] = 'Overdue';
+                    } else {
+                        $appointment['IsOverdue'] = false;
+                        $appointment['OverdueAmount'] = 0;
+                    }
+
+                    $appointment['DeadlineDate'] = $deadlineDate;
+                } else {
+                    $appointment['IsOverdue'] = false;
+                    $appointment['OverdueAmount'] = 0;
+                    $appointment['OriginalAmount'] = 0;
+                    $appointment['DeadlineDate'] = null;
+                }
+            }
 
             echo json_encode([
                 "success" => true,
@@ -234,6 +285,9 @@ class DentalAssistantController extends Controller
             $status = $data["status"] ?? "Pending";
             $notes = $data["notes"] ?? "";
             $items = $data["items"] ?? [];
+            $deadlineDate = $data["deadlineDate"] ?? null;
+            $paymentMethod = $data["paymentMethod"] ?? "Cash";
+            $proofOfPayment = $data["proofOfPayment"] ?? "";
 
             if (!$appointmentId || !$patientId) {
                 echo json_encode([
@@ -254,6 +308,9 @@ class DentalAssistantController extends Controller
             $payment->status = $status;
             $payment->updatedBy = $user["id"];
             $payment->notes = $notes;
+            $payment->deadlineDate = $deadlineDate;
+            $payment->paymentMethod = $paymentMethod;
+            $payment->proofOfPayment = $proofOfPayment;
 
             if ($payment->create()) {
                 // Add payment items
@@ -320,6 +377,9 @@ class DentalAssistantController extends Controller
             $paymentId = $data["paymentId"] ?? null;
             $status = $data["status"] ?? "";
             $notes = $data["notes"] ?? "";
+            $paymentMethod = $data["paymentMethod"] ?? "";
+            $deadlineDate = $data["deadlineDate"] ?? "";
+            $proofOfPayment = $data["proofOfPayment"] ?? "";
 
             if (!$paymentId) {
                 echo json_encode([
@@ -334,7 +394,7 @@ class DentalAssistantController extends Controller
 
             $payment = new Payment($this->conn);
             if (
-                $payment->updateStatus($paymentId, $status, $user["id"], $notes)
+                $payment->updatePaymentDetails($paymentId, $status, $user["id"], $notes, $paymentMethod, $deadlineDate, $proofOfPayment)
             ) {
                 echo json_encode([
                     "success" => true,
@@ -394,26 +454,21 @@ class DentalAssistantController extends Controller
                 exit();
             }
 
-            require_once "app/models/PaymentItem.php";
+            require_once "app/models/Payment.php";
 
-            // Delete payment items first
-            $paymentItem = new PaymentItem($this->conn);
-            $paymentItem->deleteByPayment($paymentId);
+            $user = $this->getAuthUser();
+            $payment = new Payment($this->conn);
 
-            // Delete payment
-            $deleteQuery = "DELETE FROM Payments WHERE PaymentID = ?";
-            $stmt = $this->conn->prepare($deleteQuery);
-            $stmt->bind_param("i", $paymentId);
-
-            if ($stmt->execute()) {
+            // Use soft delete - set status to 'Cancelled' instead of deleting
+            if ($payment->softDelete($paymentId, $user["id"], "Payment cancelled by dental assistant")) {
                 echo json_encode([
                     "success" => true,
-                    "message" => "Payment deleted successfully",
+                    "message" => "Payment cancelled successfully",
                 ]);
             } else {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Failed to delete payment",
+                    "message" => "Failed to cancel payment",
                 ]);
             }
         } catch (Exception $e) {
@@ -687,6 +742,121 @@ class DentalAssistantController extends Controller
                 "success" => false,
                 "message" =>
                     "Error updating payment status: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function getOverdueConfig()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        header("Content-Type: application/json");
+
+        try {
+            require_once "app/models/OverdueConfig.php";
+
+            $overdueConfig = new OverdueConfig($this->conn);
+            $activeConfig = $overdueConfig->getActiveConfig();
+
+            echo json_encode([
+                "success" => true,
+                "config" => $activeConfig,
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Error fetching overdue configuration: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function updateOverdueConfig()
+    {
+        error_log("DEBUG: updateOverdueConfig method called");
+
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        error_log("DEBUG: Raw input: " . $rawInput);
+
+        $data = json_decode($rawInput, true);
+        error_log("DEBUG: Decoded data: " . print_r($data, true));
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $configName = $data["configName"] ?? "Updated Configuration";
+            $overduePercentage = $data["overduePercentage"] ?? 5.00;
+            $gracePeriodDays = $data["gracePeriodDays"] ?? 0;
+
+            // Validate input
+            if ($overduePercentage < 0 || $overduePercentage > 100) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Overdue percentage must be between 0 and 100",
+                ]);
+                exit();
+            }
+
+            if ($gracePeriodDays < 0 || $gracePeriodDays > 365) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Grace period must be between 0 and 365 days",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/OverdueConfig.php";
+
+            $user = $this->getAuthUser();
+            $overdueConfig = new OverdueConfig($this->conn);
+
+            // Create new configuration (which automatically deactivates the old one)
+            error_log("DEBUG: Attempting to create new config with values: " .
+                      "Name: $configName, Percentage: $overduePercentage, Grace: $gracePeriodDays, User: " . $user["id"]);
+
+            if ($overdueConfig->createNewConfig($configName, $overduePercentage, $gracePeriodDays, $user["id"])) {
+                error_log("DEBUG: Configuration created successfully");
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Overdue configuration updated successfully",
+                ]);
+            } else {
+                error_log("DEBUG: Failed to create configuration");
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to update overdue configuration",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("DEBUG: Exception caught: " . $e->getMessage());
+            error_log("DEBUG: Exception trace: " . $e->getTraceAsString());
+            echo json_encode([
+                "success" => false,
+                "message" => "Error updating overdue configuration: " . $e->getMessage(),
             ]);
         }
         exit();

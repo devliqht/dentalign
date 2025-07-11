@@ -55,73 +55,73 @@ function getAppointmentStatusClass($status)
         </a>
     </div>
 
-    <?php 
+    <?php
     // Upcoming Appointments Section
     $upcomingEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
     </svg>';
-    
-    renderSortableAppointmentTable(
-        $upcomingAppointments, 
-        $appointmentPayments, 
-        'upcoming', 
-        'Upcoming Appointments', 
-        'No upcoming appointments', 
-        $upcomingEmptyIcon, 
-        $user
-    );
-    ?>
 
-    <?php 
-    // Completed Appointments Section
-    $completedEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+renderSortableAppointmentTable(
+    $upcomingAppointments,
+    $appointmentPayments,
+    'upcoming',
+    'Upcoming Appointments',
+    'No upcoming appointments',
+    $upcomingEmptyIcon,
+    $user
+);
+?>
+
+    <?php
+// Completed Appointments Section
+$completedEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
     </svg>';
-    
-    renderSortableAppointmentTable(
-        $completedAppointments, 
-        $appointmentPayments, 
-        'completed', 
-        'Completed Appointments', 
-        'No completed appointments yet', 
-        $completedEmptyIcon, 
-        $user
-    );
-    ?>
 
-    <?php 
-    // Cancelled Appointments Section
-    $cancelledEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+renderSortableAppointmentTable(
+    $completedAppointments,
+    $appointmentPayments,
+    'completed',
+    'Completed Appointments',
+    'No completed appointments yet',
+    $completedEmptyIcon,
+    $user
+);
+?>
+
+    <?php
+// Cancelled Appointments Section
+$cancelledEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
     </svg>';
-    
-    renderSortableAppointmentTable(
-        $cancelledAppointments, 
-        $appointmentPayments, 
-        'cancelled', 
-        'Cancelled Appointments', 
-        'No cancelled appointments', 
-        $cancelledEmptyIcon, 
-        $user
-    );
-    ?>
 
-    <?php 
-    // Pending Cancellation Appointments Section
-    $pendingCancellationEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+renderSortableAppointmentTable(
+    $cancelledAppointments,
+    $appointmentPayments,
+    'cancelled',
+    'Cancelled Appointments',
+    'No cancelled appointments',
+    $cancelledEmptyIcon,
+    $user
+);
+?>
+
+    <?php
+// Pending Cancellation Appointments Section
+$pendingCancellationEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>';
-    
-    renderSortableAppointmentTable(
-        $pendingCancellationAppointments, 
-        $appointmentPayments, 
-        'pending-cancellation', 
-        'Pending Cancellation', 
-        'No pending cancellation requests', 
-        $pendingCancellationEmptyIcon, 
-        $user
-    );
-    ?>
+
+renderSortableAppointmentTable(
+    $pendingCancellationAppointments,
+    $appointmentPayments,
+    'pending-cancellation',
+    'Pending Cancellation',
+    'No pending cancellation requests',
+    $pendingCancellationEmptyIcon,
+    $user
+);
+?>
 </div>
 
 <script src="<?php echo BASE_URL; ?>/app/views/scripts/SortableTable.js"></script>
