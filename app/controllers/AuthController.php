@@ -29,8 +29,7 @@ class AuthController extends Controller
             "hideHeader" => true,
             "hideSidebar" => true,
             "hideFooter" => false,
-            "bodyClass" =>
-                "bg-[url('/dentalign/public/low.svg')] bg-size-[100%]",
+            "bodyStyle" => "background-image: url('" . BASE_URL . "/public/low.svg'); background-size: 100%;",
         ];
 
         unset($_SESSION["error"]);

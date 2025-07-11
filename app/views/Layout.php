@@ -109,7 +109,7 @@
 </head>
 <body class="<?php echo isset($bodyClass)
     ? htmlspecialchars($bodyClass)
-    : ""; ?>" >
+    : ""; ?>" <?php if (isset($bodyStyle)): ?>style="<?php echo htmlspecialchars($bodyStyle); ?>"<?php endif; ?>>
     
     <div class="app-layout <?php echo isset($_SESSION["user_name"])
         ? "has-sidebar"

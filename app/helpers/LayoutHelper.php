@@ -21,13 +21,15 @@ class LayoutHelper
          *       "title" => "Login",
          *       "hideHeader" => true,
          *       "hideFooter" => true,
-         *       "bodyClass" => 'bg-[#fef5e1]'
+         *       "bodyClass" => 'bg-[#fef5e1]',
+         *       "bodyStyle" => 'background-image: url("/public/bg.svg"); background-size: cover;'
          *    ];
          *
          *   Where "config_name" => "value". Should you wish not to pass any, there are defaults set in place.
          */
         $pageTitle = $layoutConfig["title"] ?? null;
         $bodyClass = $layoutConfig["bodyClass"] ?? "";
+        $bodyStyle = $layoutConfig["bodyStyle"] ?? null;
         $mainClass = $layoutConfig["mainClass"] ?? "min-h-screen";
         $hideHeader = $layoutConfig["hideHeader"] ?? false;
         $hideGuestHeader = $layoutConfig["hideGuestHeader"] ?? false;
