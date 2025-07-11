@@ -391,7 +391,7 @@ class Payment
 
         if ($result["count"] == 0) {
             // Get appointment type to create default payment item
-            $appointmentQuery = "SELECT a.AppointmentType FROM payments p 
+            $appointmentQuery = "SELECT a.AppointmentType FROM Payments p 
                                JOIN Appointment a ON p.AppointmentID = a.AppointmentID 
                                WHERE p.PaymentID = ?";
             $stmt = $this->conn->prepare($appointmentQuery);
