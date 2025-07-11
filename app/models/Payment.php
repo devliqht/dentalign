@@ -40,7 +40,7 @@ class Payment
         $this->proofOfPayment = htmlspecialchars(strip_tags($this->proofOfPayment ?? ''));
 
         $stmt->bind_param(
-            "iisisss",
+            "iisissss",
             $this->appointmentID,
             $this->patientID,
             $this->status,
