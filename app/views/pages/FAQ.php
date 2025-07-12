@@ -245,13 +245,13 @@
     <!-- Contact Section -->
     <div class="glass-card bg-gradient-to-r from-nhd-blue/80 to-nhd-blue rounded-2xl shadow-sm p-8 text-white mt-8">
         <div class="text-center">
-            <h3 class="text-2xl font-bold mb-4">Still have questions?</h3>
-            <p class="text-nhd-blue-100 mb-6">Can't find what you're looking for? Our support team is here to help.</p>
+            <h3 class="text-2xl text-gray-600 font-bold mb-4">Still have questions?</h3>
+            <p class="text-gray-600 mb-6">Can't find what you're looking for? Our support team is here to help.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button class="glass-card border border-white/80 text-nhd-blue px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
+                <button class="glass-card border border-white/80 text-gray-600 px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
                     Contact Support
                 </button>
-                <button class="glass-card border border-white/80 text-nhd-blue px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
+                <button class="glass-card border border-white/80 text-gray-600 px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
                     Call Us: (555) 123-4567
                 </button>
             </div>
