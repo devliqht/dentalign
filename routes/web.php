@@ -16,6 +16,7 @@ $router->group("GET", "AuthController", [
     "dashboard" => "DisplayHomePage",
     "logout" => "LogoutUser",
     "reset-password" => "displayPasswordResetForm",
+    "faq" => "DisplayFaq",
 ]);
 
 $router->group("POST", "AuthController", [
