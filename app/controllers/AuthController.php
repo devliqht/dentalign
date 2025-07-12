@@ -536,4 +536,61 @@ class AuthController extends Controller
 
         $this->view("pages/FAQ", $data, $layoutConfig);
     }
+    
+    public function DisplayPrivacyPolicy()
+    {
+        $data = [
+            "error" => $_SESSION["error"] ?? "",
+            "csrf_token" => $this->generateCsrfToken(),
+        ];
+
+        $layoutConfig = [
+            "title" => "Privacy Policy",
+            "hideHeader" => true,
+            "hideSidebar" => true,
+            "hideFooter" => false,
+        ];
+
+        unset($_SESSION["error"]);
+
+        $this->view("pages/PrivacyPolicy", $data, $layoutConfig);
+    }
+
+    public function DisplayTermsOfService()
+    {
+        $data = [
+            "error" => $_SESSION["error"] ?? "",
+            "csrf_token" => $this->generateCsrfToken(),
+        ];
+
+        $layoutConfig = [
+            "title" => "Terms of Service",
+            "hideHeader" => true,
+            "hideSidebar" => true,
+            "hideFooter" => false,
+        ];
+
+        unset($_SESSION["error"]);
+
+        $this->view("pages/TermsOfService", $data, $layoutConfig);
+    }
+
+    public function DisplayAccessibility()
+    {
+        $data = [
+            "error" => $_SESSION["error"] ?? "",
+            "csrf_token" => $this->generateCsrfToken(),
+        ];
+
+        $layoutConfig = [
+            "title" => "Accessibility",
+            "hideHeader" => true,
+            "hideSidebar" => true,
+            "hideFooter" => false,
+        ];
+
+        unset($_SESSION["error"]);
+
+        $this->view("pages/Accessibility", $data, $layoutConfig);
+    }
 }
