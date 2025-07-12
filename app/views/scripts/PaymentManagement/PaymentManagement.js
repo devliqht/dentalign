@@ -565,34 +565,51 @@ class PaymentManagement {
     container.innerHTML = this.paymentItems
       .map(
         (item, index) => `
-            <div class="glass-card p-4 rounded-xl border-1 shadow-sm border-gray-200" data-index="${index}">
+            <div class="glass-card p-4 rounded-xl border-1 shadow-sm ${item.TreatmentItemID ? 'border-blue-300 bg-blue-50/30' : 'border-gray-200'}" data-index="${index}">
+                ${item.TreatmentItemID ? `
+                    <div class="flex items-center mb-3 text-sm text-blue-700">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        From Treatment Plan
+                    </div>
+                ` : ''}
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <input type="text" value="${item.Description || ""}" 
-                               onchange="paymentManager.updatePaymentItem(${index}, 'description', this.value)"
-                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20"
+                               ${item.TreatmentItemID ? 'readonly' : 'onchange="paymentManager.updatePaymentItem(' + index + ', \'description\', this.value)"'}
+                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? 'bg-gray-100 cursor-not-allowed' : 'focus:ring-2 focus:ring-nhd-blue/20'}"
                                placeholder="Service description...">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Amount (₱)</label>
                         <input type="number" value="${item.Amount || 0}" step="0.01" min="0"
-                               onchange="paymentManager.updatePaymentItem(${index}, 'amount', this.value)"
-                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                               ${item.TreatmentItemID ? 'readonly' : 'onchange="paymentManager.updatePaymentItem(' + index + ', \'amount\', this.value)"'}
+                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? 'bg-gray-100 cursor-not-allowed' : 'focus:ring-2 focus:ring-nhd-blue/20'}">
                     </div>
                     <div class="flex items-end space-x-2">
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Qty</label>
                             <input type="number" value="${item.Quantity || 1}" min="1"
-                                   onchange="paymentManager.updatePaymentItem(${index}, 'quantity', this.value)"
-                                   class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
+                                   ${item.TreatmentItemID ? 'readonly' : 'onchange="paymentManager.updatePaymentItem(' + index + ', \'quantity\', this.value)"'}
+                                   class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? 'bg-gray-100 cursor-not-allowed' : 'focus:ring-2 focus:ring-nhd-blue/20'}">
                         </div>
-                        <button onclick="paymentManager.removePaymentItem(${index})" 
-                                class="glass-card bg-red-600/80 p-3 text-white hover:bg-red-600 rounded-2xl transition-colors">
-                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                            </svg>
-                        </button>
+                        ${item.TreatmentItemID ? `
+                            <button disabled title="Cannot delete - originates from treatment plan" 
+                                    class="glass-card bg-gray-400/50 p-3 text-gray-600 rounded-2xl cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        ` : `
+                            <button onclick="paymentManager.removePaymentItem(${index})" 
+                                    class="glass-card bg-red-600/80 p-3 text-white hover:bg-red-600 rounded-2xl transition-colors">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        `}
                     </div>
                 </div>
                 <div class="mt-2 text-right">
@@ -632,8 +649,44 @@ class PaymentManagement {
     }
   }
 
-  removePaymentItem(index) {
+  async removePaymentItem(index) {
     if (this.paymentItems.length > 1) {
+      const itemToRemove = this.paymentItems[index];
+      
+      // Check if this item came from a treatment plan (cannot be deleted)
+      if (itemToRemove.TreatmentItemID) {
+        this.showToast("Cannot delete this item - it originates from a completed treatment plan", "error");
+        return;
+      }
+      
+      if (itemToRemove.PaymentItemID) {
+        try {
+          const deleteResponse = await fetch(
+            "/dentalign/dentalassistant/delete-payment-item",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ itemId: itemToRemove.PaymentItemID }),
+            },
+          );
+
+          const deleteResult = await deleteResponse.json();
+          
+          if (!deleteResult.success) {
+            this.showToast("Failed to delete payment item: " + deleteResult.message, "error");
+            return;
+          }
+          
+          this.showToast("Payment item deleted successfully", "success");
+        } catch (error) {
+          console.error("Error deleting payment item:", error);
+          this.showToast("Failed to delete payment item", "error");
+          return;
+        }
+      }
+      
       this.paymentItems.splice(index, 1);
       this.renderPaymentItems();
     } else {

@@ -295,13 +295,17 @@ class Payment
                            a.AppointmentType,
                            a.Reason,
                            CONCAT(COALESCE(u.FirstName, ''), ' ', COALESCE(u.LastName, '')) as DoctorName,
-                           COALESCE(d.Specialization, 'General') as Specialization
+                           COALESCE(d.Specialization, 'General') as Specialization,
+                           CONCAT(COALESCE(p_user.FirstName, ''), ' ', COALESCE(p_user.LastName, '')) as PatientName,
+                           p_user.Email as PatientEmail
                          FROM " .
             $this->table .
             " p
                          LEFT JOIN Appointment a ON p.AppointmentID = a.AppointmentID
                          LEFT JOIN Doctor d ON a.DoctorID = d.DoctorID
                          LEFT JOIN USER u ON d.DoctorID = u.UserID
+                         LEFT JOIN PATIENT pat ON p.PatientID = pat.PatientID
+                         LEFT JOIN USER p_user ON pat.PatientID = p_user.UserID
                          WHERE p.PaymentID = ?
                          LIMIT 1";
 
@@ -322,16 +326,15 @@ class Payment
             return null;
         }
 
-        // Ensure payment items exist (create default ones if none exist)
         $this->ensurePaymentItems($paymentID);
 
-        // Get payment breakdown items
         $itemsQuery = "SELECT 
                          PaymentItemID,
                          Description,
                          Amount,
                          Quantity,
-                         Total
+                         Total,
+                         TreatmentItemID
                        FROM PaymentItems
                        WHERE PaymentID = ?
                        ORDER BY PaymentItemID";
