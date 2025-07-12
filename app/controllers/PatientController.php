@@ -826,27 +826,39 @@ class PatientController extends Controller
 
         // Handle password update
         if (isset($data["action"]) && $data["action"] === "update_password") {
+            $passwordErrors = $this->validatePassword($data["new_password"] ?? "");
+            if (!empty($passwordErrors)) {
+                $this->redirectBack(implode(". ", $passwordErrors));
+                return;
+            }
+
+            if (empty($data["confirm_password"])) {
+                $this->redirectBack("Please confirm your password");
+                return;
+            }
+
+            if ($data["new_password"] !== $data["confirm_password"]) {
+                $this->redirectBack("New passwords do not match");
+                return;
+            }
+
             $isValid = $this->validate(
                 $data,
                 [
                     "current_password" => "required",
-                    "new_password" => "required|min:6",
+                    "new_password" => "required",
                     "confirm_password" => "required",
                 ],
                 [
                     "current_password" => "Current password is required",
-                    "new_password" =>
-                        "Password must be at least 6 characters long",
+                    "new_password" => "Password is required",
                     "confirm_password" => "Please confirm your password",
                 ]
             );
 
             if (!$isValid) {
                 $this->redirectBack("Please correct the errors below");
-            }
-
-            if ($data["new_password"] !== $data["confirm_password"]) {
-                $this->redirectBack("New passwords do not match");
+                return;
             }
 
             // Verify current password
@@ -1067,10 +1079,17 @@ class PatientController extends Controller
             $this->redirectBack("Invalid appointment or unauthorized access");
         }
 
-        // Check if appointment has active payments (non-cancelled)
-        if ($appointment->hasPayments($data["appointment_id"])) {
+        // Check if appointment has paid payments
+        if ($appointment->hasPaidPayments($data["appointment_id"])) {
             $this->redirectBack(
-                "Cannot cancel appointment that has active payments. Please contact the clinic for assistance."
+                "Cannot cancel appointment that has been paid. Please contact the clinic for assistance."
+            );
+        }
+
+        // Check if appointment is within 24 hours
+        if ($appointment->isWithin24Hours($data["appointment_id"])) {
+            $this->redirectBack(
+                "Cannot cancel appointment within 24 hours of the scheduled time. Please contact the clinic for assistance."
             );
         }
 
@@ -1913,6 +1932,34 @@ class PatientController extends Controller
             ]);
         }
         exit();
+    }
+
+    private function validatePassword($password)
+    {
+        $errors = [];
+
+        if (strlen($password) < 8) {
+            $errors[] = "Password must be at least 8 characters long";
+        }
+
+        if (!preg_match("/[A-Z]/", $password)) {
+            $errors[] = "Password must contain at least one uppercase letter";
+        }
+
+        if (!preg_match("/[a-z]/", $password)) {
+            $errors[] = "Password must contain at least one lowercase letter";
+        }
+
+        if (!preg_match("/[0-9]/", $password)) {
+            $errors[] = "Password must contain at least one number";
+        }
+
+        if (!preg_match("/[^A-Za-z0-9]/", $password)) {
+            $errors[] =
+                "Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)";
+        }
+
+        return $errors;
     }
 }
 ?> 

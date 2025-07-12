@@ -356,6 +356,10 @@ document
   .addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    if (!confirm("Are you sure you want to save changes to this patient record?")) {
+      return;
+    }
+
     const formData = new FormData(this);
     const data = {
       recordId: formData.get("recordId") || null,

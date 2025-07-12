@@ -430,14 +430,34 @@ function renderMobileActions($appointment, $user, $appointmentPayments, $section
 
     if ($isPatientView) {
         if ($sectionId === 'upcoming') {
-            $hasActivePayment = isset($appointmentPayments[$appointment["AppointmentID"]]) && $appointmentPayments[$appointment["AppointmentID"]]["Status"] !== "Cancelled";
-            if ($hasActivePayment) {
+            // New cancellation logic
+            $appointmentDateTime = strtotime($appointment["DateTime"]);
+            $currentTime = time();
+            $timeDifference = $appointmentDateTime - $currentTime;
+            $isWithin24Hours = $timeDifference < 86400; // 24 hours = 86400 seconds
+            
+            // Check if payment is paid
+            $payment = isset($appointmentPayments[$appointment["AppointmentID"]]) ? $appointmentPayments[$appointment["AppointmentID"]] : null;
+            $isPaid = $payment && strtolower($payment["Status"]) === "paid";
+            
+            // Determine if cancellation should be disabled
+            $canCancel = !$isPaid && !$isWithin24Hours;
+            
+            if (!$canCancel) {
                 ?>
                 <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                         class="bg-gray-500/80 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors">
                     View Details
                 </button>
-                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">No Cancellation</span>
+                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
+                    <?php if ($isPaid): ?>
+                        Paid - No Cancel
+                    <?php elseif ($isWithin24Hours): ?>
+                        < 24hrs - No Cancel
+                    <?php else: ?>
+                        No Cancellation
+                    <?php endif; ?>
+                </span>
                 <?php
             } else {
                 ?>
@@ -488,15 +508,35 @@ function renderDesktopActions($appointment, $user, $appointmentPayments, $sectio
 
     if ($isPatientView) {
         if ($sectionId === 'upcoming') {
-            $hasActivePayment = isset($appointmentPayments[$appointment["AppointmentID"]]) && $appointmentPayments[$appointment["AppointmentID"]]["Status"] !== "Cancelled";
-            if ($hasActivePayment) {
+            // New cancellation logic
+            $appointmentDateTime = strtotime($appointment["DateTime"]);
+            $currentTime = time();
+            $timeDifference = $appointmentDateTime - $currentTime;
+            $isWithin24Hours = $timeDifference < 86400; // 24 hours = 86400 seconds
+            
+            // Check if payment is paid
+            $payment = isset($appointmentPayments[$appointment["AppointmentID"]]) ? $appointmentPayments[$appointment["AppointmentID"]] : null;
+            $isPaid = $payment && strtolower($payment["Status"]) === "paid";
+            
+            // Determine if cancellation should be disabled
+            $canCancel = !$isPaid && !$isWithin24Hours;
+            
+            if (!$canCancel) {
                 ?>
                 <div class="flex items-center space-x-1">
                     <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                             class="bg-gray-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-gray-600 transition-colors">
                         View Details
                     </button>
-                    <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-xl text-xs">No Cancellation</span>
+                    <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-xl text-xs">
+                        <?php if ($isPaid): ?>
+                            Paid - No Cancel
+                        <?php elseif ($isWithin24Hours): ?>
+                            < 24hrs - No Cancel
+                        <?php else: ?>
+                            No Cancellation
+                        <?php endif; ?>
+                    </span>
                 </div>
                 <?php
             } else {

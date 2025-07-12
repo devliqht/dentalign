@@ -12,7 +12,7 @@
                     ); ?>
                 </div>
                 <div>
-                    <h3 class="text-xl font-semibold text-nhd-blue font-family-bodoni">
+                    <h3 class="text-xl font-semibold text-nhd-blue font-family-sans">
                         <?php echo htmlspecialchars(
                             $userDetails["firstName"]
                         ); ?>
@@ -55,7 +55,7 @@
 
         <!-- Update Profile Form -->
         <div class="glass-card p-6 rounded-2xl border-gray-200 border-1 shadow-sm">
-            <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-bodoni">Update Profile Information</h3>
+            <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-sans">Update Profile Information</h3>
             
             <form method="POST" action="<?php echo BASE_URL; ?>/<?php echo $user[
     "type"
@@ -96,7 +96,7 @@
     <?php if ($user["type"] === "Patient"): ?>
     <div class="mt-8">
         <div class="glass-card p-6 rounded-2xl shadow-none border-1 border-gray-200">
-            <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-bodoni">Medical Information</h3>
+            <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-sans">Medical Information</h3>
             
             <?php if ($patientRecord): ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -269,7 +269,7 @@
     <!-- Change Password Section -->
     <div class="mt-8">
         <div class="glass-card p-6 rounded-2xl shadow-none border-1 border-gray-200">
-            <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-bodoni">Change Password</h3>
+            <h3 class="text-xl font-semibold text-nhd-blue mb-6 font-family-sans">Change Password</h3>
             
             <form method="POST" action="<?php echo BASE_URL; ?>/<?php echo $user[
     "type"
@@ -290,16 +290,29 @@
                 <div class="form-group">
                     <label for="new_password" class="text-sm font-medium text-neutral-700 mb-1">New Password</label>
                     <input type="password" id="new_password" name="new_password" 
-                           placeholder="Enter new password (min. 6 characters)" required />
+                           placeholder="Enter new password (min. 8 characters)" required />
                 </div>
                 
                 <div class="form-group">
                     <label for="confirm_password" class="text-sm font-medium text-neutral-700 mb-1">Confirm New Password</label>
                     <input type="password" id="confirm_password" name="confirm_password" 
                            placeholder="Confirm your new password" required />
+                    <div id="password-match" class="mt-1 text-sm"></div>
+                </div>
+
+                <!-- Password Requirements -->
+                <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h4>
+                    <div class="space-y-1 text-xs text-gray-600">
+                        <div id="req-length" class="requirement invalid">✗ At least 8 characters long</div>
+                        <div id="req-uppercase" class="requirement invalid">✗ One uppercase letter</div>
+                        <div id="req-lowercase" class="requirement invalid">✗ One lowercase letter</div>
+                        <div id="req-number" class="requirement invalid">✗ One number</div>
+                        <div id="req-special" class="requirement invalid">✗ One special character</div>
+                    </div>
                 </div>
                 
-                <button type="submit" class="w-full bg-nhd-green/85 glass-card text-white font-medium py-3 px-4 rounded-2xl hover:bg-nhd-green/90 transition-colors">
+                <button type="submit" id="update-password-btn" class="w-full bg-nhd-green/85 glass-card text-white font-medium py-3 px-4 rounded-2xl hover:bg-nhd-green/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     Update Password
                 </button>
             </form>
@@ -352,4 +365,128 @@ window.serverMessages = {
         <?php unset($_SESSION["error"]); ?>
     <?php endif; ?>
 };
+
+// Add confirmation dialogs for form submissions
+document.addEventListener('DOMContentLoaded', function() {
+    const updateProfileForm = document.querySelector('form[method="POST"][action*="/profile"]:not([action*="update_password"])');
+    if (updateProfileForm) {
+        updateProfileForm.addEventListener('submit', function(e) {
+            const actionInput = this.querySelector('input[name="action"]');
+            if (actionInput && actionInput.value === 'update_profile') {
+                if (!confirm('Are you sure you want to update your profile information?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+    }
+
+    const newPasswordInput = document.getElementById('new_password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const passwordMatch = document.getElementById('password-match');
+    const updatePasswordBtn = document.getElementById('update-password-btn');
+    
+    if (newPasswordInput && confirmPasswordInput && passwordMatch && updatePasswordBtn) {
+        const requirements = {
+            length: document.getElementById('req-length'),
+            uppercase: document.getElementById('req-uppercase'),
+            lowercase: document.getElementById('req-lowercase'),
+            number: document.getElementById('req-number'),
+            special: document.getElementById('req-special')
+        };
+
+        function validatePassword(password) {
+            const checks = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[^A-Za-z0-9]/.test(password)
+            };
+
+            for (let check in checks) {
+                if (checks[check]) {
+                    requirements[check].classList.add('valid');
+                    requirements[check].classList.remove('invalid');
+                    requirements[check].innerHTML = requirements[check].innerHTML.replace('✗', '✓');
+                } else {
+                    requirements[check].classList.add('invalid');
+                    requirements[check].classList.remove('valid');
+                    requirements[check].innerHTML = requirements[check].innerHTML.replace('✓', '✗');
+                }
+            }
+
+            return Object.values(checks).every(check => check);
+        }
+
+        function validatePasswordMatch() {
+            const password = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword === '') {
+                passwordMatch.textContent = '';
+                passwordMatch.className = 'mt-1 text-sm';
+                return false;
+            }
+            
+            if (password === confirmPassword) {
+                passwordMatch.textContent = '✓ Passwords match';
+                passwordMatch.className = 'mt-1 text-sm text-green-600';
+                return true;
+            } else {
+                passwordMatch.textContent = '✗ Passwords do not match';
+                passwordMatch.className = 'mt-1 text-sm text-red-600';
+                return false;
+            }
+        }
+
+        function updateSubmitButton() {
+            const passwordValid = validatePassword(newPasswordInput.value);
+            const passwordsMatch = validatePasswordMatch();
+            const currentPasswordFilled = document.getElementById('current_password').value.length > 0;
+            
+            updatePasswordBtn.disabled = !(passwordValid && passwordsMatch && currentPasswordFilled);
+        }
+
+        newPasswordInput.addEventListener('input', updateSubmitButton);
+        confirmPasswordInput.addEventListener('input', updateSubmitButton);
+        document.getElementById('current_password').addEventListener('input', updateSubmitButton);
+        
+        updateSubmitButton();
+    }
+
+    const updatePasswordForm = document.querySelector('form input[name="action"][value="update_password"]');
+    if (updatePasswordForm) {
+        const passwordForm = updatePasswordForm.closest('form');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to change your password?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+    }
+});
 </script>
+
+<style>
+.requirement {
+    transition: color 0.3s ease;
+    color: #6b7280;
+}
+
+.requirement.valid {
+    color: #10b981;
+}
+
+.requirement.invalid {
+    color: #ef4444;
+}
+
+.glass-card {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+</style>

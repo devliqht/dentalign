@@ -481,7 +481,20 @@ function getAppointmentStatusClass($status)
                     </button>
                     
                     <!-- Cancel Button -->
-                    <?php if ($appointmentPayment && $appointmentPayment["Status"] !== "Cancelled"): ?>
+                    <?php 
+                    // Check if appointment is within 24 hours
+                    $appointmentDateTime = strtotime($appointment["DateTime"]);
+                    $currentTime = time();
+                    $timeDifference = $appointmentDateTime - $currentTime;
+                    $isWithin24Hours = $timeDifference < 86400; // 24 hours = 86400 seconds
+                    
+                    $isPaid = $appointmentPayment && strtolower($appointmentPayment["Status"]) === "paid";
+                    
+                    // Determine if cancellation should be disabled
+                    $canCancel = !$isPaid && !$isWithin24Hours;
+                    ?>
+                    
+                    <?php if (!$canCancel): ?>
                         <div class="px-4 py-2 glass-card shadow-sm bg-gray-300/85 text-gray-600 rounded-xl font-medium cursor-not-allowed text-sm">
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -502,14 +515,22 @@ function getAppointmentStatusClass($status)
                 <?php endif; ?>
             </div>
             
-            <!-- Payment restriction notice -->
-            <?php if ($appointmentPayment && $appointmentPayment["Status"] !== "Cancelled" && in_array($appointment["Status"], ["Pending", "Approved", "Rescheduled"])): ?>
+            <!-- Payment and timing restriction notices -->
+            <?php if (!$canCancel && in_array($appointment["Status"], ["Pending", "Approved", "Rescheduled"])): ?>
                 <div class="mt-3 p-3 bg-orange-50/60 border border-orange-200 rounded-xl">
                     <div class="flex items-start text-orange-800 text-sm">
                         <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <span>This appointment cannot be cancelled because payment has already been processed. Contact the clinic for assistance with refunds or rescheduling.</span>
+                        <span>
+                            <?php if ($isPaid): ?>
+                                This appointment cannot be cancelled because payment has been completed. Contact the clinic for assistance with refunds or rescheduling.
+                            <?php elseif ($isWithin24Hours): ?>
+                                This appointment cannot be cancelled because it is within 24 hours of the scheduled time. Contact the clinic for assistance.
+                            <?php else: ?>
+                                This appointment cannot be cancelled. Contact the clinic for assistance.
+                            <?php endif; ?>
+                        </span>
                     </div>
                 </div>
             <?php endif; ?>

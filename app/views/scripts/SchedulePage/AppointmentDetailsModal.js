@@ -114,6 +114,10 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
+      if (!confirm("Are you sure you want to save this appointment report?")) {
+        return;
+      }
+
       const formData = new FormData(form);
       const data = {
         appointmentId: formData.get("appointmentId"),
