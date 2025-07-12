@@ -517,4 +517,23 @@ class AuthController extends Controller
             );
         }
     }
+
+    public function DisplayFaq()
+    {
+        $this->requireAuth();
+
+        $user = $this->getAuthUser();
+
+        $data = [
+            "user" => $user,
+        ];
+
+        $layoutConfig = [
+            "title" => "Frequently Asked Questions",
+            "hideHeader" => false,
+            "hideFooter" => false,
+        ];
+
+        $this->view("pages/FAQ", $data, $layoutConfig);
+    }
 }
