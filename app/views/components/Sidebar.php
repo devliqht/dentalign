@@ -98,6 +98,11 @@
                             "icon" => "clock",
                             "label" => "Appointment History",
                         ],
+                        [
+                            "url" => "/staff/profile",
+                            "icon" => "user",
+                            "label" => "Profile",
+                        ],
                     ];
                 }
             }

@@ -1158,6 +1158,179 @@ class DentalAssistantController extends Controller
         }
         exit();
     }
+    public function profile()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        $user = $this->getAuthUser();
+        $userModel = new User($this->conn);
+        $userModel->findById($user["id"]);
+
+        $data = [
+            "user" => $user,
+            "userDetails" => [
+                "firstName" => $userModel->firstName,
+                "email" => $userModel->email,
+                "userType" => $userModel->userType,
+                "createdAt" => $userModel->createdAt,
+            ],
+            "csrf_token" => $this->generateCsrfToken(),
+        ];
+
+        $layoutConfig = [
+            "title" => "Profile",
+            "hideHeader" => true,
+            "hideFooter" => false,
+        ];
+
+        $this->view("pages/Profile", $data, $layoutConfig);
+    }
+    public function updateProfile()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        $this->validateRequest("POST", true);
+
+        $data = $this->sanitize($_POST);
+        $user = $this->getAuthUser();
+        $userModel = new User($this->conn);
+
+        // Handle profile update
+        if (isset($data["action"]) && $data["action"] === "update_profile") {
+            $isValid = $this->validate(
+                $data,
+                [
+                    "first_name" => "required",
+                    "email" => "required|email",
+                ],
+                [
+                    "first_name" => "First name is required",
+                    "email" => "Please enter a valid email address",
+                ]
+            );
+
+            if (!$isValid) {
+                $this->redirectBack("Please correct the errors below");
+            }
+
+            // Check if email exists for other users
+            if (
+                $userModel->emailExistsForOtherUser($data["email"], $user["id"])
+            ) {
+                $this->redirectBack("Email already exists");
+            }
+
+            if (
+                $userModel->updateProfile(
+                    $user["id"],
+                    $data["first_name"],
+                    $data["email"]
+                )
+            ) {
+                // Update session data
+                $_SESSION["user_name"] =
+                    $data["first_name"] .
+                    " " .
+                    ($_SESSION["user_name"]
+                        ? explode(" ", $_SESSION["user_name"])[1] ?? ""
+                        : "");
+                $_SESSION["user_email"] = $data["email"];
+
+                $this->redirectBack(null, "Profile updated successfully!");
+            } else {
+                $this->redirectBack(
+                    "Failed to update profile. Please try again."
+                );
+            }
+        }
+
+        // Handle password update
+        if (isset($data["action"]) && $data["action"] === "update_password") {
+            $passwordErrors = $this->validatePassword($data["new_password"] ?? "");
+            if (!empty($passwordErrors)) {
+                $this->redirectBack(implode(". ", $passwordErrors));
+                return;
+            }
+
+            if (empty($data["confirm_password"])) {
+                $this->redirectBack("Please confirm your password");
+                return;
+            }
+
+            if ($data["new_password"] !== $data["confirm_password"]) {
+                $this->redirectBack("New passwords do not match");
+                return;
+            }
+
+            $isValid = $this->validate(
+                $data,
+                [
+                    "current_password" => "required",
+                    "new_password" => "required",
+                    "confirm_password" => "required",
+                ],
+                [
+                    "current_password" => "Current password is required",
+                    "new_password" => "Password is required",
+                    "confirm_password" => "Please confirm your password",
+                ]
+            );
+
+            if (!$isValid) {
+                $this->redirectBack("Please correct the errors below");
+                return;
+            }
+
+            // Verify current password
+            $userModel->findById($user["id"]);
+            if (!$userModel->verifyPassword($data["current_password"])) {
+                $this->redirectBack("Current password is incorrect");
+            }
+
+            $newPasswordHash = $userModel->hashPassword($data["new_password"]);
+            if ($userModel->updatePassword($user["id"], $newPasswordHash)) {
+                $this->redirectBack(null, "Password updated successfully!");
+            } else {
+                $this->redirectBack(
+                    "Failed to update password. Please try again."
+                );
+            }
+        }
+
+        $this->redirectBack("Invalid action");
+    }
+    private function validatePassword($password)
+    {
+        $errors = [];
+
+        if (strlen($password) < 8) {
+            $errors[] = "Password must be at least 8 characters long";
+        }
+
+        if (!preg_match("/[A-Z]/", $password)) {
+            $errors[] = "Password must contain at least one uppercase letter";
+        }
+
+        if (!preg_match("/[a-z]/", $password)) {
+            $errors[] = "Password must contain at least one lowercase letter";
+        }
+
+        if (!preg_match("/[0-9]/", $password)) {
+            $errors[] = "Password must contain at least one number";
+        }
+
+        if (!preg_match("/[^A-Za-z0-9]/", $password)) {
+            $errors[] =
+                "Password must contain at least one special character (!@#$%^&*()_+-=[]{}|;:,.<>?)";
+        }
+
+        return $errors;
+    }
+ 
 
     public function approveCancellation()
     {
