@@ -392,6 +392,43 @@ class Appointment
         return false;
     }
 
+    public function hasPaidPayments($appointmentID)
+    {
+        $query = "SELECT COUNT(*) as paid_payment_count FROM Payments WHERE AppointmentID = ? AND Status = 'Paid'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            return $row["paid_payment_count"] > 0;
+        }
+
+        return false;
+    }
+
+    public function isWithin24Hours($appointmentID)
+    {
+        $query = "SELECT DateTime FROM " . $this->table . " WHERE AppointmentID = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $appointmentID);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            
+            if ($row) {
+                $appointmentDateTime = strtotime($row["DateTime"]);
+                $currentTime = time();
+                $timeDifference = $appointmentDateTime - $currentTime;
+                
+                return $timeDifference < 86400;
+            }
+        }
+
+        return false;
+    }
+
     public function cancelAppointment($appointmentID)
     {
         $query =
@@ -501,18 +538,50 @@ class Appointment
 
     public function approveCancellation($appointmentID)
     {
-        $query =
-            "UPDATE " .
-            $this->table .
-            " SET Status = 'Cancelled' WHERE AppointmentID = ? AND Status = 'Pending Cancellation'";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $appointmentID);
+        // Start a transaction to ensure both appointment and payment are updated together
+        $this->conn->begin_transaction();
+        
+        try {
+            // First, update the appointment status
+            $query =
+                "UPDATE " .
+                $this->table .
+                " SET Status = 'Cancelled' WHERE AppointmentID = ? AND Status = 'Pending Cancellation'";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $appointmentID);
 
-        if ($stmt->execute()) {
-            return $stmt->affected_rows > 0;
+            if (!$stmt->execute() || $stmt->affected_rows === 0) {
+                $this->conn->rollback();
+                return false;
+            }
+
+            require_once __DIR__ . "/Payment.php";
+            $payment = new Payment($this->conn);
+            
+            $paymentData = $payment->getPaymentByAppointment($appointmentID);
+            
+            if ($paymentData && strtolower($paymentData["Status"]) !== "cancelled") {
+                $paymentCancelled = $payment->updateStatus(
+                    $paymentData["PaymentID"], 
+                    "Cancelled", 
+                    null, // updatedBy can be null for system actions
+                    "Payment cancelled due to appointment cancellation"
+                );
+                
+                if (!$paymentCancelled) {
+                    $this->conn->rollback();
+                    return false;
+                }
+            }
+            
+            $this->conn->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            error_log("Error in approveCancellation: " . $e->getMessage());
+            return false;
         }
-
-        return false;
     }
 
     public function denyCancellation($appointmentID, $newStatus = "Approved")
@@ -755,25 +824,81 @@ class Appointment
             return false;
         }
 
-        $sql =
-            "UPDATE " .
-            $this->table .
-            " SET Status = ? WHERE AppointmentID = ?";
-        $stmt = $this->conn->prepare($sql);
+        if (strtolower($this->status) === 'cancelled') {
+            $this->conn->begin_transaction();
+            
+            try {
+                $sql =
+                    "UPDATE " .
+                    $this->table .
+                    " SET Status = ? WHERE AppointmentID = ?";
+                $stmt = $this->conn->prepare($sql);
 
-        if (!$stmt) {
-            error_log("Failed to prepare statement: " . $this->conn->error);
+                if (!$stmt) {
+                    error_log("Failed to prepare statement: " . $this->conn->error);
+                    $this->conn->rollback();
+                    return false;
+                }
+
+                $stmt->bind_param("si", $this->status, $appointmentID);
+
+                if (!$stmt->execute()) {
+                    error_log("Failed to update appointment status: " . $stmt->error);
+                    $this->conn->rollback();
+                    return false;
+                }
+
+                require_once __DIR__ . "/Payment.php";
+                $payment = new Payment($this->conn);
+                
+                // Get the payment for this appointment
+                $paymentData = $payment->getPaymentByAppointment($appointmentID);
+                
+                if ($paymentData && strtolower($paymentData["Status"]) !== "cancelled") {
+                    // Cancel the payment with a note
+                    $paymentCancelled = $payment->updateStatus(
+                        $paymentData["PaymentID"], 
+                        "Cancelled", 
+                        null, // updatedBy can be null for system actions
+                        "Payment cancelled due to appointment cancellation"
+                    );
+                    
+                    if (!$paymentCancelled) {
+                        $this->conn->rollback();
+                        return false;
+                    }
+                }
+                
+                $this->conn->commit();
+                return true;
+                
+            } catch (Exception $e) {
+                $this->conn->rollback();
+                error_log("Error in updateAppointmentStatus: " . $e->getMessage());
+                return false;
+            }
+        } else {
+            // For non-cancellation status updates, proceed normally
+            $sql =
+                "UPDATE " .
+                $this->table .
+                " SET Status = ? WHERE AppointmentID = ?";
+            $stmt = $this->conn->prepare($sql);
+
+            if (!$stmt) {
+                error_log("Failed to prepare statement: " . $this->conn->error);
+                return false;
+            }
+
+            $stmt->bind_param("si", $this->status, $appointmentID);
+
+            if ($stmt->execute()) {
+                return true;
+            }
+
+            error_log("Failed to update appointment status: " . $stmt->error);
             return false;
         }
-
-        $stmt->bind_param("si", $this->status, $appointmentID);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-
-        error_log("Failed to update appointment status: " . $stmt->error);
-        return false;
     }
 
     public function getAllAppointmentsHistory()

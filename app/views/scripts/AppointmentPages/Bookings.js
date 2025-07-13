@@ -379,6 +379,12 @@ if (rescheduleForm) {
       );
       return false;
     }
+
+    // Confirmation dialog
+    if (!confirm("Are you sure you want to reschedule this appointment?")) {
+      e.preventDefault();
+      return false;
+    }
   });
 }
 

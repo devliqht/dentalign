@@ -45,6 +45,14 @@
 
             <!-- Right Side Actions -->
             <div class="flex items-center space-x-2 ml-4">
+                <!-- Current Time Display -->
+                <div class="bg-gray-100/80 border-1 border-gray-200 shaodow-sm px-3 py-2 text-gray-700 text-sm font-medium rounded-2xl">
+                    <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span id="current-time"><?php echo date('H:i:s'); ?></span>
+                </div>
+                
                 <a href="<?php echo BASE_URL; ?>/<?php echo ($_SESSION[
     "user_type"
 ] ??
@@ -75,7 +83,7 @@
 
                 <!-- Logout Button -->
                 <a href="<?php echo BASE_URL; ?>/logout" 
-                   class="glass-card bg-red-400/80 p-2 text-white flex flex-row items-center"
+                   class="glass-card bg-red-600/80 p-2 text-white flex flex-row items-center"
                    title="Logout">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -267,6 +275,24 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return icons[type] || icons['page'];
     }
+    
+    function updateCurrentTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { 
+            hour12: false, 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+        const timeElement = document.getElementById('current-time');
+        if (timeElement) {
+            timeElement.textContent = timeString;
+        }
+    }
+    
+    // Update immediately and then every second
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
 });
 </script>
 <?php endif; ?>

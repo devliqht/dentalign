@@ -641,6 +641,10 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   function saveTreatmentPlan() {
+    if (!confirm("Are you sure you want to create this treatment plan?")) {
+      return;
+    }
+
     const appointmentReportID = document.getElementById(
       "appointment-report-select",
     ).value;
@@ -827,6 +831,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   window.saveToothData = function () {
     if (!currentToothNumber) return;
+
+    if (!confirm("Are you sure you want to save changes to this tooth data?")) {
+      return;
+    }
 
     const status =
       document.querySelector('input[name="status"]:checked')?.value || "";
@@ -1171,6 +1179,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const treatmentItemId = document.getElementById(
       "edit-treatment-item-id",
     ).value;
+    const isUpdate = !!treatmentItemId;
+    const confirmMessage = isUpdate 
+      ? "Are you sure you want to save changes to this treatment item?" 
+      : "Are you sure you want to create this treatment item?";
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
     const description = document
       .getElementById("edit-item-description")
       .value.trim();
@@ -1278,6 +1295,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("save-treatment-plan-changes-btn")
     .addEventListener("click", function () {
+      if (!confirm("Are you sure you want to save all changes to this treatment plan?")) {
+        return;
+      }
+
       const status = document.getElementById(
         "treatment-plan-status-edit",
       ).value;

@@ -658,6 +658,11 @@ class PaymentManagement {
         this.showToast("Cannot delete this item - it originates from a completed treatment plan", "error");
         return;
       }
+
+      // Confirm deletion
+      if (!confirm("Are you sure you want to remove this payment item?")) {
+        return;
+      }
       
       if (itemToRemove.PaymentItemID) {
         try {
@@ -735,6 +740,15 @@ class PaymentManagement {
   }
 
   async savePayment() {
+    const action = this.isEditMode ? "update" : "create";
+    const confirmMessage = this.isEditMode 
+      ? "Are you sure you want to save changes to this payment?" 
+      : "Are you sure you want to create this payment?";
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
     try {
       const status = document.getElementById("paymentStatus").value;
       const notes = document.getElementById("paymentNotes").value;
@@ -1177,6 +1191,10 @@ class PaymentManagement {
   }
 
   async saveOverdueConfig() {
+    if (!confirm("Are you sure you want to save the overdue configuration changes? This will affect all future overdue calculations.")) {
+      return;
+    }
+
     try {
       const overduePercentage = parseFloat(document.getElementById("overduePercentage").value);
       const gracePeriodDays = parseInt(document.getElementById("gracePeriodDays").value);
