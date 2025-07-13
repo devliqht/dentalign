@@ -1,5 +1,9 @@
 let currentAppointmentId = null;
 
+function showAppointmentDetails(appointmentId) {
+  openAppointmentDetailsModal(appointmentId);
+}
+
 function openAppointmentDetailsModal(appointmentId) {
   currentAppointmentId = appointmentId;
   const modal = document.getElementById("appointmentDetailsModal");
