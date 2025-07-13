@@ -41,15 +41,400 @@ function getStatusHeaderClass($status)
     }
 }
 
-// Ensure user is authenticated and has correct role
-if (!isset($_SESSION["user_id"]) || $_SESSION["user_type"] !== "ClinicStaff") {
-    header("Location: " . BASE_URL . "/auth/login");
-    exit();
+function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_token)
+{
+    if (empty($pendingCancellations)) {
+        return;
+    }
+    ?>
+    
+    <div class="bg-red-50/60 mb-8" id="pending-cancellation-requests-section">
+        <div class="p-4 border-b border-red-200/50">
+            <h3 class="text-2xl font-semibold text-red-700 flex items-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Pending Cancellation Requests (<?php echo count($pendingCancellations); ?>)
+            </h3>
+            <p class="text-red-600 text-sm mt-1">Appointment cancellation requests requiring doctor approval</p>
+        </div>
+        
+        <div id="table-container-pending-cancellation-requests" class="table-container">
+            <!-- Mobile View for Pending Cancellations -->
+            <div class="block lg:hidden">
+                <?php foreach ($pendingCancellations as $index => $appointment): ?>
+                    <div class="p-4 border-b border-red-200/30 bg-white/40 table-row" data-row-index="<?php echo $index; ?>">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
+                                <?php echo date("M j", strtotime($appointment["DateTime"])); ?> • <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                            </div>
+                            <span class="bg-purple-100/60 text-purple-800 px-2 py-1 rounded-full text-xs">Pending Cancellation</span>
+                        </div>
+                        <h4 class="font-semibold text-gray-900 mb-1">
+                            <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                        </h4>
+                        <div class="text-sm text-gray-600 mb-2">
+                            <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-3">
+                            <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
+                                <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 italic">
+                            This request needs doctor approval
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Desktop Table View for Pending Cancellations -->
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="w-full sortable-appointment-table" data-section="pending-cancellation-requests">
+                    <thead>
+                        <tr class="border-b border-red-200/60 bg-red-50/50">
+                            <th class="sortable-header text-left py-2 px-3 font-medium text-red-700 text-sm cursor-pointer hover:bg-red-100/60 transition-colors" data-sort="DateTime">
+                                Date & Time
+                                <span class="sort-indicator ml-1">
+                                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                        <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <span class="sort-icon-active hidden"></span>
+                                </span>
+                            </th>
+                            <th class="sortable-header text-left py-2 px-3 font-medium text-red-700 text-sm cursor-pointer hover:bg-red-100/60 transition-colors" data-sort="PatientFirstName">
+                                Patient
+                                <span class="sort-indicator ml-1">
+                                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                        <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <span class="sort-icon-active hidden"></span>
+                                </span>
+                            </th>
+                            <th class="sortable-header text-left py-2 px-3 font-medium text-red-700 text-sm cursor-pointer hover:bg-red-100/60 transition-colors" data-sort="DoctorFirstName">
+                                Doctor
+                                <span class="sort-indicator ml-1">
+                                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                        <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <span class="sort-icon-active hidden"></span>
+                                </span>
+                            </th>
+                            <th class="sortable-header text-left py-2 px-3 font-medium text-red-700 text-sm cursor-pointer hover:bg-red-100/60 transition-colors" data-sort="PatientEmail">
+                                Contact
+                                <span class="sort-indicator ml-1">
+                                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                        <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <span class="sort-icon-active hidden"></span>
+                                </span>
+                            </th>
+                            <th class="sortable-header text-left py-2 px-3 font-medium text-red-700 text-sm cursor-pointer hover:bg-red-100/60 transition-colors" data-sort="AppointmentType">
+                                Type
+                                <span class="sort-indicator ml-1">
+                                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                        <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <span class="sort-icon-active hidden"></span>
+                                </span>
+                            </th>
+                            <th class="sortable-header text-left py-2 px-3 font-medium text-red-700 text-sm cursor-pointer hover:bg-red-100/60 transition-colors" data-sort="Reason">
+                                Reason
+                                <span class="sort-indicator ml-1">
+                                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                        <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                    </svg>
+                                    <span class="sort-icon-active hidden"></span>
+                                </span>
+                            </th>
+                            <th class="text-left py-2 px-3 font-medium text-red-700 text-sm">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-red-200/30" id="table-body-pending-cancellation-requests">
+                        <?php foreach ($pendingCancellations as $index => $appointment): ?>
+                            <tr class="hover:bg-white/60 transition-colors duration-200 table-row" data-row-index="<?php echo $index; ?>">
+                                <td class="py-2 px-3">
+                                    <div class="bg-red-100 text-red-700 px-2 py-1 rounded inline-block text-xs">
+                                        <div class="font-medium">
+                                            <?php echo date("M j", strtotime($appointment["DateTime"])); ?>
+                                        </div>
+                                        <div class="font-bold">
+                                            <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-2 px-3">
+                                    <div class="font-medium text-gray-900 text-sm">
+                                        <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                    </div>
+                                    <div class="text-xs text-gray-500">ID #<?php echo str_pad($appointment["AppointmentID"], 4, "0", STR_PAD_LEFT); ?></div>
+                                </td>
+                                <td class="py-2 px-3">
+                                    <div class="font-medium text-gray-900 text-sm">
+                                        Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                    </div>
+                                    <div class="text-xs text-gray-500"><?php echo htmlspecialchars($appointment["Specialization"] ?? ""); ?></div>
+                                </td>
+                                <td class="py-2 px-3">
+                                    <div class="text-sm text-gray-600">
+                                        <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                    </div>
+                                </td>
+                                <td class="py-2 px-3">
+                                    <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                                        <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                    </span>
+                                </td>
+                                <td class="py-2 px-3 max-w-xs">
+                                    <?php if (!empty($appointment["Reason"])): ?>
+                                        <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($appointment["Reason"]); ?>">
+                                            <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-gray-400 text-sm italic">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="py-2 px-3">
+                                    <span class="bg-purple-100/60 text-purple-800 px-2 py-1 rounded-full text-xs">
+                                        Awaiting Doctor Approval
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Controls Bottom -->
+            <?php echo renderPaginationControls('pending-cancellation-requests', 'bottom'); ?>
+        </div>
+        
+        <!-- Collapse Button -->
+        <div class="text-center mt-4">
+            <button 
+                onclick="toggleTableCollapse('pending-cancellation-requests')" 
+                id="collapse-btn-pending-cancellation-requests" 
+                class="text-black bg-transparent shadow-none transition-colors duration-200 text-sm font-medium cursor-pointer">
+                <span class="collapse-text">Collapse Table</span>
+                <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+        </div>
+        </div>
+    </div>
+    
+    <?php
 }
 
-// Merge pending cancellations into cancelled appointments
-if (!empty($pendingCancellations)) {
-    $appointmentHistory["Cancelled"] = array_merge($appointmentHistory["Cancelled"] ?? [], $pendingCancellations);
+function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $emptyMessage, $emptyIcon, $user)
+{
+    ?>
+    
+    <div id="<?php echo $sectionId; ?>-section" class="appointment-section">
+        <div class="px-3 mb-3 mt-8">
+            <h3 class="text-2xl font-semibold text-nhd-brown"><?php echo $sectionTitle; ?></h3>
+        </div>
+        
+        <div id="table-container-<?php echo $sectionId; ?>" class="table-container">
+            <?php if (!empty($appointments)): ?>
+                <!-- Mobile View -->
+                <div class="block lg:hidden" id="mobile-view-<?php echo $sectionId; ?>">
+                    <?php foreach ($appointments as $index => $appointment): ?>
+                        <div class="p-4 border-b border-gray-200/30 hover:bg-white/40 transition-colors rounded-2xl glass-card mb-3 table-row" data-row-index="<?php echo $index; ?>">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded text-xs font-medium">
+                                    #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                    &nbsp;|&nbsp;
+                                    <?php echo date("M j", strtotime($appointment["DateTime"])); ?> • <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                </div>
+                                <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
+                                    <?php echo $appointment["Status"]; ?>
+                                </span>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-900 mb-1">
+                                <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                            </h4>
+                            
+                            <div class="text-sm text-gray-600 mb-2">
+                                <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                            </div>
+                            
+                            <div class="text-sm text-gray-600 mb-2">
+                                <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="text-sm">
+                                    <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
+                                        <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                    </span>
+                                </div>
+                                <div class="flex space-x-1">
+                                    <button onclick="showAppointmentDetails('<?php echo $appointment["AppointmentID"]; ?>')" 
+                                            class="bg-nhd-blue/80 text-white px-3 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <?php if (!empty($appointment["Reason"])): ?>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <span class="font-medium">Reason:</span> <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="hidden lg:block overflow-x-auto px-2">
+                    <table class="w-full sortable-appointment-table" data-section="<?php echo $sectionId; ?>">
+                        <thead>
+                            <tr class="border-b border-gray-300 bg-gray-50/50">
+                                <th class="text-left py-2 px-2 font-medium text-gray-700 text-xs w-24">Appointment ID</th>
+                                <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DateTime">
+                                    Date & Time 
+                                    <span class="sort-indicator ml-1">
+                                        <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                            <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                            <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                        </svg>
+                                        <span class="sort-icon-active hidden"></span>
+                                    </span>
+                                </th>
+                                <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientFirstName">
+                                    Patient 
+                                    <span class="sort-indicator ml-1">
+                                        <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                            <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                            <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                        </svg>
+                                        <span class="sort-icon-active hidden"></span>
+                                    </span>
+                                </th>
+                                <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorFirstName">
+                                    Doctor 
+                                    <span class="sort-indicator ml-1">
+                                        <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                            <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                            <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                        </svg>
+                                        <span class="sort-icon-active hidden"></span>
+                                    </span>
+                                </th>
+
+                                <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="AppointmentType">
+                                    Type 
+                                    <span class="sort-indicator ml-1">
+                                        <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                            <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                            <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                        </svg>
+                                        <span class="sort-icon-active hidden"></span>
+                                    </span>
+                                </th>
+                                <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
+                                    Status 
+                                    <span class="sort-indicator ml-1">
+                                        <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                            <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                            <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                        </svg>
+                                        <span class="sort-icon-active hidden"></span>
+                                    </span>
+                                </th>
+                                <th class="text-left py-2 px-3 font-medium text-gray-700 text-sm">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200/30" id="table-body-<?php echo $sectionId; ?>">
+                            <?php foreach ($appointments as $index => $appointment): ?>
+                                <tr class="hover:bg-white/60 transition-colors duration-200 table-row" data-row-index="<?php echo $index; ?>">
+                                    <td class="py-2 px-2">
+                                        <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded inline-block text-xs">
+                                            #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <?php echo date("M j, Y", strtotime($appointment["DateTime"])); ?>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                        <div class="font-medium text-gray-900 text-sm">
+                                            <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                        <div class="font-medium text-gray-900 text-sm">
+                                            Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            <?php echo htmlspecialchars($appointment["Specialization"] ?? ""); ?>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                        <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                                            <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                        <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
+                                            <?php echo $appointment["Status"]; ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-2 px-3">
+                                        <button onclick="showAppointmentDetails('<?php echo $appointment["AppointmentID"]; ?>')" 
+                                                class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <?php echo renderPaginationControls($sectionId, 'bottom'); ?>
+            <?php else: ?>
+                <div class="glass-card bg-gray-50/50 rounded-2xl p-8 text-center m-4 shadow-none border-1 border-gray-200">
+                    <?php echo $emptyIcon; ?>
+                    <p class="text-gray-500"><?php echo $emptyMessage; ?></p>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Collapse Button -->
+        <div class="text-center mt-4">
+            <button 
+                onclick="toggleTableCollapse('<?php echo $sectionId; ?>')" 
+                id="collapse-btn-<?php echo $sectionId; ?>" 
+                class="text-black bg-transparent shadow-none transition-colors duration-200 text-sm font-medium cursor-pointer">
+                <span class="collapse-text">Collapse Table</span>
+                <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <?php
 }
 ?>
 
@@ -58,7 +443,7 @@ if (!empty($pendingCancellations)) {
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">
-                    Appointment History
+                    All Appointments History
                 </h1>
                 <div class="flex items-center space-x-4 text-sm text-gray-500">
                     <span class="flex items-center">
@@ -84,6 +469,11 @@ if (!empty($pendingCancellations)) {
             <button onclick="showSection('all')" id="all-btn" class="glass-card bg-nhd-blue/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-white">
                 All Appointments
             </button>
+            <?php if (!empty($pendingCancellations)): ?>
+                <button onclick="showSection('pending-cancellation-requests')" id="pending-cancellation-requests-btn" class="glass-card bg-red-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-red-700">
+                    Pending Cancellations (<?php echo count($pendingCancellations); ?>)
+                </button>
+            <?php endif; ?>
             <button onclick="showSection('pending')" id="pending-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
                 Pending
             </button>
@@ -120,6 +510,13 @@ if (!empty($pendingCancellations)) {
         <?php endforeach; ?>
     </div>
 
+    <!-- Pending Cancellation Requests Section -->
+    <?php
+    if (!empty($pendingCancellations)) {
+        renderPendingCancellationTableForStaff($pendingCancellations, $csrf_token ?? '');
+    }
+    ?>
+
     <!-- Appointment History Sections by Status -->
     <?php
     $statusOrder = ["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"];
@@ -144,16 +541,14 @@ if (!empty($pendingCancellations)) {
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>';
 
-                // Render the section using the reusable component
-                renderSortableAppointmentTable(
+                // Render the section using the custom component for staff
+                renderStaffAppointmentTable(
                     $appointmentHistory[$status],
-                    [], // No payment data for assistant view
                     $sectionId,
                     $sectionTitle,
                     $emptyMessage,
                     $emptyIcon,
-                    $user,
-                    false // This is assistant view, not patient view
+                    $user
                 );
                 ?>
             <?php endif; ?>
@@ -168,11 +563,17 @@ if (!empty($pendingCancellations)) {
     <?php endif; ?>
 </div>
 
-<!-- Include Appointment Details Modal -->
 <?php include __DIR__ . '/../../../components/SchedulePage/AppointmentDetailsModal.php'; ?>
 
-<!-- Server Messages for Toast -->
 <script>
+function showAppointmentDetails(appointmentId) {
+  if (typeof openAppointmentDetailsModal === 'function') {
+    openAppointmentDetailsModal(appointmentId);
+  } else {
+    console.error('openAppointmentDetailsModal function not found');
+  }
+}
+
 window.serverMessages = {
     <?php if (isset($_SESSION["success"])): ?>
         success: <?php echo json_encode($_SESSION["success"]); ?>,
