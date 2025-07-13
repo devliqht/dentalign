@@ -1,5 +1,9 @@
 <?php
 
+require_once "app/models/Appointment.php";
+require_once "app/models/AppointmentReport.php";
+require_once "app/models/Doctor.php";
+
 class DentalAssistantController extends Controller
 {
     public function dashboard()
@@ -860,5 +864,308 @@ class DentalAssistantController extends Controller
             ]);
         }
         exit();
+    }
+
+    public function appointmentHistory()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        $user = $this->getAuthUser();
+        
+        $appointmentModel = new Appointment($this->conn);
+        $doctorModel = new Doctor($this->conn);
+        
+        // Get ALL appointments (not filtered by doctor)
+        $allAppointments = $appointmentModel->getAllAppointmentsHistory();
+        $allPendingCancellations = $appointmentModel->getAllPendingCancellations();
+        
+        // Get all doctors for tabs
+        $allDoctors = $doctorModel->getAllDoctors();
+        
+        // Group appointments by status
+        $appointmentsByStatus = [
+            "Pending" => [],
+            "Approved" => [],
+            "Rescheduled" => [],
+            "Completed" => [],
+            "Declined" => [],
+            "Cancelled" => [],
+        ];
+
+        foreach ($allAppointments as $appointment) {
+            $status = $appointment["Status"];
+            if (isset($appointmentsByStatus[$status])) {
+                $appointmentsByStatus[$status][] = $appointment;
+            }
+        }
+
+        $data = [
+            "user" => $user,
+            "appointmentHistory" => $appointmentsByStatus,
+            "pendingCancellations" => $allPendingCancellations,
+            "allDoctors" => $allDoctors,
+            "csrf_token" => $this->generateCsrfToken(),
+        ];
+
+        $additionalHead =
+            '<link rel="stylesheet" href="' .
+            BASE_URL .
+            '/app/styles/views/Bookings.css">';
+
+        $layoutConfig = [
+            "title" => "Appointment History",
+            "hideHeader" => true,
+            "hideFooter" => false,
+            "additionalScripts" =>
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/SchedulePage/AppointmentDetailsModal.js"></script>' .
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/SchedulePage/AppointmentDetailsModalAssistant.js"></script>' .
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/DentalAssistant/AppointmentHistoryTabs.js"></script>',
+            "additionalHead" => $additionalHead,
+        ];
+
+        $this->view(
+            "pages/staff/dentalassistant/AppointmentHistory",
+            $data,
+            $layoutConfig
+        );
+    }
+
+    public function getAppointmentReport()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        header("Content-Type: application/json");
+
+        $appointmentId = $_GET["appointment_id"] ?? "";
+
+        if (empty($appointmentId)) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Appointment ID is required",
+            ]);
+            exit();
+        }
+
+        try {
+            // Get appointment details
+            $appointment = new Appointment($this->conn);
+            $appointmentData = $appointment->getAppointmentById($appointmentId);
+
+            if (!$appointmentData) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Appointment not found",
+                ]);
+                exit();
+            }
+
+            $appointmentReport = new AppointmentReport($this->conn);
+            $reportData = $appointmentReport->getReportByAppointmentID(
+                $appointmentId
+            );
+
+            if (!$reportData) {
+                $reportData = [
+                    "AppointmentReportID" => null,
+                    "PatientRecordID" => null,
+                    "AppointmentID" => $appointmentId,
+                    "OralNotes" => "",
+                    "Diagnosis" => "",
+                    "XrayImages" => "",
+                    "CreatedAt" => null,
+                    "Height" => "",
+                    "Weight" => "",
+                    "Allergies" => "",
+                ];
+            }
+
+            // Transform field names to match JavaScript expectations
+            $transformedReport = [
+                "appointmentReportID" =>
+                    $reportData["AppointmentReportID"] ?? null,
+                "patientRecordID" => $reportData["PatientRecordID"] ?? null,
+                "appointmentID" =>
+                    $reportData["AppointmentID"] ?? $appointmentId,
+                "oralNotes" => $reportData["OralNotes"] ?? "",
+                "diagnosis" => $reportData["Diagnosis"] ?? "",
+                "xrayImages" => $reportData["XrayImages"] ?? "",
+                "createdAt" => $reportData["CreatedAt"] ?? null,
+                "height" => $reportData["Height"] ?? "",
+                "weight" => $reportData["Weight"] ?? "",
+                "allergies" => $reportData["Allergies"] ?? "",
+            ];
+
+            $response = [
+                "success" => true,
+                "appointment" => $appointmentData,
+                "report" => $transformedReport,
+            ];
+
+            echo json_encode($response);
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "Error fetching appointment report: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function updateAppointmentReport()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $appointmentId = $data["appointmentId"] ?? null;
+            $oralNotes = $data["oralNotes"] ?? "";
+            $diagnosis = $data["diagnosis"] ?? "";
+            $xrayImages = $data["xrayImages"] ?? "";
+            $status = $data["status"] ?? null;
+
+            if (!$appointmentId) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Appointment ID is required",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/PatientRecord.php";
+
+            // Get appointment details first
+            $appointment = new Appointment($this->conn);
+            $appointmentData = $appointment->getAppointmentById($appointmentId);
+
+            if (!$appointmentData) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Appointment not found",
+                ]);
+                exit();
+            }
+
+            // Check if report already exists
+            $appointmentReport = new AppointmentReport($this->conn);
+            $existingReport = $appointmentReport->getReportByAppointmentID($appointmentId);
+
+            if ($existingReport) {
+                // Update existing report
+                $appointmentReport->appointmentReportID = $existingReport["AppointmentReportID"];
+                $appointmentReport->patientRecordID = $existingReport["PatientRecordID"];
+                $appointmentReport->appointmentID = $appointmentId;
+                $appointmentReport->oralNotes = $oralNotes;
+                $appointmentReport->diagnosis = $diagnosis;
+                $appointmentReport->xrayImages = $xrayImages;
+
+                if ($appointmentReport->update()) {
+                    // Update appointment status if provided
+                    if ($status && $status !== $appointmentData["Status"]) {
+                        $appointment->status = $status;
+                        $appointment->updateAppointmentStatus($appointmentId);
+                    }
+
+                    echo json_encode([
+                        "success" => true,
+                        "message" => "Appointment report updated successfully",
+                    ]);
+                } else {
+                    echo json_encode([
+                        "success" => false,
+                        "message" => "Failed to update appointment report",
+                    ]);
+                }
+            } else {
+                // Create new report
+                // First get patient record ID
+                $patientRecord = new PatientRecord($this->conn);
+                if (!$patientRecord->findByPatientID($appointmentData["PatientID"])) {
+                    // Create patient record if it doesn't exist
+                    if (!$patientRecord->createForPatient($appointmentData["PatientID"])) {
+                        echo json_encode([
+                            "success" => false,
+                            "message" => "Failed to create patient record",
+                        ]);
+                        exit();
+                    }
+                }
+
+                // Create new appointment report
+                $appointmentReport->patientRecordID = $patientRecord->recordID;
+                $appointmentReport->appointmentID = $appointmentId;
+                $appointmentReport->oralNotes = $oralNotes;
+                $appointmentReport->diagnosis = $diagnosis;
+                $appointmentReport->xrayImages = $xrayImages;
+
+                if ($appointmentReport->create()) {
+                    // Update appointment status if provided
+                    if ($status && $status !== $appointmentData["Status"]) {
+                        $appointment->status = $status;
+                        $appointment->updateAppointmentStatus($appointmentId);
+                    }
+
+                    echo json_encode([
+                        "success" => true,
+                        "message" => "Appointment report created successfully",
+                    ]);
+                } else {
+                    echo json_encode([
+                        "success" => false,
+                        "message" => "Failed to create appointment report",
+                    ]);
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Error in updateAppointmentReport: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" => "Error updating appointment report: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function approveCancellation()
+    {
+
+    }
+
+    public function denyCancellation()
+    {
+        
     }
 }

@@ -61,6 +61,8 @@ $router->group("GET", "DentalAssistantController", [
         "getAllAppointmentsPayments",
     "dentalassistant/get-payment-details" => "getPaymentDetails",
     "dentalassistant/get-overdue-config" => "getOverdueConfig",
+    "dentalassistant/appointment-history" => "appointmentHistory",
+    "dentalassistant/get-appointment-report" => "getAppointmentReport",
 ]);
 
 $router->group("POST", "DentalAssistantController", [
@@ -72,6 +74,9 @@ $router->group("POST", "DentalAssistantController", [
     "dentalassistant/delete-payment-item" => "deletePaymentItem",
     "dentalassistant/update-payment-status" => "updatePaymentStatus",
     "dentalassistant/update-overdue-config" => "updateOverdueConfig",
+    "dentalassistant/update-appointment-report" => "updateAppointmentReport",
+    "dentalassistant/approve-cancellation" => "approveCancellation",
+    "dentalassistant/deny-cancellation" => "denyCancellation",
 ]);
 
 $router->group("GET", "DoctorController", [
@@ -84,8 +89,6 @@ $router->group("GET", "DoctorController", [
     "doctor/get-appointment-report" => "getAppointmentReport",
     "doctor/get-dental-chart" => "getDentalChart",
     "doctor/dental-chart-edit/{patient_id}" => "dentalChartEdit",
-    // "doctor/get-payment-details" => "getPaymentDetails",
-    //"doctor/get-all-appointments-payments" => "getAllAppointmentsPayments",
     "doctor/get-patient-treatment-plan" => "getPatientTreatmentPlan",
     "doctor/get-treatment-plan" => "getTreatmentPlan",
     "doctor/get-valid-appointment-reports" => "getValidAppointmentReports",
@@ -103,13 +106,6 @@ $router->group("POST", "DoctorController", [
     "doctor/update-patient-record-data" => "updatePatientRecordData",
     "doctor/update-appointment-report" => "updateAppointmentReport",
     "doctor/update-dental-chart-item" => "updateDentalChartItem",
-    // "doctor/create-payment" => "createPayment",
-    // "doctor/update-payment" => "updatePayment",
-    // "doctor/delete-payment" => "deletePayment",
-    // "doctor/add-payment-item" => "addPaymentItem",
-    // "doctor/update-payment-item" => "updatePaymentItem",
-    // "doctor/delete-payment-item" => "deletePaymentItem",
-    // "doctor/update-payment-status" => "updatePaymentStatus",
     "doctor/update-treatment-plan" => "updateTreatmentPlan",
     "doctor/create-treatment-plan" => "createTreatmentPlan",
     "doctor/delete-treatment-plan" => "deleteTreatmentPlan",

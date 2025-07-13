@@ -775,4 +775,69 @@ class Appointment
         error_log("Failed to update appointment status: " . $stmt->error);
         return false;
     }
+
+    public function getAllAppointmentsHistory()
+    {
+        $query = "
+            SELECT 
+                a.AppointmentID,
+                a.PatientID,
+                a.DoctorID,
+                a.DateTime,
+                a.Status,
+                a.AppointmentType,
+                a.Reason,
+                a.CreatedAt,
+                CONCAT(p_user.FirstName, ' ', p_user.LastName) as PatientName,
+                p_user.FirstName as PatientFirstName,
+                p_user.LastName as PatientLastName,
+                p_user.Email as PatientEmail,
+                CONCAT(d_user.FirstName, ' ', d_user.LastName) as DoctorName,
+                d_user.FirstName as DoctorFirstName,
+                d_user.LastName as DoctorLastName,
+                doc.Specialization as DoctorSpecialization
+            FROM " . $this->table . " a
+            LEFT JOIN PATIENT pat ON a.PatientID = pat.PatientID
+            LEFT JOIN USER p_user ON pat.PatientID = p_user.UserID
+            LEFT JOIN Doctor doc ON a.DoctorID = doc.DoctorID
+            LEFT JOIN USER d_user ON doc.DoctorID = d_user.UserID
+            ORDER BY a.DateTime DESC
+        ";
+
+        $result = $this->conn->query($query);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getAllPendingCancellations()
+    {
+        $query = "
+            SELECT 
+                a.AppointmentID,
+                a.PatientID,
+                a.DoctorID,
+                a.DateTime,
+                a.Status,
+                a.AppointmentType,
+                a.Reason,
+                a.CreatedAt,
+                CONCAT(p_user.FirstName, ' ', p_user.LastName) as PatientName,
+                p_user.FirstName as PatientFirstName,
+                p_user.LastName as PatientLastName,
+                p_user.Email as PatientEmail,
+                CONCAT(d_user.FirstName, ' ', d_user.LastName) as DoctorName,
+                d_user.FirstName as DoctorFirstName,
+                d_user.LastName as DoctorLastName,
+                doc.Specialization as DoctorSpecialization
+            FROM " . $this->table . " a
+            LEFT JOIN PATIENT pat ON a.PatientID = pat.PatientID
+            LEFT JOIN USER p_user ON pat.PatientID = p_user.UserID
+            LEFT JOIN Doctor doc ON a.DoctorID = doc.DoctorID
+            LEFT JOIN USER d_user ON doc.DoctorID = d_user.UserID
+            WHERE a.Status = 'Pending Cancellation'
+            ORDER BY a.DateTime DESC
+        ";
+
+        $result = $this->conn->query($query);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
 }
