@@ -99,7 +99,7 @@
                             "label" => "Appointment History",
                         ],
                         [
-                            "url" => "/staff/profile",
+                            "url" => "/dentalassistant/profile",
                             "icon" => "user",
                             "label" => "Profile",
                         ],
