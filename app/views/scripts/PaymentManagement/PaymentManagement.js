@@ -1141,7 +1141,7 @@ class PaymentManagement {
 
   async loadOverdueConfig() {
     try {
-      const response = await fetch("/dentalign/dentalassistant/get-overdue-config");
+      const response = await fetch(`${window.BASE_URL}/dentalassistant/get-overdue-config`);
       const data = await response.json();
 
       if (data.success) {
@@ -1216,7 +1216,7 @@ class PaymentManagement {
         return;
       }
 
-      const response = await fetch("/dentalign/dentalassistant/update-overdue-config", {
+      const response = await fetch(`${window.BASE_URL}/dentalassistant/update-overdue-config`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
