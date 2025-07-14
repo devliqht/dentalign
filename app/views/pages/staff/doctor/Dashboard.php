@@ -40,7 +40,7 @@
         </div>
 
         <!-- Upcoming Appointments -->
-        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
+        <a href="<?php echo BASE_URL; ?>/doctor/appointment-history"  class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-yellow-700">Upcoming</p>
@@ -52,10 +52,10 @@
                     </svg>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Completed Appointments -->
-        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
+        <a href="<?php echo BASE_URL; ?>/doctor/appointment-history?filter=completed" class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-green-700">Completed</p>
@@ -67,10 +67,10 @@
                     </svg>
                 </div>
             </div>
-        </div>
+        </a>
 
         <!-- Cancellation Requests -->
-        <div class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
+        <a href="<?php echo BASE_URL; ?>/doctor/appointment-history?filter=cancellation_requests" class="glass-card border-gray-200 border-1 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-red-700">Cancellation Requests</p>
@@ -82,7 +82,7 @@
                     </svg>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Main Content Grid -->

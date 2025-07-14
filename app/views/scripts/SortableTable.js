@@ -51,6 +51,16 @@ function showSection(sectionName) {
         }
     }
 }
+window.addEventListener('load', function(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const filter = urlParams.get('filter');
+    if (filter) {
+        showSection(filter);
+    } else {
+        // If no filter is specified in the URL, default to showing 'all'
+        showSection('all');
+    }
+});
 
 class PaginationManager {
     constructor() {
