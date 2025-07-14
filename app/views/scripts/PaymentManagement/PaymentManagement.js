@@ -421,7 +421,7 @@ class PaymentManagement {
   async openAddPaymentModal(appointmentId) {
     try {
       const response = await fetch(
-        `/dentalign/dentalassistant/get-payment-details?appointment_id=${appointmentId}`,
+        `${window.BASE_URL}/dentalassistant/get-payment-details?appointment_id=${appointmentId}`,
       );
       const data = await response.json();
 
@@ -448,7 +448,7 @@ class PaymentManagement {
   async openEditPaymentModal(appointmentId, paymentId) {
     try {
       const response = await fetch(
-        `/dentalign/dentalassistant/get-payment-details?payment_id=${paymentId}`,
+        `${window.BASE_URL}/dentalassistant/get-payment-details?payment_id=${paymentId}`,
       );
       const data = await response.json();
 
@@ -667,7 +667,7 @@ class PaymentManagement {
       if (itemToRemove.PaymentItemID) {
         try {
           const deleteResponse = await fetch(
-            "/dentalign/dentalassistant/delete-payment-item",
+            `${window.BASE_URL}/dentalassistant/delete-payment-item`,
             {
               method: "POST",
               headers: {
@@ -778,7 +778,7 @@ class PaymentManagement {
   }
 
   async createNewPayment(status, notes, paymentMethod, deadlineDate, proofOfPayment, items) {
-    const response = await fetch("/dentalign/dentalassistant/create-payment", {
+    const response = await fetch(`${window.BASE_URL}/dentalassistant/create-payment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -813,7 +813,7 @@ class PaymentManagement {
   async updateExistingPayment(status, notes, paymentMethod, deadlineDate, proofOfPayment, items) {
     // Update payment status and notes
     const updateResponse = await fetch(
-      "/dentalign/dentalassistant/update-payment",
+      `${window.BASE_URL}/dentalassistant/update-payment`,
       {
         method: "POST",
         headers: {
@@ -859,7 +859,7 @@ class PaymentManagement {
         console.log("Attempting to delete item ID: ", itemId);
 
         const deleteResponse = await fetch(
-          "/dentalign/dentalassistant/delete-payment-item",
+          `${window.BASE_URL}/dentalassistant/delete-payment-item`,
           {
             method: "POST",
             headers: {
@@ -880,7 +880,7 @@ class PaymentManagement {
 
     for (const item of items) {
       if (item.PaymentItemID) {
-        await fetch("/dentalign/dentalassistant/update-payment-item", {
+        await fetch(`${window.BASE_URL}/dentalassistant/update-payment-item`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -893,7 +893,7 @@ class PaymentManagement {
           }),
         });
       } else {
-        await fetch("/dentalign/dentalassistant/add-payment-item", {
+        await fetch(`${window.BASE_URL}/dentalassistant/add-payment-item`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -917,7 +917,7 @@ class PaymentManagement {
 
     try {
       const response = await fetch(
-        "/dentalign/dentalassistant/update-payment-status",
+        `${window.BASE_URL}/dentalassistant/update-payment-status`,
         {
           method: "POST",
           headers: {
@@ -977,7 +977,7 @@ class PaymentManagement {
   async deletePaymentById(paymentId) {
     try {
       const response = await fetch(
-        "/dentalign/dentalassistant/delete-payment",
+        `${window.BASE_URL}/dentalassistant/delete-payment`,
         {
           method: "POST",
           headers: {
