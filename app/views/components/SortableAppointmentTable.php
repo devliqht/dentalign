@@ -686,7 +686,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                 <input type="hidden" name="appointment_id" value="<?php echo $appointment["AppointmentID"]; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')" 
-                                        class="bg-red-500/80 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors">
+                                        class="bg-green-500/80 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors">
                                     Approve Cancellation
                                 </button>
                             </form>
@@ -695,7 +695,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                 <input type="hidden" name="new_status" value="Approved">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')" 
-                                        class="bg-green-500/80 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors">
+                                        class="bg-red-500/80 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors">
                                     Deny Request
                                 </button>
                             </form>
@@ -806,7 +806,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                             <input type="hidden" name="appointment_id" value="<?php echo $appointment["AppointmentID"]; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                             <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')" 
-                                                    class="bg-red-500/80 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors">
+                                                    class="bg-green-500/80 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors">
                                                 Approve
                                             </button>
                                         </form>
@@ -815,7 +815,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                             <input type="hidden" name="new_status" value="Approved">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                             <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')" 
-                                                    class="bg-green-500/80 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors">
+                                                    class="bg-red-500/80 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors">
                                                 Deny
                                             </button>
                                         </form>
