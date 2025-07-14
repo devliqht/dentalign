@@ -72,7 +72,7 @@ class PaymentManagement {
       this.showLoading(true);
 
       const response = await fetch(
-        "/dentalign/dentalassistant/get-all-appointments-payments",
+        `${window.BASE_URL}/dentalassistant/get-all-appointments-payments`,
       );
       const data = await response.json();
 
