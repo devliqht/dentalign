@@ -402,6 +402,9 @@ function renderPaymentManagementTable($appointments, $appointmentPayments, $user
     </div>
 </div>
 
+<script>
+window.BASE_URL = '<?php echo BASE_URL; ?>';
+</script>
 
 <style>
 .glass-card {
