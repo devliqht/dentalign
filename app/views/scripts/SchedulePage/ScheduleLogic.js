@@ -314,6 +314,10 @@ function loadAppointmentsForDate(date) {
                         <span class="font-medium text-gray-700">Reason:</span>
                         <p class="text-gray-600 text-sm mt-1">${app.Reason}</p>
                     </div>
+                    <button onclick="openAppointmentDetailsModal(${app.AppointmentID})"
+                            class="glass-card bg-nhd-blue/80 text-white px-3 py-1 rounded-lg text-xs hover:bg-nhd-blue transition-colors">
+                            View Details
+                      </button>
                 </div>
             </div>
         `,
