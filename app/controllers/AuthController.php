@@ -92,7 +92,7 @@ class AuthController extends Controller
                 if ($_SESSION["staff_type"] === "Doctor") {
                     $this->redirect(BASE_URL . "/doctor/dashboard");
                 } elseif ($_SESSION["staff_type"] === "DentalAssistant") {
-                    $this->redirect(BASE_URL . "/dentalassistant/dashboard");
+                    $this->redirect(BASE_URL . "/dentalassistant/report");
                 } else {
                     $this->redirect(BASE_URL . "/doctor/dashboard");
                 }
