@@ -5,7 +5,9 @@
     <div class="pb-6">
         <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Terms of Service</h2>
         <p class="text-gray-600">Please read these terms carefully before using North Hill Dental's services.</p>
-        <p class="text-sm text-gray-500 mt-2">Last updated: <?php echo date('F j, Y'); ?></p>
+        <p class="text-sm text-gray-500 mt-2">Last updated: <?php echo date(
+            "F j, Y"
+        ); ?></p>
     </div>
 
     <!-- Terms of Service Categories -->

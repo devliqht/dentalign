@@ -246,7 +246,8 @@ function renderPatientDetail(data) {
                                                         <p class="text-gray-900 mt-1">${appointment.report.OralNotes || "Not recorded"}</p>
                                                     </div>
                                                     ${
-                                                      appointment.report.XrayImages
+                                                      appointment.report
+                                                        .XrayImages
                                                         ? `
                                                         <div>
                                                             <span class="text-nhd-blue font-medium">X-ray Images:</span>
@@ -294,7 +295,7 @@ async function editPatientRecord(recordId, patientId) {
   if (!currentPatientData) {
     try {
       const response = await fetch(
-        `${window.BASE_URL}/doctor/get-patient-details?patient_id=${patientId}`
+        `${window.BASE_URL}/doctor/get-patient-details?patient_id=${patientId}`,
       );
       const data = await response.json();
 
@@ -356,7 +357,9 @@ document
   .addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    if (!confirm("Are you sure you want to save changes to this patient record?")) {
+    if (
+      !confirm("Are you sure you want to save changes to this patient record?")
+    ) {
       return;
     }
 

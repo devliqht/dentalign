@@ -38,7 +38,7 @@ async function fetchAppointmentReport(appointmentId) {
     const data = await response.json();
 
     if (data.success) {
-      populateModal(data.appointment, data.report);
+      populateModal(data.appointment, data.report, data.doctors || []);
       showModalContent();
     } else {
       showModalError(data.message || "Failed to load appointment details");
@@ -49,7 +49,7 @@ async function fetchAppointmentReport(appointmentId) {
   }
 }
 
-function populateModal(appointment, report) {
+function populateModal(appointment, report, doctors) {
   document.getElementById("modalPatientName").textContent =
     `${appointment.PatientFirstName} ${appointment.PatientLastName}`;
 
@@ -66,6 +66,9 @@ function populateModal(appointment, report) {
   document.getElementById("modalReason").textContent =
     appointment.Reason || "No reason specified";
 
+  document.getElementById("modalDoctor").textContent =
+    `${appointment.DoctorFirstName} ${appointment.DoctorLastName}`;
+
   document.getElementById("reportAppointmentId").value =
     appointment.AppointmentID;
   document.getElementById("oralNotes").value = report.oralNotes || "";
@@ -73,6 +76,10 @@ function populateModal(appointment, report) {
   document.getElementById("xrayImages").value = report.xrayImages || "";
   document.getElementById("modalStatus").value =
     appointment.Status || "Pending";
+
+  // Populate doctor dropdown and show doctor change section for dental assistants
+  populateDoctorDropdown(doctors, appointment.DoctorID);
+  checkUserRoleAndShowDoctorChange();
 
   // Show treatment plan section if appointment is completed
   const treatmentPlanSection = document.getElementById("treatmentPlanSection");
@@ -112,7 +119,103 @@ function formatDateTime(dateTimeString) {
   return date.toLocaleDateString("en-US", options);
 }
 
+function populateDoctorDropdown(doctors, currentDoctorId) {
+  const select = document.getElementById("modalDoctorSelect");
+  if (!select) return;
+
+  // Clear existing options except the first one
+  select.innerHTML = '<option value="">Select a doctor...</option>';
+
+  // Add doctor options
+  doctors.forEach((doctor) => {
+    const option = document.createElement("option");
+    option.value = doctor.UserID;
+    option.textContent = `Dr. ${doctor.FirstName} ${doctor.LastName}${doctor.Specialization ? ` - ${doctor.Specialization}` : ""}`;
+
+    // Don't preselect the current doctor to make the intent clear
+    select.appendChild(option);
+  });
+}
+
+function checkUserRoleAndShowDoctorChange() {
+  // Check if the current page URL contains 'dentalassistant' to determine if the user is a dental assistant
+  const isDentalAssistant =
+    window.location.pathname.includes("dentalassistant");
+  const doctorChangeSection = document.getElementById("doctorChangeSection");
+
+  if (isDentalAssistant && doctorChangeSection) {
+    doctorChangeSection.classList.remove("hidden");
+  }
+}
+
+async function updateAppointmentDoctor(appointmentId, newDoctorId) {
+  try {
+    const response = await fetch(
+      `${window.BASE_URL}/dentalassistant/update-appointment-doctor`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          appointmentId: appointmentId,
+          doctorId: newDoctorId,
+        }),
+      },
+    );
+
+    const result = await response.json();
+
+    if (result.success) {
+      if (window.toast && typeof window.toast.success === "function") {
+        window.toast.success(result.message || "Doctor updated successfully");
+      }
+
+      // Refresh the appointment data
+      await fetchAppointmentReport(appointmentId);
+
+      // Reset the dropdown
+      document.getElementById("modalDoctorSelect").value = "";
+    } else {
+      if (window.toast && typeof window.toast.error === "function") {
+        window.toast.error(result.message || "Failed to update doctor");
+      }
+    }
+  } catch (error) {
+    console.error("Error updating appointment doctor:", error);
+    if (window.toast && typeof window.toast.error === "function") {
+      window.toast.error("Network error occurred while updating doctor");
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+  // Add event listener for the update doctor button
+  const updateDoctorBtn = document.getElementById("updateDoctorBtn");
+  if (updateDoctorBtn) {
+    updateDoctorBtn.addEventListener("click", function () {
+      const appointmentId = currentAppointmentId;
+      const newDoctorId = document.getElementById("modalDoctorSelect").value;
+
+      if (!newDoctorId) {
+        if (window.toast && typeof window.toast.error === "function") {
+          window.toast.error("Please select a doctor");
+        }
+        return;
+      }
+
+      if (
+        !confirm(
+          "Are you sure you want to change the doctor for this appointment?",
+        )
+      ) {
+        return;
+      }
+
+      updateAppointmentDoctor(appointmentId, newDoctorId);
+    });
+  }
+
   const form = document.getElementById("appointmentReportForm");
   if (form) {
     form.addEventListener("submit", async function (e) {

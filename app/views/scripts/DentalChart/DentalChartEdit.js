@@ -1180,10 +1180,10 @@ document.addEventListener("DOMContentLoaded", function () {
       "edit-treatment-item-id",
     ).value;
     const isUpdate = !!treatmentItemId;
-    const confirmMessage = isUpdate 
-      ? "Are you sure you want to save changes to this treatment item?" 
+    const confirmMessage = isUpdate
+      ? "Are you sure you want to save changes to this treatment item?"
       : "Are you sure you want to create this treatment item?";
-    
+
     if (!confirm(confirmMessage)) {
       return;
     }
@@ -1295,7 +1295,11 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("save-treatment-plan-changes-btn")
     .addEventListener("click", function () {
-      if (!confirm("Are you sure you want to save all changes to this treatment plan?")) {
+      if (
+        !confirm(
+          "Are you sure you want to save all changes to this treatment plan?",
+        )
+      ) {
         return;
       }
 

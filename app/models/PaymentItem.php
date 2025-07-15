@@ -145,8 +145,10 @@ class PaymentItem
         }
     }
 
-    public function createFromTreatmentPlanItem($treatmentItemID, $appointmentID)
-    {
+    public function createFromTreatmentPlanItem(
+        $treatmentItemID,
+        $appointmentID
+    ) {
         // Get TreatmentPlanItem details
         require_once "app/models/TreatmentPlanItem.php";
         require_once "app/models/TreatmentPlan.php";
@@ -164,7 +166,8 @@ class PaymentItem
         }
 
         // Get the appointmentID from the AppointmentReport
-        $appointmentQuery = "SELECT AppointmentID FROM AppointmentReport WHERE AppointmentReportID = ?";
+        $appointmentQuery =
+            "SELECT AppointmentID FROM AppointmentReport WHERE AppointmentReportID = ?";
         $stmt = $this->conn->prepare($appointmentQuery);
         $stmt->bind_param("i", $treatmentPlan->appointmentReportID);
         $stmt->execute();
@@ -174,17 +177,18 @@ class PaymentItem
             return false;
         }
 
-        $appointmentID = $appointmentResult['AppointmentID'];
+        $appointmentID = $appointmentResult["AppointmentID"];
 
         // Get or create Payment for this appointment
         $payment = new Payment($this->conn);
         $existingPayment = $payment->getPaymentByAppointment($appointmentID);
 
         if ($existingPayment) {
-            $paymentID = $existingPayment['PaymentID'];
+            $paymentID = $existingPayment["PaymentID"];
         } else {
             // Get patient ID from appointment
-            $patientQuery = "SELECT PatientID FROM Appointment WHERE AppointmentID = ?";
+            $patientQuery =
+                "SELECT PatientID FROM Appointment WHERE AppointmentID = ?";
             $stmt = $this->conn->prepare($patientQuery);
             $stmt->bind_param("i", $appointmentID);
             $stmt->execute();
@@ -196,11 +200,11 @@ class PaymentItem
 
             // Create new payment
             $payment->appointmentID = $appointmentID;
-            $payment->patientID = $patientResult['PatientID'];
-            $payment->status = 'Pending';
-            $payment->notes = 'Auto-created from completed treatment';
-            $payment->deadlineDate = date('Y-m-d', strtotime('+30 days'));
-            $payment->paymentMethod = 'Cash';
+            $payment->patientID = $patientResult["PatientID"];
+            $payment->status = "Pending";
+            $payment->notes = "Auto-created from completed treatment";
+            $payment->deadlineDate = date("Y-m-d", strtotime("+30 days"));
+            $payment->paymentMethod = "Cash";
 
             if (!$payment->create()) {
                 return false;
@@ -209,7 +213,8 @@ class PaymentItem
         }
 
         // Check if PaymentItem already exists for this TreatmentPlanItem
-        $checkQuery = "SELECT PaymentItemID FROM PaymentItems WHERE TreatmentItemID = ?";
+        $checkQuery =
+            "SELECT PaymentItemID FROM PaymentItems WHERE TreatmentItemID = ?";
         $stmt = $this->conn->prepare($checkQuery);
         $stmt->bind_param("i", $treatmentItemID);
         $stmt->execute();
@@ -222,7 +227,9 @@ class PaymentItem
 
         // Create PaymentItem from TreatmentPlanItem
         $this->paymentID = $paymentID;
-        $this->description = $treatmentPlanItem->description ?: "Treatment: " . $treatmentPlanItem->procedureCode;
+        $this->description =
+            $treatmentPlanItem->description ?:
+            "Treatment: " . $treatmentPlanItem->procedureCode;
         $this->amount = $treatmentPlanItem->cost;
         $this->quantity = 1;
         $this->treatmentItemID = $treatmentItemID;
@@ -232,13 +239,14 @@ class PaymentItem
 
     public function isChargedToAccount($treatmentItemID)
     {
-        $query = "SELECT COUNT(*) as count FROM PaymentItems WHERE TreatmentItemID = ?";
+        $query =
+            "SELECT COUNT(*) as count FROM PaymentItems WHERE TreatmentItemID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $treatmentItemID);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
 
-        return $result['count'] > 0;
+        return $result["count"] > 0;
     }
 
     public function removeByTreatmentItemID($treatmentItemID)

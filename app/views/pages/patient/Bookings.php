@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../components/SortableAppointmentTable.php';
+require_once __DIR__ . "/../../components/SortableAppointmentTable.php";
 
 function getAppointmentStatusClass($status)
 {
@@ -21,7 +21,8 @@ function getAppointmentStatusClass($status)
         default:
             return "bg-gray-100/60 text-gray-600";
     }
-} ?>
+}
+?>
 
 <div class="pb-8">
     <div class="px-4">
@@ -64,9 +65,9 @@ function getAppointmentStatusClass($status)
 renderSortableAppointmentTable(
     $upcomingAppointments,
     $appointmentPayments,
-    'upcoming',
-    'Upcoming Appointments',
-    'No upcoming appointments',
+    "upcoming",
+    "Upcoming Appointments",
+    "No upcoming appointments",
     $upcomingEmptyIcon,
     $user
 );
@@ -81,9 +82,9 @@ $completedEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="n
 renderSortableAppointmentTable(
     $completedAppointments,
     $appointmentPayments,
-    'completed',
-    'Completed Appointments',
-    'No completed appointments yet',
+    "completed",
+    "Completed Appointments",
+    "No completed appointments yet",
     $completedEmptyIcon,
     $user
 );
@@ -98,9 +99,9 @@ $cancelledEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="n
 renderSortableAppointmentTable(
     $cancelledAppointments,
     $appointmentPayments,
-    'cancelled',
-    'Cancelled Appointments',
-    'No cancelled appointments',
+    "cancelled",
+    "Cancelled Appointments",
+    "No cancelled appointments",
     $cancelledEmptyIcon,
     $user
 );
@@ -115,9 +116,9 @@ $pendingCancellationEmptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-
 renderSortableAppointmentTable(
     $pendingCancellationAppointments,
     $appointmentPayments,
-    'pending-cancellation',
-    'Pending Cancellation',
-    'No pending cancellation requests',
+    "pending-cancellation",
+    "Pending Cancellation",
+    "No pending cancellation requests",
     $pendingCancellationEmptyIcon,
     $user
 );

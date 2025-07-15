@@ -357,21 +357,33 @@
                                             )
                                         ); ?>
                                     </p>
-                                    <?php if (!empty($payment["DeadlineDate"])): ?>
+                                    <?php if (
+                                        !empty($payment["DeadlineDate"])
+                                    ): ?>
                                         <p class="text-xs text-gray-500">
                                             <?php
-                                            $deadline = strtotime($payment["DeadlineDate"]);
+                                            $deadline = strtotime(
+                                                $payment["DeadlineDate"]
+                                            );
                                         $today = strtotime(date("Y-m-d"));
-                                        $daysLeft = ($deadline - $today) / (60 * 60 * 24);
+                                        $daysLeft =
+                                            ($deadline - $today) /
+                                            (60 * 60 * 24);
 
                                         if ($daysLeft < 0) {
-                                            echo '<span class="text-red-600 font-medium">Overdue by ' . abs(round($daysLeft)) . ' days</span>';
+                                            echo '<span class="text-red-600 font-medium">Overdue by ' .
+                                                abs(round($daysLeft)) .
+                                                " days</span>";
                                         } elseif ($daysLeft == 0) {
                                             echo '<span class="text-orange-600 font-medium">Due today</span>';
                                         } elseif ($daysLeft <= 7) {
-                                            echo '<span class="text-orange-600 font-medium">Due in ' . round($daysLeft) . ' days</span>';
+                                            echo '<span class="text-orange-600 font-medium">Due in ' .
+                                                round($daysLeft) .
+                                                " days</span>";
                                         } else {
-                                            echo 'Due in ' . round($daysLeft) . ' days';
+                                            echo "Due in " .
+                                                round($daysLeft) .
+                                                " days";
                                         }
                             ?>
                                         </p>
@@ -382,9 +394,16 @@
                                         $payment["total_amount"],
                                         2
                                     ); ?></span>
-                                    <?php if (isset($payment["is_overdue"]) && $payment["is_overdue"] && $payment["overdue_amount"] > 0): ?>
+                                    <?php if (
+                                        isset($payment["is_overdue"]) &&
+                                        $payment["is_overdue"] &&
+                                        $payment["overdue_amount"] > 0
+                                    ): ?>
                                         <p class="text-xs text-red-600">
-                                            +₱<?php echo number_format($payment["overdue_amount"], 2); ?> overdue fee
+                                            +₱<?php echo number_format(
+                                                $payment["overdue_amount"],
+                                                2
+                                            ); ?> overdue fee
                                         </p>
                                     <?php endif; ?>
                                 </div>

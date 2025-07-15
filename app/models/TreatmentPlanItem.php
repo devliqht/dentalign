@@ -50,13 +50,14 @@ class TreatmentPlanItem
 
     public function isChargedToAccount($treatmentItemID)
     {
-        $query = "SELECT COUNT(*) as count FROM PaymentItems WHERE TreatmentItemID = ?";
+        $query =
+            "SELECT COUNT(*) as count FROM PaymentItems WHERE TreatmentItemID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $treatmentItemID);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
 
-        return $result['count'] > 0;
+        return $result["count"] > 0;
     }
 
     public function findByTreatmentPlanID($treatmentPlanID)
@@ -181,7 +182,10 @@ class TreatmentPlanItem
             $paymentItem = new PaymentItem($this->conn);
             $paymentItem->createFromTreatmentPlanItem($treatmentItemID, null);
         } catch (Exception $e) {
-            error_log("Failed to auto-create PaymentItem for TreatmentItemID {$treatmentItemID}: " . $e->getMessage());
+            error_log(
+                "Failed to auto-create PaymentItem for TreatmentItemID {$treatmentItemID}: " .
+                    $e->getMessage()
+            );
         }
     }
 
@@ -211,7 +215,10 @@ class TreatmentPlanItem
             $paymentItem = new PaymentItem($this->conn);
             $paymentItem->removeByTreatmentItemID($treatmentItemID);
         } catch (Exception $e) {
-            error_log("Failed to auto-remove PaymentItem for TreatmentItemID {$treatmentItemID}: " . $e->getMessage());
+            error_log(
+                "Failed to auto-remove PaymentItem for TreatmentItemID {$treatmentItemID}: " .
+                    $e->getMessage()
+            );
         }
     }
 

@@ -119,39 +119,39 @@ class DentalAssistant extends User
 
         return false;
     }
-//    public function findDentalAssistantByEmail($email)
-//     {
-//         $query =
-//             "SELECT u.UserID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.UserType, u.CreatedAt,
-//                          cs.StaffType
-//                   FROM " .
-//             $this->table .
-//             " u
-//                   INNER JOIN " .
-//             $this->clinicStaffTable .
-//             " cs ON u.UserID = cs.ClinicStaffID
-//                   WHERE u.Email = ? AND cs.StaffType = 'DentalAssistant' LIMIT 1";
+    //    public function findDentalAssistantByEmail($email)
+    //     {
+    //         $query =
+    //             "SELECT u.UserID, u.FirstName, u.LastName, u.Email, u.PasswordHash, u.UserType, u.CreatedAt,
+    //                          cs.StaffType
+    //                   FROM " .
+    //             $this->table .
+    //             " u
+    //                   INNER JOIN " .
+    //             $this->clinicStaffTable .
+    //             " cs ON u.UserID = cs.ClinicStaffID
+    //                   WHERE u.Email = ? AND cs.StaffType = 'DentalAssistant' LIMIT 1";
 
-//         $stmt = $this->conn->prepare($query);
-//         $stmt->bind_param("s", $email);
-//         $stmt->execute();
+    //         $stmt = $this->conn->prepare($query);
+    //         $stmt->bind_param("s", $email);
+    //         $stmt->execute();
 
-//         $result = $stmt->get_result();
+    //         $result = $stmt->get_result();
 
-//         if ($result->num_rows > 0) {
-//             $row = $result->fetch_assoc();
-//             $this->userID = $row["UserID"];
-//             $this->dentalAssistantID = $row["UserID"];
-//             $this->firstName = $row["FirstName"];
-//             $this->lastName = $row["LastName"];
-//             $this->email = $row["Email"];
-//             $this->passwordHash = $row["PasswordHash"];
-//             $this->userType = $row["UserType"];
-//             $this->createdAt = $row["CreatedAt"];
-//             $this->staffType = $row["StaffType"];
-//             return true;
-//         }
+    //         if ($result->num_rows > 0) {
+    //             $row = $result->fetch_assoc();
+    //             $this->userID = $row["UserID"];
+    //             $this->dentalAssistantID = $row["UserID"];
+    //             $this->firstName = $row["FirstName"];
+    //             $this->lastName = $row["LastName"];
+    //             $this->email = $row["Email"];
+    //             $this->passwordHash = $row["PasswordHash"];
+    //             $this->userType = $row["UserType"];
+    //             $this->createdAt = $row["CreatedAt"];
+    //             $this->staffType = $row["StaffType"];
+    //             return true;
+    //         }
 
-//         return false;
-//     }
+    //         return false;
+    //     }
 }

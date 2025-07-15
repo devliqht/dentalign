@@ -56,6 +56,7 @@ $router->group("POST", "PatientController", [
 
 $router->group("GET", "DentalAssistantController", [
     "dentalassistant/dashboard" => "dashboard",
+    "dentalassistant/report" => "report",
     "dentalassistant/payment-management" => "paymentManagement",
     "dentalassistant/get-all-appointments-payments" =>
         "getAllAppointmentsPayments",
@@ -76,6 +77,7 @@ $router->group("POST", "DentalAssistantController", [
     "dentalassistant/update-payment-status" => "updatePaymentStatus",
     "dentalassistant/update-overdue-config" => "updateOverdueConfig",
     "dentalassistant/update-appointment-report" => "updateAppointmentReport",
+    "dentalassistant/update-appointment-doctor" => "updateAppointmentDoctor",
     "dentalassistant/approve-cancellation" => "approveCancellation",
     "dentalassistant/deny-cancellation" => "denyCancellation",
     "dentalassistant/update-profile" => "updateProfile",

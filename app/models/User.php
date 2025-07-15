@@ -188,9 +188,6 @@ class User
         return $result->num_rows > 0;
     }
 
-    /**
-     * Generate a password reset token for the user
-     */
     public function generatePasswordResetToken($userId, $email = null)
     {
         $this->cleanupExpiredTokens();
@@ -216,9 +213,6 @@ class User
         return false;
     }
 
-    /**
-     * Validate a password reset token
-     */
     public function validatePasswordResetToken($token)
     {
         $query = "SELECT user_id, expires_at, used_at FROM password_reset_tokens 
@@ -237,9 +231,6 @@ class User
         return false;
     }
 
-    /**
-     * Use a password reset token (mark as used)
-     */
     public function usePasswordResetToken($token)
     {
         $query =

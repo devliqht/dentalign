@@ -109,11 +109,13 @@
 </head>
 <body class="<?php echo isset($bodyClass)
     ? htmlspecialchars($bodyClass)
-    : ""; ?>" <?php if (isset($bodyStyle)): ?>style="<?php echo htmlspecialchars($bodyStyle); ?>"<?php endif; ?>>
+    : ""; ?>" <?php if (
+        isset($bodyStyle)
+    ): ?>style="<?php echo htmlspecialchars($bodyStyle); ?>"<?php endif; ?>>
     
     <div class="app-layout <?php echo isset($_SESSION["user_name"])
-        ? "has-sidebar"
-        : "no-sidebar"; ?>">
+            ? "has-sidebar"
+            : "no-sidebar"; ?>">
         <?php include __DIR__ . "/components/Toast.php"; ?>
         <?php include __DIR__ . "/components/Header.php"; ?>
 
@@ -125,8 +127,8 @@
         <div class="main-content-wrapper <?php echo !isset(
             $_SESSION["user_name"]
         )
-            ? "no-sidebar"
-            : ""; ?>">
+                ? "no-sidebar"
+                : ""; ?>">
             
             <?php if (isset($_SESSION["user_name"])): ?>
                 <button id="sidebar-toggle" class="lg:hidden fixed top-4 left-4 z-50 p-3 glass-card rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">

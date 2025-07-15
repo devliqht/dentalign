@@ -26,6 +26,23 @@
                             <p id="modalDateTime" class="text-gray-900"></p>
                         </div>
                         <div>
+                            <span class="font-medium text-gray-700">Doctor:</span>
+                            <p id="modalDoctor" class="text-gray-900 mt-1 font-semibold"></p>
+                            <div id="doctorChangeSection" class="mt-2 hidden">
+                                <label for="modalDoctorSelect" class="block text-xs font-medium text-gray-600 mb-1">Change Doctor:</label>
+                                <div class="flex items-center space-x-2">
+                                    <select id="modalDoctorSelect" class="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-nhd-blue focus:border-transparent">
+                                        <option value="">Select a doctor...</option>
+                                    </select>
+                                    <button type="button" 
+                                            id="updateDoctorBtn" 
+                                            class="px-3 py-1 text-xs bg-nhd-blue text-white rounded hover:bg-opacity-80 transition-colors">
+                                        Update
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
                             <span class="font-medium text-gray-700">Type:</span>
                             <p id="modalType" class="text-gray-900"></p>
                         </div>
@@ -33,10 +50,11 @@
                             <span class="font-medium text-gray-700">Appointment ID:</span>
                             <p id="modalAppointmentId" class="text-gray-900"></p>
                         </div>
-                        <div class="md:col-span-2">
+                        <div>
                             <span class="font-medium text-gray-700">Reason for Visit:</span>
                             <p id="modalReason" class="text-gray-900 mt-1"></p>
                         </div>
+   
                     </div>
                 </div>
                 

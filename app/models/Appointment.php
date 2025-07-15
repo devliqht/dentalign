@@ -107,8 +107,16 @@ class Appointment
 
             // Create a default Payment entry for the new appointment
             $payment = new Payment($this->conn);
-            if (!$payment->createForAppointment($this->appointmentID, $this->patientID, $this->dateTime)) {
-                error_log("WARNING: Failed to create payment entry for appointment");
+            if (
+                !$payment->createForAppointment(
+                    $this->appointmentID,
+                    $this->patientID,
+                    $this->dateTime
+                )
+            ) {
+                error_log(
+                    "WARNING: Failed to create payment entry for appointment"
+                );
                 // Don't fail the appointment creation if payment creation fails
                 // This is a non-critical operation
             } else {
@@ -394,7 +402,8 @@ class Appointment
 
     public function hasPaidPayments($appointmentID)
     {
-        $query = "SELECT COUNT(*) as paid_payment_count FROM Payments WHERE AppointmentID = ? AND Status = 'Paid'";
+        $query =
+            "SELECT COUNT(*) as paid_payment_count FROM Payments WHERE AppointmentID = ? AND Status = 'Paid'";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $appointmentID);
 
@@ -409,19 +418,20 @@ class Appointment
 
     public function isWithin24Hours($appointmentID)
     {
-        $query = "SELECT DateTime FROM " . $this->table . " WHERE AppointmentID = ?";
+        $query =
+            "SELECT DateTime FROM " . $this->table . " WHERE AppointmentID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $appointmentID);
 
         if ($stmt->execute()) {
             $result = $stmt->get_result();
             $row = $result->fetch_assoc();
-            
+
             if ($row) {
                 $appointmentDateTime = strtotime($row["DateTime"]);
                 $currentTime = time();
                 $timeDifference = $appointmentDateTime - $currentTime;
-                
+
                 return $timeDifference < 86400;
             }
         }
@@ -540,7 +550,7 @@ class Appointment
     {
         // Start a transaction to ensure both appointment and payment are updated together
         $this->conn->begin_transaction();
-        
+
         try {
             // First, update the appointment status
             $query =
@@ -557,26 +567,28 @@ class Appointment
 
             require_once __DIR__ . "/Payment.php";
             $payment = new Payment($this->conn);
-            
+
             $paymentData = $payment->getPaymentByAppointment($appointmentID);
-            
-            if ($paymentData && strtolower($paymentData["Status"]) !== "cancelled") {
+
+            if (
+                $paymentData &&
+                strtolower($paymentData["Status"]) !== "cancelled"
+            ) {
                 $paymentCancelled = $payment->updateStatus(
-                    $paymentData["PaymentID"], 
-                    "Cancelled", 
+                    $paymentData["PaymentID"],
+                    "Cancelled",
                     null, // updatedBy can be null for system actions
                     "Payment cancelled due to appointment cancellation"
                 );
-                
+
                 if (!$paymentCancelled) {
                     $this->conn->rollback();
                     return false;
                 }
             }
-            
+
             $this->conn->commit();
             return true;
-            
         } catch (Exception $e) {
             $this->conn->rollback();
             error_log("Error in approveCancellation: " . $e->getMessage());
@@ -824,9 +836,9 @@ class Appointment
             return false;
         }
 
-        if (strtolower($this->status) === 'cancelled') {
+        if (strtolower($this->status) === "cancelled") {
             $this->conn->begin_transaction();
-            
+
             try {
                 $sql =
                     "UPDATE " .
@@ -835,7 +847,9 @@ class Appointment
                 $stmt = $this->conn->prepare($sql);
 
                 if (!$stmt) {
-                    error_log("Failed to prepare statement: " . $this->conn->error);
+                    error_log(
+                        "Failed to prepare statement: " . $this->conn->error
+                    );
                     $this->conn->rollback();
                     return false;
                 }
@@ -843,38 +857,46 @@ class Appointment
                 $stmt->bind_param("si", $this->status, $appointmentID);
 
                 if (!$stmt->execute()) {
-                    error_log("Failed to update appointment status: " . $stmt->error);
+                    error_log(
+                        "Failed to update appointment status: " . $stmt->error
+                    );
                     $this->conn->rollback();
                     return false;
                 }
 
                 require_once __DIR__ . "/Payment.php";
                 $payment = new Payment($this->conn);
-                
+
                 // Get the payment for this appointment
-                $paymentData = $payment->getPaymentByAppointment($appointmentID);
-                
-                if ($paymentData && strtolower($paymentData["Status"]) !== "cancelled") {
+                $paymentData = $payment->getPaymentByAppointment(
+                    $appointmentID
+                );
+
+                if (
+                    $paymentData &&
+                    strtolower($paymentData["Status"]) !== "cancelled"
+                ) {
                     // Cancel the payment with a note
                     $paymentCancelled = $payment->updateStatus(
-                        $paymentData["PaymentID"], 
-                        "Cancelled", 
+                        $paymentData["PaymentID"],
+                        "Cancelled",
                         null, // updatedBy can be null for system actions
                         "Payment cancelled due to appointment cancellation"
                     );
-                    
+
                     if (!$paymentCancelled) {
                         $this->conn->rollback();
                         return false;
                     }
                 }
-                
+
                 $this->conn->commit();
                 return true;
-                
             } catch (Exception $e) {
                 $this->conn->rollback();
-                error_log("Error in updateAppointmentStatus: " . $e->getMessage());
+                error_log(
+                    "Error in updateAppointmentStatus: " . $e->getMessage()
+                );
                 return false;
             }
         } else {
@@ -903,7 +925,8 @@ class Appointment
 
     public function getAllAppointmentsHistory()
     {
-        $query = "
+        $query =
+            "
             SELECT 
                 a.AppointmentID,
                 a.PatientID,
@@ -921,7 +944,9 @@ class Appointment
                 d_user.FirstName as DoctorFirstName,
                 d_user.LastName as DoctorLastName,
                 doc.Specialization as DoctorSpecialization
-            FROM " . $this->table . " a
+            FROM " .
+            $this->table .
+            " a
             LEFT JOIN PATIENT pat ON a.PatientID = pat.PatientID
             LEFT JOIN USER p_user ON pat.PatientID = p_user.UserID
             LEFT JOIN Doctor doc ON a.DoctorID = doc.DoctorID
@@ -935,7 +960,8 @@ class Appointment
 
     public function getAllPendingCancellations()
     {
-        $query = "
+        $query =
+            "
             SELECT 
                 a.AppointmentID,
                 a.PatientID,
@@ -953,7 +979,9 @@ class Appointment
                 d_user.FirstName as DoctorFirstName,
                 d_user.LastName as DoctorLastName,
                 doc.Specialization as DoctorSpecialization
-            FROM " . $this->table . " a
+            FROM " .
+            $this->table .
+            " a
             LEFT JOIN PATIENT pat ON a.PatientID = pat.PatientID
             LEFT JOIN USER p_user ON pat.PatientID = p_user.UserID
             LEFT JOIN Doctor doc ON a.DoctorID = doc.DoctorID
@@ -964,5 +992,50 @@ class Appointment
 
         $result = $this->conn->query($query);
         return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function updateAppointmentDoctor($appointmentID, $newDoctorID)
+    {
+        try {
+            $this->conn->begin_transaction();
+
+            // First, check if the appointment exists
+            $checkQuery =
+                "SELECT AppointmentID, DoctorID FROM " .
+                $this->table .
+                " WHERE AppointmentID = ?";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->bind_param("i", $appointmentID);
+            $checkStmt->execute();
+            $result = $checkStmt->get_result();
+
+            if ($result->num_rows === 0) {
+                $this->conn->rollback();
+                return false;
+            }
+
+            // Update the appointment's doctor
+            $updateQuery =
+                "UPDATE " .
+                $this->table .
+                " SET DoctorID = ? WHERE AppointmentID = ?";
+            $updateStmt = $this->conn->prepare($updateQuery);
+            $updateStmt->bind_param("ii", $newDoctorID, $appointmentID);
+
+            if (!$updateStmt->execute()) {
+                error_log(
+                    "Failed to update appointment doctor: " . $updateStmt->error
+                );
+                $this->conn->rollback();
+                return false;
+            }
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            error_log("Error updating appointment doctor: " . $e->getMessage());
+            $this->conn->rollback();
+            return false;
+        }
     }
 }

@@ -1,10 +1,13 @@
 <?php
 // Include the SortableAppointmentTable component
-require_once __DIR__ . '/../../../components/SortableAppointmentTable.php';
+require_once __DIR__ . "/../../../components/SortableAppointmentTable.php";
 
 // Function to render payment management table
-function renderPaymentManagementTable($appointments, $appointmentPayments, $user)
-{
+function renderPaymentManagementTable(
+    $appointments,
+    $appointmentPayments,
+    $user
+) {
     ?>
     <div class="glass-card rounded-2xl border-gray-200 border-1 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-gray-200">
@@ -271,7 +274,7 @@ function renderPaymentManagementTable($appointments, $appointmentPayments, $user
         
         <!-- Pagination Controls -->
         <div id="pagination-controls-container" class="hidden">
-            <?php echo renderPaginationControls('payment-management'); ?>
+            <?php echo renderPaginationControls("payment-management"); ?>
         </div>
     </div>
 </div>

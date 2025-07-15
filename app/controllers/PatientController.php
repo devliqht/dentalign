@@ -97,16 +97,23 @@ class PatientController extends Controller
                     $paymentWithBreakdown["total_amount"] ?? 0;
 
                 // Copy overdue calculation results from getPaymentWithBreakdown
-                $paymentRecord["original_amount"] = $paymentWithBreakdown["original_amount"] ?? $paymentRecord["total_amount"];
-                $paymentRecord["is_overdue"] = $paymentWithBreakdown["is_overdue"] ?? false;
-                $paymentRecord["overdue_amount"] = $paymentWithBreakdown["overdue_amount"] ?? 0;
+                $paymentRecord["original_amount"] =
+                    $paymentWithBreakdown["original_amount"] ??
+                    $paymentRecord["total_amount"];
+                $paymentRecord["is_overdue"] =
+                    $paymentWithBreakdown["is_overdue"] ?? false;
+                $paymentRecord["overdue_amount"] =
+                    $paymentWithBreakdown["overdue_amount"] ?? 0;
 
                 $appointmentPayments[
                     $paymentRecord["AppointmentID"]
                 ] = $paymentRecord;
 
                 // Track pending payments
-                if (strtolower($paymentRecord["Status"]) === "pending" || strtolower($paymentRecord["Status"]) === "overdue") {
+                if (
+                    strtolower($paymentRecord["Status"]) === "pending" ||
+                    strtolower($paymentRecord["Status"]) === "overdue"
+                ) {
                     $pendingPayments[] = $paymentRecord;
                     $totalPendingAmount += $paymentRecord["total_amount"];
                 } elseif (strtolower($paymentRecord["Status"]) === "paid") {
@@ -114,8 +121,10 @@ class PatientController extends Controller
                 }
             }
 
-            // Get payments sorted by deadline (closest due dates first)
-            $deadlinePayments = $payment->getPaymentsByDeadline($patientData["PatientID"], 5);
+            $deadlinePayments = $payment->getPaymentsByDeadline(
+                $patientData["PatientID"],
+                5
+            );
         }
 
         $patientPhysicalInfo = null;
@@ -261,9 +270,13 @@ class PatientController extends Controller
                     $paymentWithBreakdown["total_amount"] ?? 0;
 
                 // Copy overdue calculation results from getPaymentWithBreakdown
-                $paymentRecord["original_amount"] = $paymentWithBreakdown["original_amount"] ?? $paymentRecord["total_amount"];
-                $paymentRecord["is_overdue"] = $paymentWithBreakdown["is_overdue"] ?? false;
-                $paymentRecord["overdue_amount"] = $paymentWithBreakdown["overdue_amount"] ?? 0;
+                $paymentRecord["original_amount"] =
+                    $paymentWithBreakdown["original_amount"] ??
+                    $paymentRecord["total_amount"];
+                $paymentRecord["is_overdue"] =
+                    $paymentWithBreakdown["is_overdue"] ?? false;
+                $paymentRecord["overdue_amount"] =
+                    $paymentWithBreakdown["overdue_amount"] ?? 0;
 
                 $appointmentPayments[
                     $paymentRecord["AppointmentID"]
@@ -826,7 +839,9 @@ class PatientController extends Controller
 
         // Handle password update
         if (isset($data["action"]) && $data["action"] === "update_password") {
-            $passwordErrors = $this->validatePassword($data["new_password"] ?? "");
+            $passwordErrors = $this->validatePassword(
+                $data["new_password"] ?? ""
+            );
             if (!empty($passwordErrors)) {
                 $this->redirectBack(implode(". ", $passwordErrors));
                 return;
@@ -1163,9 +1178,13 @@ class PatientController extends Controller
                 $paymentWithBreakdown["total_amount"] ?? 0;
 
             // Copy overdue calculation results from getPaymentWithBreakdown
-            $appointmentPayment["original_amount"] = $paymentWithBreakdown["original_amount"] ?? $appointmentPayment["total_amount"];
-            $appointmentPayment["is_overdue"] = $paymentWithBreakdown["is_overdue"] ?? false;
-            $appointmentPayment["overdue_amount"] = $paymentWithBreakdown["overdue_amount"] ?? 0;
+            $appointmentPayment["original_amount"] =
+                $paymentWithBreakdown["original_amount"] ??
+                $appointmentPayment["total_amount"];
+            $appointmentPayment["is_overdue"] =
+                $paymentWithBreakdown["is_overdue"] ?? false;
+            $appointmentPayment["overdue_amount"] =
+                $paymentWithBreakdown["overdue_amount"] ?? 0;
         }
 
         $data = [
@@ -1376,31 +1395,39 @@ class PatientController extends Controller
         switch (strtolower($payment["Status"])) {
             case "paid":
                 $statusClass = "bg-green-100 text-green-800 border-green-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
                 break;
             case "pending":
-                $statusClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>';
+                $statusClass =
+                    "bg-yellow-100 text-yellow-800 border-yellow-200";
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>';
                 break;
             case "overdue":
                 $statusClass = "bg-red-100 text-red-800 border-red-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>';
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>';
                 break;
             case "cancelled":
                 $statusClass = "bg-gray-100 text-gray-800 border-gray-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
                 break;
             case "failed":
                 $statusClass = "bg-red-100 text-red-800 border-red-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>';
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>';
                 break;
             case "refunded":
                 $statusClass = "bg-blue-100 text-blue-800 border-blue-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>';
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>';
                 break;
             default:
                 $statusClass = "bg-blue-100 text-blue-800 border-blue-200";
-                $statusIcon = '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>';
+                $statusIcon =
+                    '<svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>';
         }
 
         if (!empty($payment["DeadlineDate"])) {
@@ -1409,16 +1436,26 @@ class PatientController extends Controller
             $daysLeft = ($deadline - $today) / (60 * 60 * 24);
 
             if ($daysLeft < 0) {
-                $deadlineInfo = '<span class="text-red-600 font-bold">⚠️ Overdue by ' . abs(round($daysLeft)) . ' days</span>';
+                $deadlineInfo =
+                    '<span class="text-red-600 font-bold">⚠️ Overdue by ' .
+                    abs(round($daysLeft)) .
+                    " days</span>";
                 $urgencyClass = "border-l-4 border-red-500 bg-red-50/50";
             } elseif ($daysLeft == 0) {
-                $deadlineInfo = '<span class="text-orange-600 font-bold">⏰ Due today</span>';
+                $deadlineInfo =
+                    '<span class="text-orange-600 font-bold">⏰ Due today</span>';
                 $urgencyClass = "border-l-4 border-orange-500 bg-orange-50/50";
             } elseif ($daysLeft <= 7) {
-                $deadlineInfo = '<span class="text-orange-600 font-bold">📅 Due in ' . round($daysLeft) . ' days</span>';
+                $deadlineInfo =
+                    '<span class="text-orange-600 font-bold">📅 Due in ' .
+                    round($daysLeft) .
+                    " days</span>";
                 $urgencyClass = "border-l-4 border-orange-500 bg-orange-50/50";
             } else {
-                $deadlineInfo = '<span class="text-gray-600">📅 Due in ' . round($daysLeft) . ' days</span>';
+                $deadlineInfo =
+                    '<span class="text-gray-600">📅 Due in ' .
+                    round($daysLeft) .
+                    " days</span>";
                 $urgencyClass = "border-l-4 border-blue-500 bg-blue-50/50";
             }
         }
@@ -1440,17 +1477,20 @@ class PatientController extends Controller
 
                         <div class="flex flex-col space-y-3">
                             <div class="text-3xl font-bold font-mono text-nhd-blue">#' .
-                                str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT) .
-                            '</div>
+            str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT) .
+            '</div>
                             
                             <div class="flex flex-col space-y-2">
                                 <span class="inline-flex items-center w-fit glass-card shadow-none px-4 py-2 text-base font-bold rounded-full border-2 ' .
-                        $statusClass .
-                        '">
-                                    ' . $statusIcon . $statusText .
-                        '
+            $statusClass .
+            '">
+                                    ' .
+            $statusIcon .
+            $statusText .
+            '
                                 </span>
-                        ' .  '
+                        ' .
+            '
                             </div>
                         </div>
                     </div>
@@ -1458,30 +1498,46 @@ class PatientController extends Controller
                     <!-- Right Side: Total Amount -->
                     <div class="text-right">';
 
-        if (isset($payment["is_overdue"]) && $payment["is_overdue"] && isset($payment["overdue_amount"]) && $payment["overdue_amount"] > 0) {
-            $html .= '
+        if (
+            isset($payment["is_overdue"]) &&
+            $payment["is_overdue"] &&
+            isset($payment["overdue_amount"]) &&
+            $payment["overdue_amount"] > 0
+        ) {
+            $html .=
+                '
                         <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4">
-                            <div class="text-4xl font-bold text-red-600 mb-2">₱' . number_format($payment["total_amount"], 2) . '</div>
+                            <div class="text-4xl font-bold text-red-600 mb-2">₱' .
+                number_format($payment["total_amount"], 2) .
+                '</div>
                             <div class="text-sm text-red-700 space-y-1">
                                 <div class="flex justify-between items-center">
                                     <span>Original:</span>
-                                    <span class="font-semibold">₱' . number_format($payment["original_amount"] ?? 0, 2) . '</span>
+                                    <span class="font-semibold">₱' .
+                number_format($payment["original_amount"] ?? 0, 2) .
+                '</span>
                                 </div>
                                 <div class="flex justify-between items-center text-red-800">
                                     <span>Overdue Fee:</span>
-                                    <span class="font-bold">+₱' . number_format($payment["overdue_amount"] ?? 0, 2) . '</span>
+                                    <span class="font-bold">+₱' .
+                number_format($payment["overdue_amount"] ?? 0, 2) .
+                '</span>
                                 </div>
                             </div>
                         </div>';
         } else {
-            $html .= '
+            $html .=
+                '
                         <div class="bg-white border-2 border-gray-200 rounded-xl p-4">
-                            <div class="text-4xl font-bold text-black mb-2">₱' . number_format($payment["total_amount"], 2) . '</div>
+                            <div class="text-4xl font-bold text-black mb-2">₱' .
+                number_format($payment["total_amount"], 2) .
+                '</div>
 
                         </div>';
         }
 
-        $html .= '
+        $html .=
+            '
                     </div>
                 </div>
             </div>
@@ -1536,7 +1592,8 @@ class PatientController extends Controller
                 </div>';
 
         // Add payment details section
-        $html .= '
+        $html .=
+            '
                 <div class="mt-6 pt-6 border-t border-gray-200">
                     <h5 class="text-xl font-semibold text-nhd-brown mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-nhd-blue" fill="currentColor" viewBox="0 0 20 20">
@@ -1550,18 +1607,27 @@ class PatientController extends Controller
                             <label class="text-sm font-medium text-gray-500 block mb-1">Payment Method</label>
                             <div class="bg-white px-3 py-2 rounded-lg border-1 border-gray-200">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                    ' . htmlspecialchars($payment["PaymentMethod"] ?? 'Cash') . '
+                                    ' .
+            htmlspecialchars($payment["PaymentMethod"] ?? "Cash") .
+            '
                                 </span>
                             </div>
                         </div>';
 
         if (!empty($payment["DeadlineDate"])) {
-            $html .= '
+            $html .=
+                '
                         <div>
                             <label class="text-sm font-medium text-gray-500 block mb-1">Payment Deadline</label>
                             <div class="bg-white px-3 py-2 rounded-lg border-1 border-gray-200">
-                                <p class="text-lg font-semibold text-gray-900">' . date("M j, Y", strtotime($payment["DeadlineDate"])) . '</p>
-                                ' . (!empty($deadlineInfo) ? '<div class="text-sm">' . $deadlineInfo . '</div>' : '') . '
+                                <p class="text-lg font-semibold text-gray-900">' .
+                date("M j, Y", strtotime($payment["DeadlineDate"])) .
+                '</p>
+                                ' .
+                (!empty($deadlineInfo)
+                    ? '<div class="text-sm">' . $deadlineInfo . "</div>"
+                    : "") .
+                '
                             </div>
                         </div>';
         }
@@ -1629,13 +1695,14 @@ class PatientController extends Controller
                             </div>
                             <div class="text-right">
                                 <p class="text-lg font-bold text-nhd-brown">₱' .
-                                number_format($item["Total"], 2) .
-                                '</p>
+                    number_format($item["Total"], 2) .
+                    '</p>
                             </div>
                         </div>';
             }
 
-            $html .= '
+            $html .=
+                '
                     </div>
                     <div class="py-4 border-t-1 border-nhd-blue">
                         <div class="flex justify-between items-center">
@@ -1651,17 +1718,27 @@ class PatientController extends Controller
                         </div>';
 
             // Add overdue breakdown if applicable
-            if (isset($payment["is_overdue"]) && $payment["is_overdue"] && isset($payment["overdue_amount"]) && $payment["overdue_amount"] > 0) {
-                $html .= '
+            if (
+                isset($payment["is_overdue"]) &&
+                $payment["is_overdue"] &&
+                isset($payment["overdue_amount"]) &&
+                $payment["overdue_amount"] > 0
+            ) {
+                $html .=
+                    '
                         <div class="mt-3 pt-3 border-t border-red-200 bg-red-50 rounded-lg p-3">
                             <div class="text-sm text-red-700 space-y-1">
                                 <div class="flex justify-between">
                                     <span>Subtotal:</span>
-                                    <span class="font-semibold">₱' . number_format($payment["original_amount"] ?? 0, 2) . '</span>
+                                    <span class="font-semibold">₱' .
+                    number_format($payment["original_amount"] ?? 0, 2) .
+                    '</span>
                                 </div>
                                 <div class="flex justify-between text-red-800">
                                     <span>Overdue Fee:</span>
-                                    <span class="font-bold">+ ₱' . number_format($payment["overdue_amount"] ?? 0, 2) . '</span>
+                                    <span class="font-bold">+ ₱' .
+                    number_format($payment["overdue_amount"] ?? 0, 2) .
+                    '</span>
                                 </div>
                             </div>
                         </div>';
@@ -1719,7 +1796,9 @@ class PatientController extends Controller
                         <span class="text-gray-600 font-medium">Status:</span>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold border ' .
             $statusClass .
-            '">' . $statusIcon . $statusText .
+            '">' .
+            $statusIcon .
+            $statusText .
             '</span>
                     </div>
                 </div>
@@ -1761,7 +1840,10 @@ class PatientController extends Controller
         $patient = new Patient($this->conn);
         $patientData = $patient->getPatientByUserId($user["id"]);
 
-        if (!$patientData || ($patientID && $patientData["PatientID"] != $patientID)) {
+        if (
+            !$patientData ||
+            ($patientID && $patientData["PatientID"] != $patientID)
+        ) {
             echo json_encode([
                 "success" => false,
                 "message" => "Access denied",
@@ -1854,7 +1936,9 @@ class PatientController extends Controller
             require_once "app/models/TreatmentPlanItem.php";
 
             $treatmentPlan = new TreatmentPlan($this->conn);
-            $treatmentPlanDetails = $treatmentPlan->getTreatmentPlanWithDetails($treatmentPlanID);
+            $treatmentPlanDetails = $treatmentPlan->getTreatmentPlanWithDetails(
+                $treatmentPlanID
+            );
 
             if (!$treatmentPlanDetails) {
                 echo json_encode([
@@ -1865,13 +1949,17 @@ class PatientController extends Controller
             }
 
             // Verify that this treatment plan belongs to the logged-in patient
-            $appointmentQuery = "SELECT PatientID FROM Appointment WHERE AppointmentID = ?";
+            $appointmentQuery =
+                "SELECT PatientID FROM Appointment WHERE AppointmentID = ?";
             $stmt = $this->conn->prepare($appointmentQuery);
             $stmt->bind_param("i", $treatmentPlanDetails["AppointmentID"]);
             $stmt->execute();
             $appointmentResult = $stmt->get_result()->fetch_assoc();
 
-            if (!$appointmentResult || $appointmentResult["PatientID"] != $patientData["PatientID"]) {
+            if (
+                !$appointmentResult ||
+                $appointmentResult["PatientID"] != $patientData["PatientID"]
+            ) {
                 echo json_encode([
                     "success" => false,
                     "message" => "Access denied",
@@ -1881,7 +1969,9 @@ class PatientController extends Controller
 
             // Get treatment plan items with charge status
             $treatmentPlanItem = new TreatmentPlanItem($this->conn);
-            $items = $treatmentPlanItem->findByTreatmentPlanID($treatmentPlanID);
+            $items = $treatmentPlanItem->findByTreatmentPlanID(
+                $treatmentPlanID
+            );
 
             // Get progress
             $progress = $treatmentPlan->calculateProgress($treatmentPlanID);
@@ -1928,7 +2018,8 @@ class PatientController extends Controller
             );
             echo json_encode([
                 "success" => false,
-                "message" => "An error occurred while fetching treatment plan details",
+                "message" =>
+                    "An error occurred while fetching treatment plan details",
             ]);
         }
         exit();

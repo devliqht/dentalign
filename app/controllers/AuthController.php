@@ -29,7 +29,10 @@ class AuthController extends Controller
             "hideHeader" => true,
             "hideSidebar" => true,
             "hideFooter" => false,
-            "bodyStyle" => "background-image: url('" . BASE_URL . "/public/low.svg'); background-size: 100%;",
+            "bodyStyle" =>
+                "background-image: url('" .
+                BASE_URL .
+                "/public/low.svg'); background-size: 100%;",
         ];
 
         unset($_SESSION["error"]);
@@ -119,7 +122,10 @@ class AuthController extends Controller
             "hideHeader" => true,
             "hideSidebar" => true,
             "hideFooter" => false,
-            "bodyStyle" => "background-image: url('" . BASE_URL . "/public/low.svg'); background-size: 100%;",
+            "bodyStyle" =>
+                "background-image: url('" .
+                BASE_URL .
+                "/public/low.svg'); background-size: 100%;",
         ];
 
         unset($_SESSION["error"], $_SESSION["success"]);
@@ -536,7 +542,7 @@ class AuthController extends Controller
 
         $this->view("pages/FAQ", $data, $layoutConfig);
     }
-    
+
     public function DisplayPrivacyPolicy()
     {
         $data = [

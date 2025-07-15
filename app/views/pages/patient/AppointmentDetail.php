@@ -137,7 +137,9 @@ function getAppointmentStatusClass($status)
                 </div>
 
                 <!-- Status -->
-                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[150px] <?php echo getAppointmentStatusClass($appointment["Status"]); ?>">
+                <div class="glass-card shadow-sm bg-gray-50/50 border border-gray-200 rounded-xl p-3 flex-1 min-w-[150px] <?php echo getAppointmentStatusClass(
+                    $appointment["Status"]
+                ); ?>">
                     <label class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</label>
                     <div class="mt-1">
                         <span class="inline-block glass-card px-2 py-1 text-xs font-medium rounded-full w-fit <?php echo getAppointmentStatusClass(
@@ -481,15 +483,17 @@ function getAppointmentStatusClass($status)
                     </button>
                     
                     <!-- Cancel Button -->
-                    <?php 
+                    <?php
                     // Check if appointment is within 24 hours
                     $appointmentDateTime = strtotime($appointment["DateTime"]);
                     $currentTime = time();
                     $timeDifference = $appointmentDateTime - $currentTime;
                     $isWithin24Hours = $timeDifference < 86400; // 24 hours = 86400 seconds
-                    
-                    $isPaid = $appointmentPayment && strtolower($appointmentPayment["Status"]) === "paid";
-                    
+
+                    $isPaid =
+                        $appointmentPayment &&
+                        strtolower($appointmentPayment["Status"]) === "paid";
+
                     // Determine if cancellation should be disabled
                     $canCancel = !$isPaid && !$isWithin24Hours;
                     ?>
@@ -516,7 +520,14 @@ function getAppointmentStatusClass($status)
             </div>
             
             <!-- Payment and timing restriction notices -->
-            <?php if (!$canCancel && in_array($appointment["Status"], ["Pending", "Approved", "Rescheduled"])): ?>
+            <?php if (
+                !$canCancel &&
+                in_array($appointment["Status"], [
+                    "Pending",
+                    "Approved",
+                    "Rescheduled",
+                ])
+            ): ?>
                 <div class="mt-3 p-3 bg-orange-50/60 border border-orange-200 rounded-xl">
                     <div class="flex items-start text-orange-800 text-sm">
                         <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

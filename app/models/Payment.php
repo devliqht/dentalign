@@ -36,8 +36,12 @@ class Payment
 
         $this->status = htmlspecialchars(strip_tags($this->status));
         $this->notes = htmlspecialchars(strip_tags($this->notes));
-        $this->paymentMethod = htmlspecialchars(strip_tags($this->paymentMethod ?? 'Cash'));
-        $this->proofOfPayment = htmlspecialchars(strip_tags($this->proofOfPayment ?? ''));
+        $this->paymentMethod = htmlspecialchars(
+            strip_tags($this->paymentMethod ?? "Cash")
+        );
+        $this->proofOfPayment = htmlspecialchars(
+            strip_tags($this->proofOfPayment ?? "")
+        );
 
         $stmt->bind_param(
             "iisissss",
@@ -60,31 +64,44 @@ class Payment
     }
 
     // Create a default payment entry for a new appointment
-    public function createForAppointment($appointmentID, $patientID, $appointmentDateTime = null, $updatedBy = null)
-    {
+    public function createForAppointment(
+        $appointmentID,
+        $patientID,
+        $appointmentDateTime = null,
+        $updatedBy = null
+    ) {
         $this->appointmentID = $appointmentID;
         $this->patientID = $patientID;
-        $this->status = 'Pending';
+        $this->status = "Pending";
         $this->updatedBy = $updatedBy;
-        $this->notes = 'Auto-created for new appointment';
+        $this->notes = "Auto-created for new appointment";
 
         // Set deadline to 30 days after appointment date, or 30 days from now if no date provided
         if ($appointmentDateTime) {
-            $this->deadlineDate = date('Y-m-d', strtotime($appointmentDateTime . ' + 30 days'));
+            $this->deadlineDate = date(
+                "Y-m-d",
+                strtotime($appointmentDateTime . " + 30 days")
+            );
         } else {
-            $this->deadlineDate = date('Y-m-d', strtotime('+30 days'));
+            $this->deadlineDate = date("Y-m-d", strtotime("+30 days"));
         }
 
-        $this->paymentMethod = 'Cash';
-        $this->proofOfPayment = '';
+        $this->paymentMethod = "Cash";
+        $this->proofOfPayment = "";
 
         return $this->create();
     }
 
     // Soft delete - set status to 'Cancelled' instead of deleting
-    public function softDelete($paymentID, $updatedBy = null, $notes = 'Payment cancelled')
-    {
-        $query = "UPDATE " . $this->table . " 
+    public function softDelete(
+        $paymentID,
+        $updatedBy = null,
+        $notes = "Payment cancelled"
+    ) {
+        $query =
+            "UPDATE " .
+            $this->table .
+            " 
                   SET Status = 'Cancelled', UpdatedBy = ?, Notes = ?, UpdatedAt = CURRENT_TIMESTAMP 
                   WHERE PaymentID = ?";
 
@@ -143,21 +160,28 @@ class Payment
         // Add total amounts and calculate overdue amounts
         $overdueConfig = new OverdueConfig($this->conn);
         foreach ($payments as &$payment) {
-            $payment['total_amount'] = $this->getTotalAmount($payment['PaymentID']);
-            $payment['original_amount'] = $payment['total_amount'];
+            $payment["total_amount"] = $this->getTotalAmount(
+                $payment["PaymentID"]
+            );
+            $payment["original_amount"] = $payment["total_amount"];
 
             // Calculate overdue amount if applicable
-            if ($overdueConfig->isPaymentOverdue($payment['DeadlineDate']) &&
-                strtolower($payment['Status']) === 'pending') {
-                $payment['total_amount'] = $overdueConfig->calculateOverdueAmount(
-                    $payment['total_amount'],
-                    $payment['DeadlineDate']
+            if (
+                $overdueConfig->isPaymentOverdue($payment["DeadlineDate"]) &&
+                strtolower($payment["Status"]) === "pending"
+            ) {
+                $payment[
+                    "total_amount"
+                ] = $overdueConfig->calculateOverdueAmount(
+                    $payment["total_amount"],
+                    $payment["DeadlineDate"]
                 );
-                $payment['is_overdue'] = true;
-                $payment['overdue_amount'] = $payment['total_amount'] - $payment['original_amount'];
+                $payment["is_overdue"] = true;
+                $payment["overdue_amount"] =
+                    $payment["total_amount"] - $payment["original_amount"];
             } else {
-                $payment['is_overdue'] = false;
-                $payment['overdue_amount'] = 0;
+                $payment["is_overdue"] = false;
+                $payment["overdue_amount"] = 0;
             }
         }
 
@@ -213,21 +237,28 @@ class Payment
         if ($payment) {
             // Apply overdue calculations
             $overdueConfig = new OverdueConfig($this->conn);
-            $payment['total_amount'] = $this->getTotalAmount($payment['PaymentID']);
-            $payment['original_amount'] = $payment['total_amount'];
+            $payment["total_amount"] = $this->getTotalAmount(
+                $payment["PaymentID"]
+            );
+            $payment["original_amount"] = $payment["total_amount"];
 
             // Calculate overdue amount if applicable
-            if ($overdueConfig->isPaymentOverdue($payment['DeadlineDate']) &&
-                strtolower($payment['Status']) === 'pending') {
-                $payment['total_amount'] = $overdueConfig->calculateOverdueAmount(
-                    $payment['total_amount'],
-                    $payment['DeadlineDate']
+            if (
+                $overdueConfig->isPaymentOverdue($payment["DeadlineDate"]) &&
+                strtolower($payment["Status"]) === "pending"
+            ) {
+                $payment[
+                    "total_amount"
+                ] = $overdueConfig->calculateOverdueAmount(
+                    $payment["total_amount"],
+                    $payment["DeadlineDate"]
                 );
-                $payment['is_overdue'] = true;
-                $payment['overdue_amount'] = $payment['total_amount'] - $payment['original_amount'];
+                $payment["is_overdue"] = true;
+                $payment["overdue_amount"] =
+                    $payment["total_amount"] - $payment["original_amount"];
             } else {
-                $payment['is_overdue'] = false;
-                $payment['overdue_amount'] = 0;
+                $payment["is_overdue"] = false;
+                $payment["overdue_amount"] = 0;
             }
         }
 
@@ -254,8 +285,15 @@ class Payment
         return $stmt->execute();
     }
 
-    public function updatePaymentDetails($paymentID, $status, $updatedBy, $notes = null, $paymentMethod = null, $deadlineDate = null, $proofOfPayment = null)
-    {
+    public function updatePaymentDetails(
+        $paymentID,
+        $status,
+        $updatedBy,
+        $notes = null,
+        $paymentMethod = null,
+        $deadlineDate = null,
+        $proofOfPayment = null
+    ) {
         $query =
             "UPDATE " .
             $this->table .
@@ -268,10 +306,23 @@ class Payment
         // Clean data
         $status = htmlspecialchars(strip_tags($status));
         $notes = $notes ? htmlspecialchars(strip_tags($notes)) : null;
-        $paymentMethod = $paymentMethod ? htmlspecialchars(strip_tags($paymentMethod)) : null;
-        $proofOfPayment = $proofOfPayment ? htmlspecialchars(strip_tags($proofOfPayment)) : null;
+        $paymentMethod = $paymentMethod
+            ? htmlspecialchars(strip_tags($paymentMethod))
+            : null;
+        $proofOfPayment = $proofOfPayment
+            ? htmlspecialchars(strip_tags($proofOfPayment))
+            : null;
 
-        $stmt->bind_param("sissssi", $status, $updatedBy, $notes, $paymentMethod, $deadlineDate, $proofOfPayment, $paymentID);
+        $stmt->bind_param(
+            "sissssi",
+            $status,
+            $updatedBy,
+            $notes,
+            $paymentMethod,
+            $deadlineDate,
+            $proofOfPayment,
+            $paymentID
+        );
 
         return $stmt->execute();
     }
@@ -351,20 +402,23 @@ class Payment
 
         // Apply overdue calculations
         $overdueConfig = new OverdueConfig($this->conn);
-        $payment['original_amount'] = $payment['total_amount'];
+        $payment["original_amount"] = $payment["total_amount"];
 
         // Calculate overdue amount if applicable
-        if ($overdueConfig->isPaymentOverdue($payment['DeadlineDate']) &&
-            strtolower($payment['Status']) === 'pending') {
-            $payment['total_amount'] = $overdueConfig->calculateOverdueAmount(
-                $payment['total_amount'],
-                $payment['DeadlineDate']
+        if (
+            $overdueConfig->isPaymentOverdue($payment["DeadlineDate"]) &&
+            strtolower($payment["Status"]) === "pending"
+        ) {
+            $payment["total_amount"] = $overdueConfig->calculateOverdueAmount(
+                $payment["total_amount"],
+                $payment["DeadlineDate"]
             );
-            $payment['is_overdue'] = true;
-            $payment['overdue_amount'] = $payment['total_amount'] - $payment['original_amount'];
+            $payment["is_overdue"] = true;
+            $payment["overdue_amount"] =
+                $payment["total_amount"] - $payment["original_amount"];
         } else {
-            $payment['is_overdue'] = false;
-            $payment['overdue_amount'] = 0;
+            $payment["is_overdue"] = false;
+            $payment["overdue_amount"] = 0;
         }
 
         return $payment;
@@ -490,23 +544,27 @@ class Payment
         $result = $stmt->get_result();
         $payments = $result->fetch_all(MYSQLI_ASSOC);
 
-        // Add total amounts and calculate overdue amounts
         $overdueConfig = new OverdueConfig($this->conn);
         foreach ($payments as &$payment) {
-            $payment['total_amount'] = $this->getTotalAmount($payment['PaymentID']);
-            $payment['original_amount'] = $payment['total_amount'];
+            $payment["total_amount"] = $this->getTotalAmount(
+                $payment["PaymentID"]
+            );
+            $payment["original_amount"] = $payment["total_amount"];
 
             // Calculate overdue amount if applicable
-            if ($overdueConfig->isPaymentOverdue($payment['DeadlineDate'])) {
-                $payment['total_amount'] = $overdueConfig->calculateOverdueAmount(
-                    $payment['total_amount'],
-                    $payment['DeadlineDate']
+            if ($overdueConfig->isPaymentOverdue($payment["DeadlineDate"])) {
+                $payment[
+                    "total_amount"
+                ] = $overdueConfig->calculateOverdueAmount(
+                    $payment["total_amount"],
+                    $payment["DeadlineDate"]
                 );
-                $payment['is_overdue'] = true;
-                $payment['overdue_amount'] = $payment['total_amount'] - $payment['original_amount'];
+                $payment["is_overdue"] = true;
+                $payment["overdue_amount"] =
+                    $payment["total_amount"] - $payment["original_amount"];
             } else {
-                $payment['is_overdue'] = false;
-                $payment['overdue_amount'] = 0;
+                $payment["is_overdue"] = false;
+                $payment["overdue_amount"] = 0;
             }
         }
 
@@ -518,7 +576,10 @@ class Payment
         $overdueConfig = new OverdueConfig($this->conn);
 
         // Get all pending payments with deadlines
-        $query = "SELECT PaymentID, DeadlineDate FROM " . $this->table . " 
+        $query =
+            "SELECT PaymentID, DeadlineDate FROM " .
+            $this->table .
+            " 
                   WHERE Status = 'Pending' AND DeadlineDate IS NOT NULL";
 
         $stmt = $this->conn->prepare($query);
@@ -529,13 +590,16 @@ class Payment
         $updatedCount = 0;
 
         foreach ($payments as $payment) {
-            if ($overdueConfig->isPaymentOverdue($payment['DeadlineDate'])) {
+            if ($overdueConfig->isPaymentOverdue($payment["DeadlineDate"])) {
                 // Update status to overdue
-                $updateQuery = "UPDATE " . $this->table . " 
+                $updateQuery =
+                    "UPDATE " .
+                    $this->table .
+                    " 
                                SET Status = 'Overdue', UpdatedAt = CURRENT_TIMESTAMP 
                                WHERE PaymentID = ?";
                 $updateStmt = $this->conn->prepare($updateQuery);
-                $updateStmt->bind_param("i", $payment['PaymentID']);
+                $updateStmt->bind_param("i", $payment["PaymentID"]);
 
                 if ($updateStmt->execute()) {
                     $updatedCount++;
@@ -551,4 +615,5 @@ class Payment
         $overdueConfig = new OverdueConfig($this->conn);
         return $overdueConfig->getActiveConfig();
     }
-} ?> 
+}
+?> 

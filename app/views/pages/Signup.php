@@ -23,7 +23,9 @@
                     <?php endif; ?>
 
                     <form method="POST" action="<?php echo BASE_URL; ?>/signup" class="space-y-4" id="signup-form">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(
+                            $csrf_token
+                        ); ?>">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="form-group">

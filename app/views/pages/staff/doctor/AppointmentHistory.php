@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../components/SortableAppointmentTable.php';
+require_once __DIR__ . "/../../../components/SortableAppointmentTable.php";
 
 function getAppointmentStatusClass($status)
 {
@@ -56,7 +56,9 @@ function getStatusHeaderClass($status)
                         </svg>
                         Total appointments: <?php
                         $totalAppointments = 0;
-foreach ($appointmentHistory as $status => $appointments) {
+foreach (
+    $appointmentHistory as $status => $appointments
+) {
     $totalAppointments += count($appointments);
 }
 echo $totalAppointments;
@@ -84,7 +86,9 @@ echo $totalAppointments;
             </button>
             <?php if (!empty($pendingCancellations)): ?>
                 <button onclick="showSection('pending-cancellation-requests')" id="pending-cancellation-requests-btn" class="glass-card bg-red-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-red-700">
-                    Pending Cancellations (<?php echo count($pendingCancellations); ?>)
+                    Pending Cancellations (<?php echo count(
+                        $pendingCancellations
+                    ); ?>)
                 </button>
             <?php endif; ?>
             <button onclick="showSection('pending')" id="pending-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
@@ -115,24 +119,42 @@ echo $totalAppointments;
             <div class="text-sm text-gray-600">Total</div>
         </div>
         
-        <?php foreach (["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"] as $status): ?>
+        <?php foreach (
+            [
+                "Pending",
+                "Approved",
+                "Rescheduled",
+                "Completed",
+                "Declined",
+                "Cancelled",
+            ] as $status
+        ): ?>
             <div class="glass-card shadow-sm bg-white/60 border-gray-200 border-1 rounded-2xl p-4 text-center">
-                <div class="text-2xl font-bold <?php echo getStatusHeaderClass($status); ?>"><?php echo count($appointmentHistory[$status] ?? []); ?></div>
+                <div class="text-2xl font-bold <?php echo getStatusHeaderClass(
+                    $status
+                ); ?>"><?php echo count(
+                    $appointmentHistory[$status] ?? []
+                ); ?></div>
                 <div class="text-xs text-gray-600"><?php echo $status; ?></div>
             </div>
         <?php endforeach; ?>
     </div>
 
     <!-- Pending Cancellation Requests Section -->
-    <?php
-    if (!empty($pendingCancellations)) {
+    <?php if (!empty($pendingCancellations)) {
         renderPendingCancellationTable($pendingCancellations, $csrf_token);
-    }
-?>
+    } ?>
 
     <!-- Appointment History Sections by Status -->
     <?php
-$statusOrder = ["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"];
+    $statusOrder = [
+        "Pending",
+        "Approved",
+        "Rescheduled",
+        "Completed",
+        "Declined",
+        "Cancelled",
+    ];
 $hasAnyAppointments = false;
 foreach ($statusOrder as $status) {
     if (!empty($appointmentHistory[$status])) {
@@ -148,7 +170,11 @@ foreach ($statusOrder as $status) {
                 <?php
             // Prepare section data
             $sectionId = strtolower(str_replace(" ", "-", $status));
-                $sectionTitle = $status . ' Appointments <span class="text-sm font-normal text-gray-600">(' . count($appointmentHistory[$status]) . ' appointments)</span>';
+                $sectionTitle =
+                    $status .
+                    ' Appointments <span class="text-sm font-normal text-gray-600">(' .
+                    count($appointmentHistory[$status]) .
+                    " appointments)</span>";
                 $emptyMessage = "No {$status} appointments";
                 $emptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -179,7 +205,8 @@ foreach ($statusOrder as $status) {
 </div>
 
 <!-- Include Appointment Details Modal -->
-<?php include __DIR__ . '/../../../components/SchedulePage/AppointmentDetailsModal.php'; ?>
+<?php include __DIR__ .
+    "/../../../components/SchedulePage/AppointmentDetailsModal.php"; ?>
 
 <!-- Server Messages for Toast -->
 <script>

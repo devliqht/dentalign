@@ -3,6 +3,7 @@
 require_once "app/models/Appointment.php";
 require_once "app/models/AppointmentReport.php";
 require_once "app/models/Doctor.php";
+require_once "app/models/Report.php";
 
 class DentalAssistantController extends Controller
 {
@@ -27,6 +28,67 @@ class DentalAssistantController extends Controller
             $data,
             $layoutConfig
         );
+    }
+    public function report()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        $report = new Report($this->conn);
+
+        // Get all the data needed for the report
+        $dashboardSummary = $report->getDashboardSummary();
+        $revenueChart = $report->getRevenueChartData(6);
+        $appointmentTypeChart = $report->getAppointmentTypeChartData();
+        $appointmentStatusChart = $report->getAppointmentStatusChartData();
+        $monthlyAppointments = $report->getAppointmentsByMonth(6);
+        $paymentStatistics = $report->getPaymentStatistics();
+        $paymentMethods = $report->getPaymentMethods();
+        $doctorPerformance = $report->getDoctorPerformance();
+        $dailyAppointments = $report->getDailyAppointments(30);
+
+        // Get revenue breakdown appointments
+        $revenueBreakdown = [
+            "total" => $report->getAppointmentsByTotalRevenue(),
+            "today" => $report->getAppointmentsByTodayRevenue(),
+            "weekly" => $report->getAppointmentsByWeeklyRevenue(),
+            "monthly" => $report->getAppointmentsByMonthlyRevenue(),
+        ];
+
+        $data = [
+            "user" => $this->getAuthUser(),
+            "summary" => $dashboardSummary,
+            "revenueChart" => $revenueChart,
+            "appointmentTypeChart" => $appointmentTypeChart,
+            "appointmentStatusChart" => $appointmentStatusChart,
+            "monthlyAppointments" => $monthlyAppointments,
+            "paymentStatistics" => $paymentStatistics,
+            "paymentMethods" => $paymentMethods,
+            "doctorPerformance" => $doctorPerformance,
+            "dailyAppointments" => $dailyAppointments,
+            "revenueBreakdown" => $revenueBreakdown,
+        ];
+
+        $layoutConfig = [
+            "title" => "Reports & Analytics",
+            "hideHeader" => false,
+            "hideFooter" => false,
+            "additionalHead" =>
+                '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>',
+            "additionalScripts" =>
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/Toast.js"></script>' .
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/SortableTable.js"></script>' .
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/ReportCharts.js"></script>',
+        ];
+
+        $this->view("pages/staff/dentalassistant/Report", $data, $layoutConfig);
     }
 
     public function paymentManagement()
@@ -107,47 +169,59 @@ class DentalAssistantController extends Controller
             $overdueConfig = new OverdueConfig($this->conn);
 
             foreach ($appointments as &$appointment) {
-                if ($appointment['PaymentID']) {
+                if ($appointment["PaymentID"]) {
                     // Get payment items for accurate total calculation
-                    $itemsQuery = "SELECT SUM(Total) as total_amount FROM PaymentItems WHERE PaymentID = ?";
+                    $itemsQuery =
+                        "SELECT SUM(Total) as total_amount FROM PaymentItems WHERE PaymentID = ?";
                     $itemsStmt = $this->conn->prepare($itemsQuery);
-                    $itemsStmt->bind_param("i", $appointment['PaymentID']);
+                    $itemsStmt->bind_param("i", $appointment["PaymentID"]);
                     $itemsStmt->execute();
                     $itemsResult = $itemsStmt->get_result()->fetch_assoc();
 
-                    $originalAmount = $itemsResult['total_amount'] ?? $appointment['TotalAmount'];
-                    $appointment['TotalAmount'] = $originalAmount;
-                    $appointment['OriginalAmount'] = $originalAmount;
+                    $originalAmount =
+                        $itemsResult["total_amount"] ??
+                        $appointment["TotalAmount"];
+                    $appointment["TotalAmount"] = $originalAmount;
+                    $appointment["OriginalAmount"] = $originalAmount;
 
                     // Check if payment has a deadline date
-                    $deadlineQuery = "SELECT DeadlineDate FROM Payments WHERE PaymentID = ?";
+                    $deadlineQuery =
+                        "SELECT DeadlineDate FROM Payments WHERE PaymentID = ?";
                     $deadlineStmt = $this->conn->prepare($deadlineQuery);
-                    $deadlineStmt->bind_param("i", $appointment['PaymentID']);
+                    $deadlineStmt->bind_param("i", $appointment["PaymentID"]);
                     $deadlineStmt->execute();
-                    $deadlineResult = $deadlineStmt->get_result()->fetch_assoc();
-                    $deadlineDate = $deadlineResult['DeadlineDate'] ?? null;
+                    $deadlineResult = $deadlineStmt
+                        ->get_result()
+                        ->fetch_assoc();
+                    $deadlineDate = $deadlineResult["DeadlineDate"] ?? null;
 
                     // Calculate overdue amount if applicable
-                    if ($deadlineDate && $overdueConfig->isPaymentOverdue($deadlineDate) &&
-                        strtolower($appointment['PaymentStatus']) === 'pending') {
-                        $appointment['TotalAmount'] = $overdueConfig->calculateOverdueAmount(
+                    if (
+                        $deadlineDate &&
+                        $overdueConfig->isPaymentOverdue($deadlineDate) &&
+                        strtolower($appointment["PaymentStatus"]) === "pending"
+                    ) {
+                        $appointment[
+                            "TotalAmount"
+                        ] = $overdueConfig->calculateOverdueAmount(
                             $originalAmount,
                             $deadlineDate
                         );
-                        $appointment['IsOverdue'] = true;
-                        $appointment['OverdueAmount'] = $appointment['TotalAmount'] - $originalAmount;
-                        $appointment['PaymentStatus'] = 'Overdue';
+                        $appointment["IsOverdue"] = true;
+                        $appointment["OverdueAmount"] =
+                            $appointment["TotalAmount"] - $originalAmount;
+                        $appointment["PaymentStatus"] = "Overdue";
                     } else {
-                        $appointment['IsOverdue'] = false;
-                        $appointment['OverdueAmount'] = 0;
+                        $appointment["IsOverdue"] = false;
+                        $appointment["OverdueAmount"] = 0;
                     }
 
-                    $appointment['DeadlineDate'] = $deadlineDate;
+                    $appointment["DeadlineDate"] = $deadlineDate;
                 } else {
-                    $appointment['IsOverdue'] = false;
-                    $appointment['OverdueAmount'] = 0;
-                    $appointment['OriginalAmount'] = 0;
-                    $appointment['DeadlineDate'] = null;
+                    $appointment["IsOverdue"] = false;
+                    $appointment["OverdueAmount"] = 0;
+                    $appointment["OriginalAmount"] = 0;
+                    $appointment["DeadlineDate"] = null;
                 }
             }
 
@@ -398,7 +472,15 @@ class DentalAssistantController extends Controller
 
             $payment = new Payment($this->conn);
             if (
-                $payment->updatePaymentDetails($paymentId, $status, $user["id"], $notes, $paymentMethod, $deadlineDate, $proofOfPayment)
+                $payment->updatePaymentDetails(
+                    $paymentId,
+                    $status,
+                    $user["id"],
+                    $notes,
+                    $paymentMethod,
+                    $deadlineDate,
+                    $proofOfPayment
+                )
             ) {
                 echo json_encode([
                     "success" => true,
@@ -464,7 +546,13 @@ class DentalAssistantController extends Controller
             $payment = new Payment($this->conn);
 
             // Use soft delete - set status to 'Cancelled' instead of deleting
-            if ($payment->softDelete($paymentId, $user["id"], "Payment cancelled by dental assistant")) {
+            if (
+                $payment->softDelete(
+                    $paymentId,
+                    $user["id"],
+                    "Payment cancelled by dental assistant"
+                )
+            ) {
                 echo json_encode([
                     "success" => true,
                     "message" => "Payment cancelled successfully",
@@ -772,7 +860,8 @@ class DentalAssistantController extends Controller
         } catch (Exception $e) {
             echo json_encode([
                 "success" => false,
-                "message" => "Error fetching overdue configuration: " . $e->getMessage(),
+                "message" =>
+                    "Error fetching overdue configuration: " . $e->getMessage(),
             ]);
         }
         exit();
@@ -813,7 +902,7 @@ class DentalAssistantController extends Controller
 
         try {
             $configName = $data["configName"] ?? "Updated Configuration";
-            $overduePercentage = $data["overduePercentage"] ?? 5.00;
+            $overduePercentage = $data["overduePercentage"] ?? 5.0;
             $gracePeriodDays = $data["gracePeriodDays"] ?? 0;
 
             // Validate input
@@ -839,10 +928,20 @@ class DentalAssistantController extends Controller
             $overdueConfig = new OverdueConfig($this->conn);
 
             // Create new configuration (which automatically deactivates the old one)
-            error_log("DEBUG: Attempting to create new config with values: " .
-                      "Name: $configName, Percentage: $overduePercentage, Grace: $gracePeriodDays, User: " . $user["id"]);
+            error_log(
+                "DEBUG: Attempting to create new config with values: " .
+                    "Name: $configName, Percentage: $overduePercentage, Grace: $gracePeriodDays, User: " .
+                    $user["id"]
+            );
 
-            if ($overdueConfig->createNewConfig($configName, $overduePercentage, $gracePeriodDays, $user["id"])) {
+            if (
+                $overdueConfig->createNewConfig(
+                    $configName,
+                    $overduePercentage,
+                    $gracePeriodDays,
+                    $user["id"]
+                )
+            ) {
                 error_log("DEBUG: Configuration created successfully");
                 echo json_encode([
                     "success" => true,
@@ -860,7 +959,8 @@ class DentalAssistantController extends Controller
             error_log("DEBUG: Exception trace: " . $e->getTraceAsString());
             echo json_encode([
                 "success" => false,
-                "message" => "Error updating overdue configuration: " . $e->getMessage(),
+                "message" =>
+                    "Error updating overdue configuration: " . $e->getMessage(),
             ]);
         }
         exit();
@@ -873,17 +973,17 @@ class DentalAssistantController extends Controller
         $this->requireStaffType("DentalAssistant");
 
         $user = $this->getAuthUser();
-        
+
         $appointmentModel = new Appointment($this->conn);
         $doctorModel = new Doctor($this->conn);
-        
+
         // Get ALL appointments (not filtered by doctor)
         $allAppointments = $appointmentModel->getAllAppointmentsHistory();
         $allPendingCancellations = $appointmentModel->getAllPendingCancellations();
-        
+
         // Get all doctors for tabs
         $allDoctors = $doctorModel->getAllDoctors();
-        
+
         // Group appointments by status
         $appointmentsByStatus = [
             "Pending" => [],
@@ -1005,10 +1105,15 @@ class DentalAssistantController extends Controller
                 "allergies" => $reportData["Allergies"] ?? "",
             ];
 
+            // Get all available doctors for the dropdown
+            $doctorModel = new Doctor($this->conn);
+            $allDoctors = $doctorModel->getAllDoctors();
+
             $response = [
                 "success" => true,
                 "appointment" => $appointmentData,
                 "report" => $transformedReport,
+                "doctors" => $allDoctors,
             ];
 
             echo json_encode($response);
@@ -1081,12 +1186,16 @@ class DentalAssistantController extends Controller
 
             // Check if report already exists
             $appointmentReport = new AppointmentReport($this->conn);
-            $existingReport = $appointmentReport->getReportByAppointmentID($appointmentId);
+            $existingReport = $appointmentReport->getReportByAppointmentID(
+                $appointmentId
+            );
 
             if ($existingReport) {
                 // Update existing report
-                $appointmentReport->appointmentReportID = $existingReport["AppointmentReportID"];
-                $appointmentReport->patientRecordID = $existingReport["PatientRecordID"];
+                $appointmentReport->appointmentReportID =
+                    $existingReport["AppointmentReportID"];
+                $appointmentReport->patientRecordID =
+                    $existingReport["PatientRecordID"];
                 $appointmentReport->appointmentID = $appointmentId;
                 $appointmentReport->oralNotes = $oralNotes;
                 $appointmentReport->diagnosis = $diagnosis;
@@ -1113,9 +1222,17 @@ class DentalAssistantController extends Controller
                 // Create new report
                 // First get patient record ID
                 $patientRecord = new PatientRecord($this->conn);
-                if (!$patientRecord->findByPatientID($appointmentData["PatientID"])) {
+                if (
+                    !$patientRecord->findByPatientID(
+                        $appointmentData["PatientID"]
+                    )
+                ) {
                     // Create patient record if it doesn't exist
-                    if (!$patientRecord->createForPatient($appointmentData["PatientID"])) {
+                    if (
+                        !$patientRecord->createForPatient(
+                            $appointmentData["PatientID"]
+                        )
+                    ) {
                         echo json_encode([
                             "success" => false,
                             "message" => "Failed to create patient record",
@@ -1153,7 +1270,8 @@ class DentalAssistantController extends Controller
             error_log("Error in updateAppointmentReport: " . $e->getMessage());
             echo json_encode([
                 "success" => false,
-                "message" => "Error updating appointment report: " . $e->getMessage(),
+                "message" =>
+                    "Error updating appointment report: " . $e->getMessage(),
             ]);
         }
         exit();
@@ -1250,7 +1368,9 @@ class DentalAssistantController extends Controller
 
         // Handle password update
         if (isset($data["action"]) && $data["action"] === "update_password") {
-            $passwordErrors = $this->validatePassword($data["new_password"] ?? "");
+            $passwordErrors = $this->validatePassword(
+                $data["new_password"] ?? ""
+            );
             if (!empty($passwordErrors)) {
                 $this->redirectBack(implode(". ", $passwordErrors));
                 return;
@@ -1330,15 +1450,150 @@ class DentalAssistantController extends Controller
 
         return $errors;
     }
- 
 
     public function approveCancellation()
     {
-
     }
 
     public function denyCancellation()
     {
-        
+    }
+
+    public function updateAppointmentDoctor()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        header("Content-Type: application/json");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        $input = json_decode(file_get_contents("php://input"), true);
+
+        $appointmentId = $input["appointmentId"] ?? "";
+        $newDoctorId = $input["doctorId"] ?? "";
+        $oralNotes = $input["oralNotes"] ?? "";
+        $changeReason = $input["changeReason"] ?? "";
+
+        if (empty($appointmentId) || empty($newDoctorId)) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Appointment ID and Doctor ID are required",
+            ]);
+            exit();
+        }
+
+        if (!is_numeric($appointmentId) || !is_numeric($newDoctorId)) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid appointment ID or doctor ID",
+            ]);
+            exit();
+        }
+
+        try {
+            // Verify that the doctor exists
+            $doctorModel = new Doctor($this->conn);
+            if (!$doctorModel->findById($newDoctorId)) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Doctor not found",
+                ]);
+                exit();
+            }
+
+            // Update the appointment's doctor
+            $appointment = new Appointment($this->conn);
+            $updateResult = $appointment->updateAppointmentDoctor(
+                $appointmentId,
+                $newDoctorId
+            );
+
+            // If oral notes are provided, update the appointment report
+            if ($updateResult && !empty($oralNotes)) {
+                $appointmentReport = new AppointmentReport($this->conn);
+                $existingReport = $appointmentReport->getReportByAppointmentID(
+                    $appointmentId
+                );
+
+                if ($existingReport) {
+                    // Update existing report with new oral notes
+                    $appointmentReport->appointmentReportID =
+                        $existingReport["AppointmentReportID"];
+                    $appointmentReport->patientRecordID =
+                        $existingReport["PatientRecordID"];
+                    $appointmentReport->appointmentID = $appointmentId;
+                    $appointmentReport->oralNotes = $oralNotes;
+                    $appointmentReport->diagnosis =
+                        $existingReport["Diagnosis"];
+                    $appointmentReport->xrayImages =
+                        $existingReport["XrayImages"];
+
+                    $reportUpdateResult = $appointmentReport->update();
+                    if (!$reportUpdateResult) {
+                        error_log(
+                            "Warning: Failed to update appointment report with doctor change notes for appointment ID: " .
+                                $appointmentId
+                        );
+                    }
+                } else {
+                    // Create new report with oral notes
+                    $appointmentData = $appointment->getAppointmentById(
+                        $appointmentId
+                    );
+                    if ($appointmentData) {
+                        require_once "app/models/PatientRecord.php";
+                        $patientRecord = new PatientRecord($this->conn);
+
+                        if (
+                            $patientRecord->findByPatientID(
+                                $appointmentData["PatientID"]
+                            )
+                        ) {
+                            $appointmentReport->patientRecordID =
+                                $patientRecord->patientRecordID;
+                            $appointmentReport->appointmentID = $appointmentId;
+                            $appointmentReport->oralNotes = $oralNotes;
+                            $appointmentReport->diagnosis = "";
+                            $appointmentReport->xrayImages = "";
+
+                            $reportCreateResult = $appointmentReport->create();
+                            if (!$reportCreateResult) {
+                                error_log(
+                                    "Warning: Failed to create appointment report with doctor change notes for appointment ID: " .
+                                        $appointmentId
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($updateResult) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Appointment doctor updated successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to update appointment doctor",
+                ]);
+            }
+        } catch (Exception $e) {
+            error_log("Error updating appointment doctor: " . $e->getMessage());
+            echo json_encode([
+                "success" => false,
+                "message" =>
+                    "An error occurred while updating the appointment doctor",
+            ]);
+        }
     }
 }

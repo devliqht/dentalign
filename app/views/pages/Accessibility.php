@@ -4,7 +4,9 @@
     <div class="pb-6">
         <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Accessibility Statement</h2>
         <p class="text-gray-600">North Hill Dental is committed to ensuring digital accessibility for people with disabilities.</p>
-        <p class="text-sm text-gray-500 mt-2">Last updated: <?php echo date('F j, Y'); ?></p>
+        <p class="text-sm text-gray-500 mt-2">Last updated: <?php echo date(
+            "F j, Y"
+        ); ?></p>
     </div>
 
     <!-- Accessibility Categories -->

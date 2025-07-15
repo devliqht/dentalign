@@ -1,6 +1,6 @@
 <?php
 // Include the SortableAppointmentTable component
-require_once __DIR__ . '/../../components/SortableAppointmentTable.php';
+require_once __DIR__ . "/../../components/SortableAppointmentTable.php";
 
 function renderPaymentTable($payments, $user)
 {
@@ -18,57 +18,111 @@ function renderPaymentTable($payments, $user)
                         <?php foreach ($payments as $index => $payment): ?>
                             <div class="p-4 border-b border-gray-200/30 hover:bg-white/40 transition-colors rounded-2xl glass-card mb-3 table-row" 
                                  data-row-index="<?php echo $index; ?>"
-                                 data-status="<?php echo strtolower($payment["Status"]); ?>"
-                                 data-doctor="<?php echo htmlspecialchars($payment["DoctorName"]); ?>"
-                                 data-payment-method="<?php echo htmlspecialchars($payment["PaymentMethod"] ?? 'Cash'); ?>"
-                                 data-deadline-date="<?php echo $payment["DeadlineDate"] ?? ''; ?>">
+                                 data-status="<?php echo strtolower(
+                                     $payment["Status"]
+                                 ); ?>"
+                                 data-doctor="<?php echo htmlspecialchars(
+                                     $payment["DoctorName"]
+                                 ); ?>"
+                                 data-payment-method="<?php echo htmlspecialchars(
+                                     $payment["PaymentMethod"] ?? "Cash"
+                                 ); ?>"
+                                 data-deadline-date="<?php echo $payment[
+                                     "DeadlineDate"
+                                 ] ?? ""; ?>">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded text-xs font-medium">
-                                        Payment #<?php echo str_pad($payment["PaymentID"] ?? $payment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                        Payment #<?php echo str_pad(
+                                            $payment["PaymentID"] ??
+                                                $payment["AppointmentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?>
                                         &nbsp;|&nbsp;
-                                        Appt #<?php echo str_pad($payment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                        Appt #<?php echo str_pad(
+                                            $payment["AppointmentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?>
                                     </div>
-                                    <span class="<?php echo getPaymentStatusClass($payment["Status"]); ?> px-2 py-1 rounded-full text-xs">
+                                    <span class="<?php echo getPaymentStatusClass(
+                                        $payment["Status"]
+                                    ); ?> px-2 py-1 rounded-full text-xs">
                                         <?php echo $payment["Status"]; ?>
                                     </span>
                                 </div>
                                 
                                 <h4 class="font-semibold text-gray-900 mb-1">
-                                    Dr. <?php echo htmlspecialchars($payment["DoctorName"]); ?>
+                                    Dr. <?php echo htmlspecialchars(
+                                        $payment["DoctorName"]
+                                    ); ?>
                                 </h4>
                                 
                                 <div class="text-sm text-gray-600 mb-2">
-                                    <?php echo htmlspecialchars($payment["Specialization"]); ?>
+                                    <?php echo htmlspecialchars(
+                                        $payment["Specialization"]
+                                    ); ?>
                                 </div>
                                 
                                 <div class="flex justify-between items-center mb-2">
                                     <div class="text-sm">
                                         <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
-                                            <?php echo htmlspecialchars($payment["PaymentMethod"] ?? 'Cash'); ?>
+                                            <?php echo htmlspecialchars(
+                                                $payment["PaymentMethod"] ??
+                                                    "Cash"
+                                            ); ?>
                                         </span>
                                     </div>
                                     <div class="text-sm text-gray-600">
-                                        <?php if (!empty($payment["DeadlineDate"])): ?>
-                                            Due: <?php echo date("M j, Y", strtotime($payment["DeadlineDate"])); ?>
+                                        <?php if (
+                                            !empty($payment["DeadlineDate"])
+                                        ): ?>
+                                            Due: <?php echo date(
+                                                "M j, Y",
+                                                strtotime(
+                                                    $payment["DeadlineDate"]
+                                                )
+                                            ); ?>
                                         <?php else: ?>
                                             <span class="text-gray-400">No deadline</span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 
-                                <?php if (isset($payment["total_amount"]) && $payment["total_amount"] > 0): ?>
+                                <?php if (
+                                    isset($payment["total_amount"]) &&
+                                    $payment["total_amount"] > 0
+                                ): ?>
                                     <div class="text-lg font-semibold text-nhd-brown mb-2">
-                                        ₱<?php echo number_format($payment["total_amount"], 2); ?>
-                                        <?php if (isset($payment["is_overdue"]) && $payment["is_overdue"] && $payment["overdue_amount"] > 0): ?>
+                                        ₱<?php echo number_format(
+                                            $payment["total_amount"],
+                                            2
+                                        ); ?>
+                                        <?php if (
+                                            isset($payment["is_overdue"]) &&
+                                            $payment["is_overdue"] &&
+                                            $payment["overdue_amount"] > 0
+                                        ): ?>
                                             <div class="text-xs text-red-600 mt-1">
-                                                (Original: ₱<?php echo number_format($payment["original_amount"], 2); ?> + ₱<?php echo number_format($payment["overdue_amount"], 2); ?> overdue fee)
+                                                (Original: ₱<?php echo number_format(
+                                                    $payment["original_amount"],
+                                                    2
+                                                ); ?> + ₱<?php echo number_format(
+                                                    $payment["overdue_amount"],
+                                                    2
+                                                ); ?> overdue fee)
                                             </div>
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
                                 
                                 <div class="flex space-x-1">
-                                    <?php echo renderPaymentMobileActions($payment, $user); ?>
+                                    <?php echo renderPaymentMobileActions(
+                                        $payment,
+                                        $user
+                                    ); ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -157,48 +211,91 @@ function renderPaymentTable($payments, $user)
                             <?php foreach ($payments as $index => $payment): ?>
                                 <tr class="hover:bg-nhd-blue/10 transition-colors duration-200 border-b-1 border-gray-200 table-row" 
                                     data-row-index="<?php echo $index; ?>"
-                                    data-status="<?php echo strtolower($payment["Status"]); ?>"
-                                    data-doctor="<?php echo htmlspecialchars($payment["DoctorName"]); ?>"
-                                    data-payment-method="<?php echo htmlspecialchars($payment["PaymentMethod"] ?? 'Cash'); ?>"
-                                    data-deadline-date="<?php echo $payment["DeadlineDate"] ?? ''; ?>">
+                                    data-status="<?php echo strtolower(
+                                        $payment["Status"]
+                                    ); ?>"
+                                    data-doctor="<?php echo htmlspecialchars(
+                                        $payment["DoctorName"]
+                                    ); ?>"
+                                    data-payment-method="<?php echo htmlspecialchars(
+                                        $payment["PaymentMethod"] ?? "Cash"
+                                    ); ?>"
+                                    data-deadline-date="<?php echo $payment[
+                                        "DeadlineDate"
+                                    ] ?? ""; ?>">
                                     <td class="py-2 px-3 font-mono text-sm text-gray-700 font-bold">
-                                        #<?php echo str_pad($payment["PaymentID"] ?? $payment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                        #<?php echo str_pad(
+                                            $payment["PaymentID"] ??
+                                                $payment["AppointmentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?>
                                     </td>
                                     <td class="py-2 px-3 font-mono text-sm text-gray-700">
-                                        #<?php echo str_pad($payment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                        #<?php echo str_pad(
+                                            $payment["AppointmentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?>
                                     </td>
                                     <td class="py-2 px-3">
                                         <div class="font-medium text-gray-900 text-sm">
-                                            Dr. <?php echo htmlspecialchars($payment["DoctorName"]); ?>
+                                            Dr. <?php echo htmlspecialchars(
+                                                $payment["DoctorName"]
+                                            ); ?>
                                         </div>
                                         <div class="text-xs text-gray-500">
-                                            <?php echo htmlspecialchars($payment["Specialization"]); ?>
+                                            <?php echo htmlspecialchars(
+                                                $payment["Specialization"]
+                                            ); ?>
                                         </div>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <span class="<?php echo getPaymentStatusClass($payment["Status"]); ?> px-2 py-1 rounded-full text-xs font-medium">
+                                        <span class="<?php echo getPaymentStatusClass(
+                                            $payment["Status"]
+                                        ); ?> px-2 py-1 rounded-full text-xs font-medium">
                                             <?php echo $payment["Status"]; ?>
                                         </span>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <?php if (!empty($payment["DeadlineDate"])): ?>
+                                        <?php if (
+                                            !empty($payment["DeadlineDate"])
+                                        ): ?>
                                             <div class="text-sm text-gray-900">
-                                                <?php echo date("M j, Y", strtotime($payment["DeadlineDate"])); ?>
+                                                <?php echo date(
+                                                    "M j, Y",
+                                                    strtotime(
+                                                        $payment["DeadlineDate"]
+                                                    )
+                                                ); ?>
                                             </div>
                                             <div class="text-xs text-gray-500">
                                                 <?php
-                                                $deadline = strtotime($payment["DeadlineDate"]);
-                                            $today = strtotime(date("Y-m-d"));
-                                            $daysLeft = ($deadline - $today) / (60 * 60 * 24);
+                                                $deadline = strtotime(
+                                                    $payment["DeadlineDate"]
+                                                );
+                                            $today = strtotime(
+                                                date("Y-m-d")
+                                            );
+                                            $daysLeft =
+                                                ($deadline - $today) /
+                                                (60 * 60 * 24);
 
                                             if ($daysLeft < 0) {
-                                                echo '<span class="text-red-600">Overdue by ' . abs(round($daysLeft)) . ' days</span>';
+                                                echo '<span class="text-red-600">Overdue by ' .
+                                                    abs(round($daysLeft)) .
+                                                    " days</span>";
                                             } elseif ($daysLeft == 0) {
                                                 echo '<span class="text-orange-600">Due today</span>';
                                             } elseif ($daysLeft <= 7) {
-                                                echo '<span class="text-orange-600">Due in ' . round($daysLeft) . ' days</span>';
+                                                echo '<span class="text-orange-600">Due in ' .
+                                                    round($daysLeft) .
+                                                    " days</span>";
                                             } else {
-                                                echo round($daysLeft) . ' days left';
+                                                echo round($daysLeft) .
+                                                    " days left";
                                             }
                                 ?>
                                             </div>
@@ -208,20 +305,43 @@ function renderPaymentTable($payments, $user)
                                     </td>
                                     <td class="py-2 px-3">
                                         <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                                            <?php echo htmlspecialchars($payment["PaymentMethod"] ?? 'Cash'); ?>
+                                            <?php echo htmlspecialchars(
+                                                $payment["PaymentMethod"] ??
+                                                    "Cash"
+                                            ); ?>
                                         </span>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <?php if (isset($payment["total_amount"]) && $payment["total_amount"] > 0): ?>
+                                        <?php if (
+                                            isset($payment["total_amount"]) &&
+                                            $payment["total_amount"] > 0
+                                        ): ?>
                                             <div class="text-sm font-semibold text-nhd-brown">
-                                                ₱<?php echo number_format($payment["total_amount"], 2); ?>
+                                                ₱<?php echo number_format(
+                                                    $payment["total_amount"],
+                                                    2
+                                                ); ?>
                                             </div>
-                                            <?php if (isset($payment["is_overdue"]) && $payment["is_overdue"] && $payment["overdue_amount"] > 0): ?>
+                                            <?php if (
+                                                isset($payment["is_overdue"]) &&
+                                                $payment["is_overdue"] &&
+                                                $payment["overdue_amount"] > 0
+                                            ): ?>
                                                 <div class="text-xs text-red-600 mt-1">
-                                                    Original: ₱<?php echo number_format($payment["original_amount"], 2); ?>
+                                                    Original: ₱<?php echo number_format(
+                                                        $payment[
+                                                            "original_amount"
+                                                        ],
+                                                        2
+                                                    ); ?>
                                                 </div>
                                                 <div class="text-xs text-red-600">
-                                                    + ₱<?php echo number_format($payment["overdue_amount"], 2); ?> overdue fee
+                                                    + ₱<?php echo number_format(
+                                                        $payment[
+                                                            "overdue_amount"
+                                                        ],
+                                                        2
+                                                    ); ?> overdue fee
                                                 </div>
                                             <?php endif; ?>
                                         <?php else: ?>
@@ -229,7 +349,10 @@ function renderPaymentTable($payments, $user)
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <?php echo renderPaymentDesktopActions($payment, $user); ?>
+                                        <?php echo renderPaymentDesktopActions(
+                                            $payment,
+                                            $user
+                                        ); ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -238,7 +361,7 @@ function renderPaymentTable($payments, $user)
                 </div>
                 
                 <!-- Pagination Controls Bottom -->
-                <?php echo renderPaginationControls('payments', 'bottom'); ?>
+                <?php echo renderPaginationControls("payments", "bottom"); ?>
             <?php else: ?>
                 <div class="glass-card bg-gray-50/50 rounded-2xl p-8 text-center m-4 shadow-none border-1 border-gray-200">
                     <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,9 +385,9 @@ function renderPaymentTable($payments, $user)
 
 function renderPaymentMobileActions($payment, $user)
 {
-    ob_start();
-    ?>
-    <button onclick="viewPaymentDetails(<?php echo $payment['PaymentID'] ?? $payment['AppointmentID']; ?>)" 
+    ob_start(); ?>
+    <button onclick="viewPaymentDetails(<?php echo $payment["PaymentID"] ??
+        $payment["AppointmentID"]; ?>)" 
             class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
         Details
     </button>
@@ -272,16 +395,15 @@ function renderPaymentMobileActions($payment, $user)
             class="bg-gray-500/80 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors min-w-[120px] truncate">
         View Appointment
     </button>
-    <?php
-    return ob_get_clean();
+    <?php return ob_get_clean();
 }
 
 function renderPaymentDesktopActions($payment, $user)
 {
-    ob_start();
-    ?>
+    ob_start(); ?>
     <div class="flex space-x-1">
-        <button onclick="viewPaymentDetails(<?php echo $payment['PaymentID'] ?? $payment['AppointmentID']; ?>)" 
+        <button onclick="viewPaymentDetails(<?php echo $payment["PaymentID"] ??
+            $payment["AppointmentID"]; ?>)" 
                 class="bg-nhd-blue/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-nhd-blue transition-colors">
             Details
         </button>
@@ -290,43 +412,44 @@ function renderPaymentDesktopActions($payment, $user)
             View..
         </button>
     </div>
-    <?php
-    return ob_get_clean();
+    <?php return ob_get_clean();
 }
 
 function calculatePaymentStats($payments)
 {
     $stats = [
-        'total_billing' => 0,
-        'overdue_payments' => 0,
-        'nearest_deadline' => null,
-        'pending_payments' => 0
+        "total_billing" => 0,
+        "overdue_payments" => 0,
+        "nearest_deadline" => null,
+        "pending_payments" => 0,
     ];
 
-    $today = date('Y-m-d');
+    $today = date("Y-m-d");
     $nearestDate = null;
     $nearestPayment = null;
 
     foreach ($payments as $payment) {
         // Total billing
-        if (isset($payment['total_amount']) && $payment['total_amount'] > 0) {
-            $stats['total_billing'] += $payment['total_amount'];
+        if (isset($payment["total_amount"]) && $payment["total_amount"] > 0) {
+            $stats["total_billing"] += $payment["total_amount"];
         }
 
         // Overdue payments
-        if ((isset($payment['is_overdue']) && $payment['is_overdue']) ||
-            (strtolower($payment['Status']) === 'overdue')) {
-            $stats['overdue_payments']++;
+        if (
+            (isset($payment["is_overdue"]) && $payment["is_overdue"]) ||
+            strtolower($payment["Status"]) === "overdue"
+        ) {
+            $stats["overdue_payments"]++;
         }
 
         // Pending payments
-        if (strtolower($payment['Status']) === 'pending') {
-            $stats['pending_payments']++;
+        if (strtolower($payment["Status"]) === "pending") {
+            $stats["pending_payments"]++;
         }
 
         // Nearest deadline
-        if (!empty($payment['DeadlineDate'])) {
-            $deadlineDate = $payment['DeadlineDate'];
+        if (!empty($payment["DeadlineDate"])) {
+            $deadlineDate = $payment["DeadlineDate"];
             // Only consider future deadlines
             if ($deadlineDate >= $today) {
                 if ($nearestDate === null || $deadlineDate < $nearestDate) {
@@ -337,14 +460,13 @@ function calculatePaymentStats($payments)
         }
     }
 
-    $stats['nearest_deadline'] = $nearestPayment;
+    $stats["nearest_deadline"] = $nearestPayment;
     return $stats;
 }
 
 function renderPaymentStatsCards($payments)
 {
-    $stats = calculatePaymentStats($payments);
-    ?>
+    $stats = calculatePaymentStats($payments); ?>
     <div class="px-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Total Billing Card -->
@@ -353,7 +475,10 @@ function renderPaymentStatsCards($payments)
                     <div>
                         <p class="text-blue-600 text-sm font-medium mb-1">Total Billing</p>
                         <p class="text-2xl font-bold text-blue-900">
-                            ₱<?php echo number_format($stats['total_billing'], 2); ?>
+                            ₱<?php echo number_format(
+                                $stats["total_billing"],
+                                2
+                            ); ?>
                         </p>
                     </div>
                     <div class="bg-blue-500/20 p-3 rounded-xl">
@@ -370,9 +495,9 @@ function renderPaymentStatsCards($payments)
                     <div>
                         <p class="text-red-600 text-sm font-medium mb-1">Overdue Payments</p>
                         <p class="text-2xl font-bold text-red-900">
-                            <?php echo $stats['overdue_payments']; ?>
+                            <?php echo $stats["overdue_payments"]; ?>
                         </p>
-                        <?php if ($stats['overdue_payments'] > 0): ?>
+                        <?php if ($stats["overdue_payments"] > 0): ?>
                             <p class="text-xs text-red-500 mt-1">Requires attention</p>
                         <?php endif; ?>
                     </div>
@@ -389,10 +514,12 @@ function renderPaymentStatsCards($payments)
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-orange-600 text-sm font-medium mb-1">Next Deadline</p>
-                        <?php if ($stats['nearest_deadline']): ?>
+                        <?php if ($stats["nearest_deadline"]): ?>
                             <?php
-                            $deadline = strtotime($stats['nearest_deadline']['DeadlineDate']);
-                            $today = strtotime(date('Y-m-d'));
+                            $deadline = strtotime(
+                                $stats["nearest_deadline"]["DeadlineDate"]
+                            );
+                            $today = strtotime(date("Y-m-d"));
                             $daysLeft = ($deadline - $today) / (60 * 60 * 24);
                             ?>
                             <p class="text-2xl font-bold text-orange-900">
@@ -426,9 +553,9 @@ function renderPaymentStatsCards($payments)
                     <div>
                         <p class="text-yellow-600 text-sm font-medium mb-1">Pending Payments</p>
                         <p class="text-2xl font-bold text-yellow-900">
-                            <?php echo $stats['pending_payments']; ?>
+                            <?php echo $stats["pending_payments"]; ?>
                         </p>
-                        <?php if ($stats['pending_payments'] > 0): ?>
+                        <?php if ($stats["pending_payments"] > 0): ?>
                             <p class="text-xs text-yellow-600 mt-1">Awaiting payment</p>
                         <?php endif; ?>
                     </div>
@@ -443,7 +570,6 @@ function renderPaymentStatsCards($payments)
     </div>
     <?php
 }
-
 ?>
 
 <div class="pb-8">

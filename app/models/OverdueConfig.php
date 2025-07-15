@@ -23,7 +23,10 @@ class OverdueConfig
     {
         error_log("DEBUG: OverdueConfig::create called");
 
-        $query = "INSERT INTO " . $this->table . " 
+        $query =
+            "INSERT INTO " .
+            $this->table .
+            " 
                   (ConfigName, OverduePercentage, GracePeriodDays, IsActive, UpdatedBy) 
                   VALUES (?, ?, ?, ?, ?)";
 
@@ -37,12 +40,14 @@ class OverdueConfig
         }
 
         $this->configName = htmlspecialchars(strip_tags($this->configName));
-        $this->overduePercentage = $this->overduePercentage ?? 5.00;
+        $this->overduePercentage = $this->overduePercentage ?? 5.0;
         $this->gracePeriodDays = $this->gracePeriodDays ?? 0;
         $this->isActive = $this->isActive ?? 1;
 
-        error_log("DEBUG: Binding params - Name: {$this->configName}, Percentage: {$this->overduePercentage}, " .
-                  "Grace: {$this->gracePeriodDays}, Active: {$this->isActive}, UpdatedBy: {$this->updatedBy}");
+        error_log(
+            "DEBUG: Binding params - Name: {$this->configName}, Percentage: {$this->overduePercentage}, " .
+                "Grace: {$this->gracePeriodDays}, Active: {$this->isActive}, UpdatedBy: {$this->updatedBy}"
+        );
 
         $stmt->bind_param(
             "sdiii",
@@ -66,8 +71,11 @@ class OverdueConfig
 
     public function getActiveConfig()
     {
-        $query = "SELECT ConfigID, ConfigName, OverduePercentage, GracePeriodDays, IsActive, CreatedAt, UpdatedAt, UpdatedBy 
-                  FROM " . $this->table . " 
+        $query =
+            "SELECT ConfigID, ConfigName, OverduePercentage, GracePeriodDays, IsActive, CreatedAt, UpdatedAt, UpdatedBy 
+                  FROM " .
+            $this->table .
+            " 
                   WHERE IsActive = 1 
                   ORDER BY UpdatedAt DESC 
                   LIMIT 1";
@@ -91,20 +99,23 @@ class OverdueConfig
 
         // Return default config if none found
         return [
-            'ConfigID' => null,
-            'ConfigName' => 'Default',
-            'OverduePercentage' => 5.00,
-            'GracePeriodDays' => 0,
-            'IsActive' => 1
+            "ConfigID" => null,
+            "ConfigName" => "Default",
+            "OverduePercentage" => 5.0,
+            "GracePeriodDays" => 0,
+            "IsActive" => 1,
         ];
     }
 
     public function getAllConfigs()
     {
-        $query = "SELECT c.ConfigID, c.ConfigName, c.OverduePercentage, c.GracePeriodDays, c.IsActive, 
+        $query =
+            "SELECT c.ConfigID, c.ConfigName, c.OverduePercentage, c.GracePeriodDays, c.IsActive, 
                          c.CreatedAt, c.UpdatedAt, c.UpdatedBy,
                          CONCAT(COALESCE(u.FirstName, ''), ' ', COALESCE(u.LastName, '')) as UpdatedByName
-                  FROM " . $this->table . " c
+                  FROM " .
+            $this->table .
+            " c
                   LEFT JOIN CLINIC_STAFF staff ON c.UpdatedBy = staff.ClinicStaffID
                   LEFT JOIN USER u ON staff.ClinicStaffID = u.UserID
                   ORDER BY c.UpdatedAt DESC";
@@ -116,14 +127,21 @@ class OverdueConfig
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function updateConfig($configID, $configName, $overduePercentage, $gracePeriodDays, $updatedBy)
-    {
-        // First, deactivate all configs
-        $deactivateQuery = "UPDATE " . $this->table . " SET IsActive = 0 WHERE IsActive = 1";
+    public function updateConfig(
+        $configID,
+        $configName,
+        $overduePercentage,
+        $gracePeriodDays,
+        $updatedBy
+    ) {
+        $deactivateQuery =
+            "UPDATE " . $this->table . " SET IsActive = 0 WHERE IsActive = 1";
         $this->conn->query($deactivateQuery);
 
-        // Update or create the new active config
-        $query = "UPDATE " . $this->table . " 
+        $query =
+            "UPDATE " .
+            $this->table .
+            " 
                   SET ConfigName = ?, OverduePercentage = ?, GracePeriodDays = ?, IsActive = 1, UpdatedBy = ?, UpdatedAt = CURRENT_TIMESTAMP
                   WHERE ConfigID = ?";
 
@@ -143,15 +161,25 @@ class OverdueConfig
         return $stmt->execute();
     }
 
-    public function createNewConfig($configName, $overduePercentage, $gracePeriodDays, $updatedBy)
-    {
-        error_log("DEBUG: OverdueConfig::createNewConfig called with: " .
-                  "Name: $configName, Percentage: $overduePercentage, Grace: $gracePeriodDays, User: $updatedBy");
+    public function createNewConfig(
+        $configName,
+        $overduePercentage,
+        $gracePeriodDays,
+        $updatedBy
+    ) {
+        error_log(
+            "DEBUG: OverdueConfig::createNewConfig called with: " .
+                "Name: $configName, Percentage: $overduePercentage, Grace: $gracePeriodDays, User: $updatedBy"
+        );
 
         // First, deactivate all configs
-        $deactivateQuery = "UPDATE " . $this->table . " SET IsActive = 0 WHERE IsActive = 1";
+        $deactivateQuery =
+            "UPDATE " . $this->table . " SET IsActive = 0 WHERE IsActive = 1";
         $deactivateResult = $this->conn->query($deactivateQuery);
-        error_log("DEBUG: Deactivate query result: " . ($deactivateResult ? "SUCCESS" : "FAILED"));
+        error_log(
+            "DEBUG: Deactivate query result: " .
+                ($deactivateResult ? "SUCCESS" : "FAILED")
+        );
 
         if (!$deactivateResult) {
             error_log("DEBUG: Deactivate query error: " . $this->conn->error);
@@ -182,13 +210,13 @@ class OverdueConfig
         $deadline = new DateTime($deadlineDate);
 
         // Add grace period to deadline
-        if ($activeConfig['GracePeriodDays'] > 0) {
-            $deadline->modify('+' . $activeConfig['GracePeriodDays'] . ' days');
+        if ($activeConfig["GracePeriodDays"] > 0) {
+            $deadline->modify("+" . $activeConfig["GracePeriodDays"] . " days");
         }
 
         // Check if payment is overdue
         if ($today > $deadline) {
-            $overduePercentage = $activeConfig['OverduePercentage'] / 100;
+            $overduePercentage = $activeConfig["OverduePercentage"] / 100;
             $overdueAmount = $originalAmount * $overduePercentage;
             return $originalAmount + $overdueAmount;
         }
@@ -207,8 +235,8 @@ class OverdueConfig
         $deadline = new DateTime($deadlineDate);
 
         // Add grace period to deadline
-        if ($activeConfig['GracePeriodDays'] > 0) {
-            $deadline->modify('+' . $activeConfig['GracePeriodDays'] . ' days');
+        if ($activeConfig["GracePeriodDays"] > 0) {
+            $deadline->modify("+" . $activeConfig["GracePeriodDays"] . " days");
         }
 
         return $today > $deadline;
@@ -222,7 +250,7 @@ class OverdueConfig
         $countStmt->execute();
         $countResult = $countStmt->get_result()->fetch_assoc();
 
-        if ($countResult['count'] <= 1) {
+        if ($countResult["count"] <= 1) {
             return false; // Can't delete the last config
         }
 
@@ -232,5 +260,4 @@ class OverdueConfig
 
         return $stmt->execute();
     }
-}
-?> 
+} ?> 

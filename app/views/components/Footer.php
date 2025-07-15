@@ -102,9 +102,11 @@
                 </footer>
             <script>
                 function handleBookAppointment() {
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        const userType = '<?php echo $_SESSION['user_type'] ?? ''; ?>';
-                        const staffType = '<?php echo $_SESSION['staff_type'] ?? ''; ?>';
+                    <?php if (isset($_SESSION["user_id"])): ?>
+                        const userType = '<?php echo $_SESSION["user_type"] ??
+                            ""; ?>';
+                        const staffType = '<?php echo $_SESSION["staff_type"] ??
+                            ""; ?>';
                         
                         if (userType === 'Patient') {
                             // Redirect to patient book appointment page

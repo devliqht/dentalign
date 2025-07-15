@@ -62,9 +62,15 @@ class PaymentManagement {
     });
 
     // Overdue configuration events
-    document.getElementById("editConfigBtn").addEventListener("click", () => this.showConfigForm());
-    document.getElementById("saveConfigBtn").addEventListener("click", () => this.saveOverdueConfig());
-    document.getElementById("cancelConfigBtn").addEventListener("click", () => this.hideConfigForm());
+    document
+      .getElementById("editConfigBtn")
+      .addEventListener("click", () => this.showConfigForm());
+    document
+      .getElementById("saveConfigBtn")
+      .addEventListener("click", () => this.saveOverdueConfig());
+    document
+      .getElementById("cancelConfigBtn")
+      .addEventListener("click", () => this.hideConfigForm());
   }
 
   async loadAppointments() {
@@ -79,10 +85,10 @@ class PaymentManagement {
       if (data.success) {
         this.appointments = data.appointments;
         this.filteredAppointments = [...this.appointments];
-                this.renderAppointmentsTable();
-    this.updateStats();
-    this.populateFilterOptions();
-        } else {
+        this.renderAppointmentsTable();
+        this.updateStats();
+        this.populateFilterOptions();
+      } else {
         this.showToast("Error loading appointments: " + data.message, "error");
       }
     } catch (error) {
@@ -110,7 +116,9 @@ class PaymentManagement {
   renderAppointmentsTable() {
     const container = document.getElementById("appointments-table-content");
     const noData = document.getElementById("noDataMessage");
-    const paginationContainer = document.getElementById("pagination-controls-container");
+    const paginationContainer = document.getElementById(
+      "pagination-controls-container",
+    );
 
     if (this.filteredAppointments.length === 0) {
       container.innerHTML = "";
@@ -194,7 +202,7 @@ class PaymentManagement {
     `;
 
     container.innerHTML = tableHTML;
-    
+
     // Initialize pagination and sorting
     setTimeout(() => {
       this.initializeTableFeatures();
@@ -209,7 +217,7 @@ class PaymentManagement {
         let totalAmount = appointment.TotalAmount
           ? `₱${parseFloat(appointment.TotalAmount).toFixed(2)}`
           : "₱0.00";
-        
+
         // Handle overdue payments - update status display if overdue
         let overdueIndicator = "";
         let amountDisplay = totalAmount;
@@ -223,7 +231,8 @@ class PaymentManagement {
               + ${overdueAmount} overdue fee
             </div>
           `;
-          overdueIndicator = '<span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-1" title="Overdue Payment"></span>';
+          overdueIndicator =
+            '<span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-1" title="Overdue Payment"></span>';
           // Update status to show as overdue if it's pending but actually overdue
           if (paymentStatus === "Pending") {
             paymentStatus = "Overdue";
@@ -232,8 +241,8 @@ class PaymentManagement {
 
         return `
           <tr class="hover:bg-gray-50 transition-colors table-row" 
-              data-patient-name="${appointment.PatientName || ''}"
-              data-doctor-name="${appointment.DoctorName || ''}"
+              data-patient-name="${appointment.PatientName || ""}"
+              data-doctor-name="${appointment.DoctorName || ""}"
               data-payment-status="${paymentStatus}"
               data-total-amount="${appointment.TotalAmount || 0}"
               data-date-time="${appointment.DateTime}">
@@ -319,7 +328,10 @@ class PaymentManagement {
       if (status === "Paid") {
         stats.paid++;
         stats.totalRevenue += amount;
-      } else if (status === "Overdue" || (status === "Pending" && appointment.IsOverdue)) {
+      } else if (
+        status === "Overdue" ||
+        (status === "Pending" && appointment.IsOverdue)
+      ) {
         stats.overdue++;
       } else if (status === "Pending") {
         stats.pending++;
@@ -349,12 +361,19 @@ class PaymentManagement {
     const statusFilter = document.getElementById("filterStatus").value;
     const dateRangeFilter = document.getElementById("filterDateRange").value;
     const doctorFilter = document.getElementById("filterDoctor").value;
-    const patientSearch = document.getElementById("searchPatient").value.toLowerCase();
+    const patientSearch = document
+      .getElementById("searchPatient")
+      .value.toLowerCase();
 
     this.filteredAppointments = this.appointments.filter((appointment) => {
       if (statusFilter) {
         if (statusFilter === "Overdue") {
-          if (!(appointment.PaymentStatus === "Overdue" || (appointment.PaymentStatus === "Pending" && appointment.IsOverdue))) {
+          if (
+            !(
+              appointment.PaymentStatus === "Overdue" ||
+              (appointment.PaymentStatus === "Pending" && appointment.IsOverdue)
+            )
+          ) {
             return false;
           }
         } else if (appointment.PaymentStatus !== statusFilter) {
@@ -365,7 +384,9 @@ class PaymentManagement {
       if (dateRangeFilter) {
         const appointmentDate = new Date(appointment.DateTime);
         const today = new Date();
-        const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+        const startOfWeek = new Date(
+          today.setDate(today.getDate() - today.getDay()),
+        );
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const startOfYear = new Date(today.getFullYear(), 0, 1);
 
@@ -409,11 +430,13 @@ class PaymentManagement {
 
     this.renderAppointmentsTable();
     this.updateStats();
-    
+
     // Refresh pagination and sorting after filtering
     setTimeout(() => {
       if (window.tableManager && window.tableManager.paginationManager) {
-        window.tableManager.paginationManager.refreshPagination('payment-management');
+        window.tableManager.paginationManager.refreshPagination(
+          "payment-management",
+        );
       }
     }, 150);
   }
@@ -521,7 +544,11 @@ class PaymentManagement {
     }
 
     // Check if current payment has overdue calculations
-    if (this.currentPayment && this.currentPayment.is_overdue && this.currentPayment.overdue_amount > 0) {
+    if (
+      this.currentPayment &&
+      this.currentPayment.is_overdue &&
+      this.currentPayment.overdue_amount > 0
+    ) {
       const appointmentInfo = document.getElementById("appointmentInfo");
       const overdueInfoHTML = `
         <div id="overdueInfoDisplay" class="glass-card border-red-200 border-2 bg-red-50/50 p-4 shadow-sm rounded-xl my-4">
@@ -550,7 +577,7 @@ class PaymentManagement {
           </div>
         </div>
       `;
-      appointmentInfo.insertAdjacentHTML('afterend', overdueInfoHTML);
+      appointmentInfo.insertAdjacentHTML("afterend", overdueInfoHTML);
     }
   }
 
@@ -565,51 +592,59 @@ class PaymentManagement {
     container.innerHTML = this.paymentItems
       .map(
         (item, index) => `
-            <div class="glass-card p-4 rounded-xl border-1 shadow-sm ${item.TreatmentItemID ? 'border-blue-300 bg-blue-50/30' : 'border-gray-200'}" data-index="${index}">
-                ${item.TreatmentItemID ? `
+            <div class="glass-card p-4 rounded-xl border-1 shadow-sm ${item.TreatmentItemID ? "border-blue-300 bg-blue-50/30" : "border-gray-200"}" data-index="${index}">
+                ${
+                  item.TreatmentItemID
+                    ? `
                     <div class="flex items-center mb-3 text-sm text-blue-700">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                         </svg>
                         From Treatment Plan
                     </div>
-                ` : ''}
+                `
+                    : ""
+                }
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <input type="text" value="${item.Description || ""}" 
-                               ${item.TreatmentItemID ? 'readonly' : 'onchange="paymentManager.updatePaymentItem(' + index + ', \'description\', this.value)"'}
-                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? 'bg-gray-100 cursor-not-allowed' : 'focus:ring-2 focus:ring-nhd-blue/20'}"
+                               ${item.TreatmentItemID ? "readonly" : 'onchange="paymentManager.updatePaymentItem(' + index + ", 'description', this.value)\""}
+                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? "bg-gray-100 cursor-not-allowed" : "focus:ring-2 focus:ring-nhd-blue/20"}"
                                placeholder="Service description...">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Amount (₱)</label>
                         <input type="number" value="${item.Amount || 0}" step="0.01" min="0"
-                               ${item.TreatmentItemID ? 'readonly' : 'onchange="paymentManager.updatePaymentItem(' + index + ', \'amount\', this.value)"'}
-                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? 'bg-gray-100 cursor-not-allowed' : 'focus:ring-2 focus:ring-nhd-blue/20'}">
+                               ${item.TreatmentItemID ? "readonly" : 'onchange="paymentManager.updatePaymentItem(' + index + ", 'amount', this.value)\""}
+                               class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? "bg-gray-100 cursor-not-allowed" : "focus:ring-2 focus:ring-nhd-blue/20"}">
                     </div>
                     <div class="flex items-end space-x-2">
                         <div class="flex-1">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Qty</label>
                             <input type="number" value="${item.Quantity || 1}" min="1"
-                                   ${item.TreatmentItemID ? 'readonly' : 'onchange="paymentManager.updatePaymentItem(' + index + ', \'quantity\', this.value)"'}
-                                   class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? 'bg-gray-100 cursor-not-allowed' : 'focus:ring-2 focus:ring-nhd-blue/20'}">
+                                   ${item.TreatmentItemID ? "readonly" : 'onchange="paymentManager.updatePaymentItem(' + index + ", 'quantity', this.value)\""}
+                                   class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none ${item.TreatmentItemID ? "bg-gray-100 cursor-not-allowed" : "focus:ring-2 focus:ring-nhd-blue/20"}">
                         </div>
-                        ${item.TreatmentItemID ? `
+                        ${
+                          item.TreatmentItemID
+                            ? `
                             <button disabled title="Cannot delete - originates from treatment plan" 
                                     class="glass-card bg-gray-400/50 p-3 text-gray-600 rounded-2xl cursor-not-allowed">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                                 </svg>
                             </button>
-                        ` : `
+                        `
+                            : `
                             <button onclick="paymentManager.removePaymentItem(${index})" 
                                     class="glass-card bg-red-600/80 p-3 text-white hover:bg-red-600 rounded-2xl transition-colors">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                                 </svg>
                             </button>
-                        `}
+                        `
+                        }
                     </div>
                 </div>
                 <div class="mt-2 text-right">
@@ -652,10 +687,13 @@ class PaymentManagement {
   async removePaymentItem(index) {
     if (this.paymentItems.length > 1) {
       const itemToRemove = this.paymentItems[index];
-      
+
       // Check if this item came from a treatment plan (cannot be deleted)
       if (itemToRemove.TreatmentItemID) {
-        this.showToast("Cannot delete this item - it originates from a completed treatment plan", "error");
+        this.showToast(
+          "Cannot delete this item - it originates from a completed treatment plan",
+          "error",
+        );
         return;
       }
 
@@ -663,7 +701,7 @@ class PaymentManagement {
       if (!confirm("Are you sure you want to remove this payment item?")) {
         return;
       }
-      
+
       if (itemToRemove.PaymentItemID) {
         try {
           const deleteResponse = await fetch(
@@ -678,12 +716,15 @@ class PaymentManagement {
           );
 
           const deleteResult = await deleteResponse.json();
-          
+
           if (!deleteResult.success) {
-            this.showToast("Failed to delete payment item: " + deleteResult.message, "error");
+            this.showToast(
+              "Failed to delete payment item: " + deleteResult.message,
+              "error",
+            );
             return;
           }
-          
+
           this.showToast("Payment item deleted successfully", "success");
         } catch (error) {
           console.error("Error deleting payment item:", error);
@@ -691,7 +732,7 @@ class PaymentManagement {
           return;
         }
       }
-      
+
       this.paymentItems.splice(index, 1);
       this.renderPaymentItems();
     } else {
@@ -703,12 +744,16 @@ class PaymentManagement {
     const subtotal = this.paymentItems.reduce((sum, item) => {
       return sum + (item.Amount || 0) * (item.Quantity || 1);
     }, 0);
-    
+
     // Check if this is an overdue payment and add overdue fee
     let total = subtotal;
     let totalDisplay = `₱${total.toFixed(2)}`;
-    
-    if (this.currentPayment && this.currentPayment.is_overdue && this.currentPayment.overdue_amount > 0) {
+
+    if (
+      this.currentPayment &&
+      this.currentPayment.is_overdue &&
+      this.currentPayment.overdue_amount > 0
+    ) {
       // For overdue payments, show breakdown in total display
       const overdueAmount = parseFloat(this.currentPayment.overdue_amount || 0);
       total = subtotal + overdueAmount;
@@ -741,10 +786,10 @@ class PaymentManagement {
 
   async savePayment() {
     const action = this.isEditMode ? "update" : "create";
-    const confirmMessage = this.isEditMode 
-      ? "Are you sure you want to save changes to this payment?" 
+    const confirmMessage = this.isEditMode
+      ? "Are you sure you want to save changes to this payment?"
       : "Are you sure you want to create this payment?";
-    
+
     if (!confirm(confirmMessage)) {
       return;
     }
@@ -767,9 +812,23 @@ class PaymentManagement {
       }
 
       if (this.isEditMode && this.currentPayment) {
-        await this.updateExistingPayment(status, notes, paymentMethod, deadlineDate, proofOfPayment, validItems);
+        await this.updateExistingPayment(
+          status,
+          notes,
+          paymentMethod,
+          deadlineDate,
+          proofOfPayment,
+          validItems,
+        );
       } else {
-        await this.createNewPayment(status, notes, paymentMethod, deadlineDate, proofOfPayment, validItems);
+        await this.createNewPayment(
+          status,
+          notes,
+          paymentMethod,
+          deadlineDate,
+          proofOfPayment,
+          validItems,
+        );
       }
     } catch (error) {
       console.error("Error saving payment:", error);
@@ -777,27 +836,37 @@ class PaymentManagement {
     }
   }
 
-  async createNewPayment(status, notes, paymentMethod, deadlineDate, proofOfPayment, items) {
-    const response = await fetch(`${window.BASE_URL}/dentalassistant/create-payment`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  async createNewPayment(
+    status,
+    notes,
+    paymentMethod,
+    deadlineDate,
+    proofOfPayment,
+    items,
+  ) {
+    const response = await fetch(
+      `${window.BASE_URL}/dentalassistant/create-payment`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          appointmentId: this.currentAppointment.AppointmentID,
+          patientId: this.currentAppointment.PatientID,
+          status: status,
+          notes: notes,
+          paymentMethod: paymentMethod,
+          deadlineDate: deadlineDate,
+          proofOfPayment: proofOfPayment,
+          items: items.map((item) => ({
+            description: item.Description,
+            amount: item.Amount,
+            quantity: item.Quantity,
+          })),
+        }),
       },
-      body: JSON.stringify({
-        appointmentId: this.currentAppointment.AppointmentID,
-        patientId: this.currentAppointment.PatientID,
-        status: status,
-        notes: notes,
-        paymentMethod: paymentMethod,
-        deadlineDate: deadlineDate,
-        proofOfPayment: proofOfPayment,
-        items: items.map((item) => ({
-          description: item.Description,
-          amount: item.Amount,
-          quantity: item.Quantity,
-        })),
-      }),
-    });
+    );
 
     const data = await response.json();
 
@@ -810,7 +879,14 @@ class PaymentManagement {
     }
   }
 
-  async updateExistingPayment(status, notes, paymentMethod, deadlineDate, proofOfPayment, items) {
+  async updateExistingPayment(
+    status,
+    notes,
+    paymentMethod,
+    deadlineDate,
+    proofOfPayment,
+    items,
+  ) {
     // Update payment status and notes
     const updateResponse = await fetch(
       `${window.BASE_URL}/dentalassistant/update-payment`,
@@ -1030,14 +1106,18 @@ class PaymentManagement {
     // Initialize the global table manager for sorting
     if (window.tableManager) {
       window.tableManager.init();
-      
+
       // Initialize pagination for the payment-management section
       if (window.tableManager.paginationManager) {
-        window.tableManager.paginationManager.initializeSection('payment-management');
-        window.tableManager.paginationManager.refreshPagination('payment-management');
+        window.tableManager.paginationManager.initializeSection(
+          "payment-management",
+        );
+        window.tableManager.paginationManager.refreshPagination(
+          "payment-management",
+        );
       }
     }
-    
+
     // Keep our custom sorting for payment-specific functionality
     const table = document.getElementById("paymentManagementTable");
     if (table) {
@@ -1050,7 +1130,9 @@ class PaymentManagement {
             this.sortTable(sortable);
             // Refresh pagination after sorting
             if (window.tableManager && window.tableManager.paginationManager) {
-              window.tableManager.paginationManager.refreshPagination('payment-management');
+              window.tableManager.paginationManager.refreshPagination(
+                "payment-management",
+              );
             }
           });
         }
@@ -1065,33 +1147,37 @@ class PaymentManagement {
 
     // Determine current sort direction
     const header = table.querySelector(`[data-sort="${sortBy}"]`);
-    const currentDirection = header.getAttribute('data-direction') || 'asc';
-    const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-    header.setAttribute('data-direction', newDirection);
+    const currentDirection = header.getAttribute("data-direction") || "asc";
+    const newDirection = currentDirection === "asc" ? "desc" : "asc";
+    header.setAttribute("data-direction", newDirection);
 
     rows.sort((rowA, rowB) => {
       let valueA, valueB;
 
       switch (sortBy) {
         case "DateTime":
-          valueA = new Date(rowA.getAttribute('data-date-time'));
-          valueB = new Date(rowB.getAttribute('data-date-time'));
+          valueA = new Date(rowA.getAttribute("data-date-time"));
+          valueB = new Date(rowB.getAttribute("data-date-time"));
           break;
         case "PatientName":
-          valueA = (rowA.getAttribute('data-patient-name') || '').toLowerCase();
-          valueB = (rowB.getAttribute('data-patient-name') || '').toLowerCase();
+          valueA = (rowA.getAttribute("data-patient-name") || "").toLowerCase();
+          valueB = (rowB.getAttribute("data-patient-name") || "").toLowerCase();
           break;
         case "DoctorName":
-          valueA = (rowA.getAttribute('data-doctor-name') || '').toLowerCase();
-          valueB = (rowB.getAttribute('data-doctor-name') || '').toLowerCase();
+          valueA = (rowA.getAttribute("data-doctor-name") || "").toLowerCase();
+          valueB = (rowB.getAttribute("data-doctor-name") || "").toLowerCase();
           break;
         case "TotalAmount":
-          valueA = parseFloat(rowA.getAttribute('data-total-amount')) || 0;
-          valueB = parseFloat(rowB.getAttribute('data-total-amount')) || 0;
+          valueA = parseFloat(rowA.getAttribute("data-total-amount")) || 0;
+          valueB = parseFloat(rowB.getAttribute("data-total-amount")) || 0;
           break;
         case "PaymentStatus":
-          valueA = (rowA.getAttribute('data-payment-status') || '').toLowerCase();
-          valueB = (rowB.getAttribute('data-payment-status') || '').toLowerCase();
+          valueA = (
+            rowA.getAttribute("data-payment-status") || ""
+          ).toLowerCase();
+          valueB = (
+            rowB.getAttribute("data-payment-status") || ""
+          ).toLowerCase();
           break;
         default:
           return 0;
@@ -1100,12 +1186,12 @@ class PaymentManagement {
       let comparison = 0;
       if (valueA < valueB) comparison = -1;
       if (valueA > valueB) comparison = 1;
-      
-      return newDirection === 'asc' ? comparison : -comparison;
+
+      return newDirection === "asc" ? comparison : -comparison;
     });
 
     // Re-append sorted rows to the table body
-    tbody.innerHTML = '';
+    tbody.innerHTML = "";
     rows.forEach((row) => tbody.appendChild(row));
 
     // Update sort indicators
@@ -1115,33 +1201,35 @@ class PaymentManagement {
   updateSortIndicators(activeHeader, direction) {
     const table = document.getElementById("paymentManagementTable");
     const headers = table.querySelectorAll(".sortable-header");
-    
+
     // Reset only non-active headers
     headers.forEach((header) => {
       if (header !== activeHeader) {
-        header.removeAttribute('data-direction');
+        header.removeAttribute("data-direction");
       }
       const defaultIcon = header.querySelector(".sort-icon-default");
       const activeIcon = header.querySelector(".sort-icon-active");
-      
+
       if (header === activeHeader) {
         // Show active indicator for current header
-        if (defaultIcon) defaultIcon.style.display = 'none';
+        if (defaultIcon) defaultIcon.style.display = "none";
         if (activeIcon) {
-          activeIcon.style.display = 'inline-block';
-          activeIcon.innerHTML = direction === 'asc' ? '↑' : '↓';
+          activeIcon.style.display = "inline-block";
+          activeIcon.innerHTML = direction === "asc" ? "↑" : "↓";
         }
       } else {
         // Show default indicator for other headers
-        if (defaultIcon) defaultIcon.style.display = 'inline-block';
-        if (activeIcon) activeIcon.style.display = 'none';
+        if (defaultIcon) defaultIcon.style.display = "inline-block";
+        if (activeIcon) activeIcon.style.display = "none";
       }
     });
   }
 
   async loadOverdueConfig() {
     try {
-      const response = await fetch(`${window.BASE_URL}/dentalassistant/get-overdue-config`);
+      const response = await fetch(
+        `${window.BASE_URL}/dentalassistant/get-overdue-config`,
+      );
       const data = await response.json();
 
       if (data.success) {
@@ -1156,12 +1244,17 @@ class PaymentManagement {
   }
 
   updateConfigDisplay(config) {
-    document.getElementById("currentPercentage").textContent = `${parseFloat(config.OverduePercentage).toFixed(2)}%`;
-    document.getElementById("currentGracePeriod").textContent = `${config.GracePeriodDays} days`;
-    
+    document.getElementById("currentPercentage").textContent =
+      `${parseFloat(config.OverduePercentage).toFixed(2)}%`;
+    document.getElementById("currentGracePeriod").textContent =
+      `${config.GracePeriodDays} days`;
+
     if (config.UpdatedAt) {
       const updatedDate = new Date(config.UpdatedAt);
-      document.getElementById("lastUpdated").textContent = updatedDate.toLocaleDateString() + " " + updatedDate.toLocaleTimeString();
+      document.getElementById("lastUpdated").textContent =
+        updatedDate.toLocaleDateString() +
+        " " +
+        updatedDate.toLocaleTimeString();
     } else {
       document.getElementById("lastUpdated").textContent = "Never";
     }
@@ -1170,14 +1263,17 @@ class PaymentManagement {
   showConfigForm() {
     const configDisplay = document.getElementById("configDisplay");
     const configForm = document.getElementById("configForm");
-    
+
     // Populate form with current values
     if (this.currentConfig) {
-      document.getElementById("overduePercentage").value = this.currentConfig.OverduePercentage;
-      document.getElementById("gracePeriodDays").value = this.currentConfig.GracePeriodDays;
-      document.getElementById("configName").value = this.currentConfig.ConfigName || "Updated Configuration";
+      document.getElementById("overduePercentage").value =
+        this.currentConfig.OverduePercentage;
+      document.getElementById("gracePeriodDays").value =
+        this.currentConfig.GracePeriodDays;
+      document.getElementById("configName").value =
+        this.currentConfig.ConfigName || "Updated Configuration";
     }
-    
+
     configDisplay.classList.add("hidden");
     configForm.classList.remove("hidden");
   }
@@ -1185,28 +1281,44 @@ class PaymentManagement {
   hideConfigForm() {
     const configDisplay = document.getElementById("configDisplay");
     const configForm = document.getElementById("configForm");
-    
+
     configDisplay.classList.remove("hidden");
     configForm.classList.add("hidden");
   }
 
   async saveOverdueConfig() {
-    if (!confirm("Are you sure you want to save the overdue configuration changes? This will affect all future overdue calculations.")) {
+    if (
+      !confirm(
+        "Are you sure you want to save the overdue configuration changes? This will affect all future overdue calculations.",
+      )
+    ) {
       return;
     }
 
     try {
-      const overduePercentage = parseFloat(document.getElementById("overduePercentage").value);
-      const gracePeriodDays = parseInt(document.getElementById("gracePeriodDays").value);
+      const overduePercentage = parseFloat(
+        document.getElementById("overduePercentage").value,
+      );
+      const gracePeriodDays = parseInt(
+        document.getElementById("gracePeriodDays").value,
+      );
       const configName = document.getElementById("configName").value;
 
       // Validate input
-      if (isNaN(overduePercentage) || overduePercentage < 0 || overduePercentage > 100) {
+      if (
+        isNaN(overduePercentage) ||
+        overduePercentage < 0 ||
+        overduePercentage > 100
+      ) {
         this.showToast("Overdue percentage must be between 0 and 100", "error");
         return;
       }
 
-      if (isNaN(gracePeriodDays) || gracePeriodDays < 0 || gracePeriodDays > 365) {
+      if (
+        isNaN(gracePeriodDays) ||
+        gracePeriodDays < 0 ||
+        gracePeriodDays > 365
+      ) {
         this.showToast("Grace period must be between 0 and 365 days", "error");
         return;
       }
@@ -1216,17 +1328,20 @@ class PaymentManagement {
         return;
       }
 
-      const response = await fetch(`${window.BASE_URL}/dentalassistant/update-overdue-config`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${window.BASE_URL}/dentalassistant/update-overdue-config`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            configName: configName.trim(),
+            overduePercentage: overduePercentage,
+            gracePeriodDays: gracePeriodDays,
+          }),
         },
-        body: JSON.stringify({
-          configName: configName.trim(),
-          overduePercentage: overduePercentage,
-          gracePeriodDays: gracePeriodDays,
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -1236,7 +1351,10 @@ class PaymentManagement {
         this.loadOverdueConfig(); // Reload to get updated data
         this.loadAppointments(); // Reload appointments to recalculate overdue amounts
       } else {
-        this.showToast("Error updating configuration: " + data.message, "error");
+        this.showToast(
+          "Error updating configuration: " + data.message,
+          "error",
+        );
       }
     } catch (error) {
       console.error("Error saving overdue config:", error);
@@ -1248,6 +1366,6 @@ class PaymentManagement {
 // Initialize payment manager when DOM is ready
 let paymentManager;
 
-document.addEventListener('DOMContentLoaded', function() {
-    paymentManager = new PaymentManagement();
+document.addEventListener("DOMContentLoaded", function () {
+  paymentManager = new PaymentManagement();
 });

@@ -32,21 +32,33 @@ class DoctorController extends Controller
         $doctorModel->findById($doctorID);
 
         // Get appointment statistics
-        $allAppointments = $appointmentModel->getAppointmentsByDoctor($doctorID);
-        $upcomingAppointments = $appointmentModel->getUpcomingAppointmentsByDoctor($doctorID);
-        $todaysAppointments = $appointmentModel->getTodaysAppointmentsByDoctor($doctorID);
-        $appointmentHistory = $appointmentModel->getAppointmentHistoryByDoctor($doctorID);
-        $pendingCancellations = $appointmentModel->getPendingCancellationsByDoctor($doctorID);
+        $allAppointments = $appointmentModel->getAppointmentsByDoctor(
+            $doctorID
+        );
+        $upcomingAppointments = $appointmentModel->getUpcomingAppointmentsByDoctor(
+            $doctorID
+        );
+        $todaysAppointments = $appointmentModel->getTodaysAppointmentsByDoctor(
+            $doctorID
+        );
+        $appointmentHistory = $appointmentModel->getAppointmentHistoryByDoctor(
+            $doctorID
+        );
+        $pendingCancellations = $appointmentModel->getPendingCancellationsByDoctor(
+            $doctorID
+        );
 
         // Calculate stats
         $appointmentStats = [
             "total" => count($allAppointments),
             "upcoming" => count($upcomingAppointments),
             "today" => count($todaysAppointments),
-            "completed" => count(array_filter($appointmentHistory, function ($app) {
-                return $app["Status"] === "Completed";
-            })),
-            "cancellation_requests" => count($pendingCancellations)
+            "completed" => count(
+                array_filter($appointmentHistory, function ($app) {
+                    return $app["Status"] === "Completed";
+                })
+            ),
+            "cancellation_requests" => count($pendingCancellations),
         ];
 
         // Get recent patient visits (from appointment history, last 10)
@@ -64,22 +76,27 @@ class DoctorController extends Controller
         $data = [
             "user" => $user,
             "doctor" => [
-                "specialization" => $doctorModel->specialization ?? "General Practice",
+                "specialization" =>
+                    $doctorModel->specialization ?? "General Practice",
                 "firstName" => $doctorModel->firstName,
                 "lastName" => $doctorModel->lastName,
-                "email" => $doctorModel->email
+                "email" => $doctorModel->email,
             ],
             "appointmentStats" => $appointmentStats,
             "upcomingAppointments" => array_slice($upcomingAppointments, 0, 5),
             "todaysAppointments" => $todaysAppointments,
-            "recentlyCompletedAppointments" => array_slice(array_filter($appointmentHistory, function ($app) {
-                return $app["Status"] === "Completed";
-            }), 0, 5),
+            "recentlyCompletedAppointments" => array_slice(
+                array_filter($appointmentHistory, function ($app) {
+                    return $app["Status"] === "Completed";
+                }),
+                0,
+                5
+            ),
             "recentPatientVisits" => $recentPatientVisits,
             "pendingCancellations" => array_slice($pendingCancellations, 0, 5),
             "weekAppointments" => $weekAppointments,
             "startOfWeek" => $startOfWeek,
-            "endOfWeek" => $endOfWeek
+            "endOfWeek" => $endOfWeek,
         ];
 
         $layoutConfig = [
@@ -312,7 +329,6 @@ class DoctorController extends Controller
             $doctorID
         );
 
-        // Group appointments by status
         $appointmentsByStatus = [
             "Pending" => [],
             "Approved" => [],
@@ -328,9 +344,6 @@ class DoctorController extends Controller
                 $appointmentsByStatus[$status][] = $appointment;
             }
         }
-
-        $doctorModel = new Doctor($this->conn);
-        $doctorModel->findById($doctorID);
 
         $data = [
             "user" => $user,
@@ -505,7 +518,9 @@ class DoctorController extends Controller
 
         // Handle password update
         if (isset($data["action"]) && $data["action"] === "update_password") {
-            $passwordErrors = $this->validatePassword($data["new_password"] ?? "");
+            $passwordErrors = $this->validatePassword(
+                $data["new_password"] ?? ""
+            );
             if (!empty($passwordErrors)) {
                 $this->redirectBack(implode(". ", $passwordErrors));
                 return;
@@ -801,7 +816,6 @@ class DoctorController extends Controller
         }
 
         try {
-            // Get appointment details
             $appointment = new Appointment($this->conn);
             $appointmentData = $appointment->getAppointmentById($appointmentId);
 

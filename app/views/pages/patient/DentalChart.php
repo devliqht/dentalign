@@ -266,7 +266,9 @@
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-semibold text-nhd-blue">Treatment Plans</h3>
             <?php if (!empty($treatmentPlans)): ?>
-                <span class="text-sm text-gray-600"><?php echo count($treatmentPlans); ?> treatment plan(s)</span>
+                <span class="text-sm text-gray-600"><?php echo count(
+                    $treatmentPlans
+                ); ?> treatment plan(s)</span>
             <?php endif; ?>
         </div>
 
@@ -274,50 +276,71 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <?php foreach ($treatmentPlans as $plan): ?>
                     <div class="glass-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
-                         onclick="viewTreatmentPlan(<?php echo $plan['TreatmentPlanID']; ?>)">
+                         onclick="viewTreatmentPlan(<?php echo $plan[
+                             "TreatmentPlanID"
+                         ]; ?>)">
                         <div class="flex items-center justify-between mb-4">
                             <span class="text-xs font-medium px-2 py-1 rounded-full 
-                                <?php
-                                switch ($plan['Status']) {
-                                    case 'completed': echo 'bg-green-100 text-green-800';
+                                <?php switch ($plan["Status"]) {
+                                    case "completed":
+                                        echo "bg-green-100 text-green-800";
                                         break;
-                                    case 'in_progress': echo 'bg-blue-100 text-blue-800';
+                                    case "in_progress":
+                                        echo "bg-blue-100 text-blue-800";
                                         break;
-                                    case 'pending': echo 'bg-yellow-100 text-yellow-800';
+                                    case "pending":
+                                        echo "bg-yellow-100 text-yellow-800";
                                         break;
-                                    case 'cancelled': echo 'bg-red-100 text-red-800';
+                                    case "cancelled":
+                                        echo "bg-red-100 text-red-800";
                                         break;
-                                    default: echo 'bg-gray-100 text-gray-800';
-                                }
-                    ?>">
-                                <?php echo ucfirst($plan['Status']); ?>
+                                    default:
+                                        echo "bg-gray-100 text-gray-800";
+                                } ?>">
+                                <?php echo ucfirst($plan["Status"]); ?>
                             </span>
                             <span class="text-xs text-gray-500">
-                                #<?php echo str_pad($plan['TreatmentPlanID'], 4, '0', STR_PAD_LEFT); ?>
+                                #<?php echo str_pad(
+                                    $plan["TreatmentPlanID"],
+                                    4,
+                                    "0",
+                                    STR_PAD_LEFT
+                                ); ?>
                             </span>
                         </div>
                         
                         <h4 class="font-semibold text-gray-900 mb-2">
-                            Dr. <?php echo htmlspecialchars($plan['DoctorName']); ?>
+                            Dr. <?php echo htmlspecialchars(
+                                $plan["DoctorName"]
+                            ); ?>
                         </h4>
                         
                         <div class="text-sm text-gray-600 mb-3">
-                            <?php echo date('M j, Y', strtotime($plan['AssignedAt'])); ?>
+                            <?php echo date(
+                                "M j, Y",
+                                strtotime($plan["AssignedAt"])
+                            ); ?>
                         </div>
                         
                         <div class="mb-4">
                             <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
                                 <span>Progress</span>
-                                <span><?php echo $plan['progress']; ?>%</span>
+                                <span><?php echo $plan["progress"]; ?>%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2">
                                 <div class="bg-nhd-blue h-2 rounded-full transition-all duration-300" 
-                                     style="width: <?php echo $plan['progress']; ?>%"></div>
+                                     style="width: <?php echo $plan[
+                                         "progress"
+                                     ]; ?>%"></div>
                             </div>
                         </div>
                         
                         <div class="text-xs text-gray-500">
-                            <?php echo $plan['completedItems']; ?> of <?php echo $plan['totalItems']; ?> items completed
+                            <?php echo $plan[
+                                "completedItems"
+                            ]; ?> of <?php echo $plan[
+     "totalItems"
+ ]; ?> items completed
                         </div>
                     </div>
                 <?php endforeach; ?>

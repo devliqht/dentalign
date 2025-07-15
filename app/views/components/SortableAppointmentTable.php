@@ -2,27 +2,34 @@
 function getPaymentStatusClass($status)
 {
     switch (strtolower($status)) {
-        case 'pending':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'paid':
-            return 'bg-green-100 text-green-800';
-        case 'overdue':
-            return 'bg-red-100 text-red-800';
-        case 'failed':
-            return 'bg-red-100 text-red-800';
-        case 'refunded':
-            return 'bg-blue-100 text-blue-800';
-        case 'cancelled':
-            return 'bg-gray-100 text-gray-800';
+        case "pending":
+            return "bg-yellow-100 text-yellow-800";
+        case "paid":
+            return "bg-green-100 text-green-800";
+        case "overdue":
+            return "bg-red-100 text-red-800";
+        case "failed":
+            return "bg-red-100 text-red-800";
+        case "refunded":
+            return "bg-blue-100 text-blue-800";
+        case "cancelled":
+            return "bg-gray-100 text-gray-800";
         default:
-            return 'bg-gray-100 text-gray-800';
+            return "bg-gray-100 text-gray-800";
     }
 }
 
-function renderSortableAppointmentTable($appointments, $appointmentPayments, $sectionId, $sectionTitle, $emptyMessage, $emptyIcon, $user, $isPatientView = true)
-{
-    $hasPayments = !empty($appointmentPayments) && $isPatientView;
-    ?>
+function renderSortableAppointmentTable(
+    $appointments,
+    $appointmentPayments,
+    $sectionId,
+    $sectionTitle,
+    $emptyMessage,
+    $emptyIcon,
+    $user,
+    $isPatientView = true
+) {
+    $hasPayments = !empty($appointmentPayments) && $isPatientView; ?>
     
     <div id="<?php echo $sectionId; ?>-section" class="appointment-section">
         <div class="px-3 mb-3 mt-8">
@@ -38,42 +45,75 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
                             <div class="flex justify-between items-start mb-2">
                                 <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded text-xs font-medium">
                                     <?php if ($isPatientView): ?>
-                                        #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                        #<?php echo str_pad(
+                                            $appointment["AppointmentID"],
+                                            6,
+                                            "0",
+                                            STR_PAD_LEFT
+                                        ); ?>
                                         &nbsp;|&nbsp;
                                     <?php endif; ?>
-                                    <?php echo date("M j", strtotime($appointment["DateTime"])); ?> • <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                    <?php echo date(
+                                        "M j",
+                                        strtotime($appointment["DateTime"])
+                                    ); ?> • <?php echo date(
+                                        "g:i A",
+                                        strtotime($appointment["DateTime"])
+                                    ); ?>
                                 </div>
-                                <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
+                                <span class="<?php echo getAppointmentStatusClass(
+                                    $appointment["Status"]
+                                ); ?> px-2 py-1 rounded-full text-xs">
                                     <?php echo $appointment["Status"]; ?>
                                 </span>
                             </div>
                             
                             <?php if ($isPatientView): ?>
                                 <h4 class="font-semibold text-gray-900 mb-1">
-                                    Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                    Dr. <?php echo htmlspecialchars(
+                                        $appointment["DoctorFirstName"] .
+                                            " " .
+                                            $appointment["DoctorLastName"]
+                                    ); ?>
                                 </h4>
                                 
                                 <div class="text-sm text-gray-600 mb-2">
-                                    <?php echo htmlspecialchars($appointment["Specialization"]); ?>
+                                    <?php echo htmlspecialchars(
+                                        $appointment["Specialization"]
+                                    ); ?>
                                 </div>
                             <?php else: ?>
                                 <h4 class="font-semibold text-gray-900 mb-1">
-                                    <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                    <?php echo htmlspecialchars(
+                                        $appointment["PatientFirstName"] .
+                                            " " .
+                                            $appointment["PatientLastName"]
+                                    ); ?>
                                 </h4>
                                 
                                 <div class="text-sm text-gray-600 mb-2">
-                                    <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                    <?php echo htmlspecialchars(
+                                        $appointment["PatientEmail"]
+                                    ); ?>
                                 </div>
                             <?php endif; ?>
                             
                             <div class="flex justify-between items-center mb-2">
                                 <div class="text-sm">
                                     <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
-                                        <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["AppointmentType"]
+                                        ); ?>
                                     </span>
                                 </div>
                                 <div class="flex space-x-1">
-                                    <?php echo renderMobileActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView); ?>
+                                    <?php echo renderMobileActions(
+                                        $appointment,
+                                        $user,
+                                        $appointmentPayments,
+                                        $sectionId,
+                                        $isPatientView
+                                    ); ?>
                                 </div>
                             </div>
                             
@@ -81,12 +121,21 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
                                 <div class="flex justify-between items-center text-xs mt-2">
                                     <div>
                                         <span class="font-medium">Payment:</span> 
-                                        <?php echo renderPaymentInfo($appointment, $appointmentPayments, true); ?>
+                                        <?php echo renderPaymentInfo(
+                                            $appointment,
+                                            $appointmentPayments,
+                                            true
+                                        ); ?>
                                     </div>
                                 </div>
-                            <?php elseif (!$isPatientView && !empty($appointment["Reason"])): ?>
+                            <?php elseif (
+                                !$isPatientView &&
+                                !empty($appointment["Reason"])
+                            ): ?>
                                 <div class="mt-2 text-sm text-gray-600">
-                                    <span class="font-medium">Reason:</span> <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                    <span class="font-medium">Reason:</span> <?php echo htmlspecialchars(
+                                        $appointment["Reason"]
+                                    ); ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -184,68 +233,130 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200/30" id="table-body-<?php echo $sectionId; ?>">
-                            <?php foreach ($appointments as $index => $appointment): ?>
+                            <?php foreach (
+                                $appointments as $index => $appointment
+                            ): ?>
                                 <tr class="hover:bg-nhd-blue/10 cursor-pointer transition-colors duration-200 border-b-1 border-gray-200 table-row" data-row-index="<?php echo $index; ?>"
                                     <?php if ($isPatientView): ?>
-                                    onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
+                                    onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                                     tabindex="0" role="button"
-                                    onkeydown="if(event.key==='Enter'||event.key===' '){navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')}"
+                                    onkeydown="if(event.key==='Enter'||event.key===' '){navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')}"
                                     <?php endif; ?>>
                                     <?php if ($isPatientView): ?>
                                         <td class="py-2 px-2 font-mono text-xs text-gray-700 w-24 font-bold">
-                                            #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                            #<?php echo str_pad(
+                                                $appointment["AppointmentID"],
+                                                6,
+                                                "0",
+                                                STR_PAD_LEFT
+                                            ); ?>
                                         </td>
                                     <?php endif; ?>
                                     <td class="py-2 px-3">
                                         <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded inline-block text-xs">
                                             <div class="font-medium">
-                                                <?php echo date("M j", strtotime($appointment["DateTime"])); ?>
+                                                <?php echo date(
+                                                    "M j",
+                                                    strtotime(
+                                                        $appointment["DateTime"]
+                                                    )
+                                                ); ?>
                                             </div>
                                             <div class="font-bold">
-                                                <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                                <?php echo date(
+                                                    "g:i A",
+                                                    strtotime(
+                                                        $appointment["DateTime"]
+                                                    )
+                                                ); ?>
                                             </div>
                                         </div>
                                     </td>
                                     <?php if ($isPatientView): ?>
                                         <td class="py-2 px-3">
                                             <div class="font-medium text-gray-900 text-sm">
-                                                Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                                Dr. <?php echo htmlspecialchars(
+                                                    $appointment[
+                                                        "DoctorFirstName"
+                                                    ] .
+                                                        " " .
+                                                        $appointment[
+                                                            "DoctorLastName"
+                                                        ]
+                                                ); ?>
                                             </div>
                                             <div class="text-xs text-gray-500">
-                                                <?php echo htmlspecialchars($appointment["Specialization"]); ?>
+                                                <?php echo htmlspecialchars(
+                                                    $appointment[
+                                                        "Specialization"
+                                                    ]
+                                                ); ?>
                                             </div>
                                         </td>
                                     <?php else: ?>
                                         <td class="py-2 px-3">
                                             <div class="font-medium text-gray-900 text-sm">
-                                                <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                                <?php echo htmlspecialchars(
+                                                    $appointment[
+                                                        "PatientFirstName"
+                                                    ] .
+                                                        " " .
+                                                        $appointment[
+                                                            "PatientLastName"
+                                                        ]
+                                                ); ?>
                                             </div>
                                             <div class="text-xs text-gray-500">
-                                                ID #<?php echo str_pad($appointment["AppointmentID"], 4, "0", STR_PAD_LEFT); ?>
+                                                ID #<?php echo str_pad(
+                                                    $appointment[
+                                                        "AppointmentID"
+                                                    ],
+                                                    4,
+                                                    "0",
+                                                    STR_PAD_LEFT
+                                                ); ?>
                                             </div>
                                         </td>
                                         <td class="py-2 px-3">
                                             <div class="text-sm text-gray-600">
-                                                <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                                <?php echo htmlspecialchars(
+                                                    $appointment["PatientEmail"]
+                                                ); ?>
                                             </div>
                                         </td>
                                     <?php endif; ?>
                                     <td class="py-2 px-3">
                                         <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                                            <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                            <?php echo htmlspecialchars(
+                                                $appointment["AppointmentType"]
+                                            ); ?>
                                         </span>
                                     </td>
                                     <?php if ($isPatientView): ?>
                                         <td class="py-2 px-3">
-                                            <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
-                                                <?php echo $appointment["Status"]; ?>
+                                            <span class="<?php echo getAppointmentStatusClass(
+                                                $appointment["Status"]
+                                            ); ?> px-2 py-1 rounded-full text-xs">
+                                                <?php echo $appointment[
+                                                    "Status"
+                                                ]; ?>
                                             </span>
                                         </td>
                                     <?php else: ?>
                                         <td class="py-2 px-3 max-w-xs">
-                                            <?php if (!empty($appointment["Reason"])): ?>
-                                                <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($appointment["Reason"]); ?>">
-                                                    <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                            <?php if (
+                                                !empty($appointment["Reason"])
+                                            ): ?>
+                                                <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars(
+                                                    $appointment["Reason"]
+                                                ); ?>">
+                                                    <?php echo htmlspecialchars(
+                                                        $appointment["Reason"]
+                                                    ); ?>
                                                 </div>
                                             <?php else: ?>
                                                 <span class="text-gray-400 text-sm italic">-</span>
@@ -254,11 +365,21 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
                                     <?php endif; ?>
                                     <?php if ($hasPayments): ?>
                                         <td class="py-2 px-3">
-                                            <?php echo renderPaymentInfo($appointment, $appointmentPayments, false); ?>
+                                            <?php echo renderPaymentInfo(
+                                                $appointment,
+                                                $appointmentPayments,
+                                                false
+                                            ); ?>
                                         </td>
                                     <?php endif; ?>
                                     <td class="py-2 px-3">
-                                        <?php echo renderDesktopActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView); ?>
+                                        <?php echo renderDesktopActions(
+                                            $appointment,
+                                            $user,
+                                            $appointmentPayments,
+                                            $sectionId,
+                                            $isPatientView
+                                        ); ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -267,12 +388,12 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
                 </div>
                 
                 <!-- Pagination Controls Bottom -->
-                <?php echo renderPaginationControls($sectionId, 'bottom'); ?>
+                <?php echo renderPaginationControls($sectionId, "bottom"); ?>
             <?php else: ?>
                 <div class="glass-card bg-gray-50/50 rounded-2xl p-8 text-center m-4 shadow-none border-1 border-gray-200">
                     <?php echo $emptyIcon; ?>
                     <p class="text-gray-500 mb-4"><?php echo $emptyMessage; ?></p>
-                    <?php if ($sectionId === 'upcoming' && $isPatientView): ?>
+                    <?php if ($sectionId === "upcoming" && $isPatientView): ?>
                         <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
                            class="inline-flex items-center px-4 py-2 glass-card bg-nhd-blue/80 text-white rounded-2xl hover:bg-nhd-blue transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,52 +423,89 @@ function renderSortableAppointmentTable($appointments, $appointmentPayments, $se
     <?php
 }
 
-function renderTableRow($appointment, $user, $appointmentPayments, $sectionId, $hasPayments, $isPatientView = true)
-{
-    ob_start();
-    ?>
+function renderTableRow(
+    $appointment,
+    $user,
+    $appointmentPayments,
+    $sectionId,
+    $hasPayments,
+    $isPatientView = true
+) {
+    ob_start(); ?>
     <tr class="hover:bg-nhd-blue/10 cursor-pointer transition-colors duration-200 border-b-1 border-gray-200"
         <?php if ($isPatientView): ?>
-        onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
+        onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
         tabindex="0" role="button"
-        onkeydown="if(event.key==='Enter'||event.key===' '){navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')}"
+        onkeydown="if(event.key==='Enter'||event.key===' '){navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')}"
         <?php endif; ?>>
         <?php if ($isPatientView): ?>
             <td class="py-2 px-2 font-mono text-xs text-gray-700 w-24 font-bold">
-                #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                #<?php echo str_pad(
+                    $appointment["AppointmentID"],
+                    6,
+                    "0",
+                    STR_PAD_LEFT
+                ); ?>
             </td>
         <?php endif; ?>
         <td class="py-2 px-3">
             <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded inline-block text-xs">
                 <div class="font-medium">
-                    <?php echo date("M j", strtotime($appointment["DateTime"])); ?>
+                    <?php echo date(
+                        "M j",
+                        strtotime($appointment["DateTime"])
+                    ); ?>
                 </div>
                 <div class="font-bold">
-                    <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                    <?php echo date(
+                        "g:i A",
+                        strtotime($appointment["DateTime"])
+                    ); ?>
                 </div>
             </div>
         </td>
         <?php if ($isPatientView): ?>
             <td class="py-2 px-3">
                 <div class="font-medium text-gray-900 text-sm">
-                    Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                    Dr. <?php echo htmlspecialchars(
+                        $appointment["DoctorFirstName"] .
+                            " " .
+                            $appointment["DoctorLastName"]
+                    ); ?>
                 </div>
                 <div class="text-xs text-gray-500">
-                    <?php echo htmlspecialchars($appointment["Specialization"]); ?>
+                    <?php echo htmlspecialchars(
+                        $appointment["Specialization"]
+                    ); ?>
                 </div>
             </td>
         <?php else: ?>
             <td class="py-2 px-3">
                 <div class="font-medium text-gray-900 text-sm">
-                    <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                    <?php echo htmlspecialchars(
+                        $appointment["PatientFirstName"] .
+                            " " .
+                            $appointment["PatientLastName"]
+                    ); ?>
                 </div>
                 <div class="text-xs text-gray-500">
-                    ID #<?php echo str_pad($appointment["AppointmentID"], 4, "0", STR_PAD_LEFT); ?>
+                    ID #<?php echo str_pad(
+                        $appointment["AppointmentID"],
+                        4,
+                        "0",
+                        STR_PAD_LEFT
+                    ); ?>
                 </div>
             </td>
             <td class="py-2 px-3">
                 <div class="text-sm text-gray-600">
-                    <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                    <?php echo htmlspecialchars(
+                        $appointment["PatientEmail"]
+                    ); ?>
                 </div>
             </td>
         <?php endif; ?>
@@ -358,14 +516,18 @@ function renderTableRow($appointment, $user, $appointmentPayments, $sectionId, $
         </td>
         <?php if ($isPatientView): ?>
             <td class="py-2 px-3">
-                <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
+                <span class="<?php echo getAppointmentStatusClass(
+                    $appointment["Status"]
+                ); ?> px-2 py-1 rounded-full text-xs">
                     <?php echo $appointment["Status"]; ?>
                 </span>
             </td>
         <?php else: ?>
             <td class="py-2 px-3 max-w-xs">
                 <?php if (!empty($appointment["Reason"])): ?>
-                    <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($appointment["Reason"]); ?>">
+                    <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars(
+                        $appointment["Reason"]
+                    ); ?>">
                         <?php echo htmlspecialchars($appointment["Reason"]); ?>
                     </div>
                 <?php else: ?>
@@ -375,77 +537,110 @@ function renderTableRow($appointment, $user, $appointmentPayments, $sectionId, $
         <?php endif; ?>
         <?php if ($hasPayments): ?>
             <td class="py-2 px-3">
-                <?php echo renderPaymentInfo($appointment, $appointmentPayments, false); ?>
+                <?php echo renderPaymentInfo(
+                    $appointment,
+                    $appointmentPayments,
+                    false
+                ); ?>
             </td>
         <?php endif; ?>
         <td class="py-2 px-3">
-            <?php echo renderDesktopActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView); ?>
+            <?php echo renderDesktopActions(
+                $appointment,
+                $user,
+                $appointmentPayments,
+                $sectionId,
+                $isPatientView
+            ); ?>
         </td>
     </tr>
-    <?php
-    return ob_get_clean();
+    <?php return ob_get_clean();
 }
 
-function renderPaymentInfo($appointment, $appointmentPayments, $isMobile = false)
-{
+function renderPaymentInfo(
+    $appointment,
+    $appointmentPayments,
+    $isMobile = false
+) {
     ob_start();
     if (isset($appointmentPayments[$appointment["AppointmentID"]])) {
         $payment = $appointmentPayments[$appointment["AppointmentID"]];
         $statusClass = getPaymentStatusClass($payment["Status"]);
 
-        if ($isMobile) {
-            ?>
-            <span class="font-mono">#<?php echo str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT); ?></span>
+        if ($isMobile) { ?>
+            <span class="font-mono">#<?php echo str_pad(
+                $payment["PaymentID"],
+                6,
+                "0",
+                STR_PAD_LEFT
+            ); ?></span>
             <span class="<?php echo $statusClass; ?> px-2 py-1 rounded-full ml-1 text-xs">
                 <?php echo htmlspecialchars($payment["Status"]); ?>
             </span>
-            <span class="ml-2 text-nhd-brown font-semibold">₱<?php echo number_format($payment["total_amount"] ?? 0, 2); ?></span>
-            <?php
-        } else {
-            ?>
+            <span class="ml-2 text-nhd-brown font-semibold">₱<?php echo number_format(
+                $payment["total_amount"] ?? 0,
+                2
+            ); ?></span>
+            <?php } else { ?>
             <div class="flex flex-row gap-1">
                 <span class="<?php echo $statusClass; ?> px-2 py-1 rounded-full text-xs">
                     <?php echo htmlspecialchars($payment["Status"]); ?>
                 </span>
-                <span class="text-nhd-brown font-semibold">₱<?php echo number_format($payment["total_amount"] ?? 0, 2); ?></span>
+                <span class="text-nhd-brown font-semibold">₱<?php echo number_format(
+                    $payment["total_amount"] ?? 0,
+                    2
+                ); ?></span>
             </div>
-            <?php
-        }
-    } else {
-        $statusClass = getPaymentStatusClass('pending');
-        if ($isMobile) {
-            echo '<span class="' . $statusClass . ' text-xs px-2 py-1 rounded-xl">Pending</span>';
-            echo '<span class="ml-2 text-nhd-brown font-semibold">₱0.00</span>';
-        } else {
-            echo '<span class="' . $statusClass . ' text-xs px-2 py-1 rounded-xl">Pending</span>';
-            echo '<span class="text-nhd-brown font-semibold ml-2">₱0.00</span>';
-        }
-    }
+            <?php }
+            } else {
+                $statusClass = getPaymentStatusClass("pending");
+                if ($isMobile) {
+                    echo '<span class="' .
+                        $statusClass .
+                        ' text-xs px-2 py-1 rounded-xl">Pending</span>';
+                    echo '<span class="ml-2 text-nhd-brown font-semibold">₱0.00</span>';
+                } else {
+                    echo '<span class="' .
+                        $statusClass .
+                        ' text-xs px-2 py-1 rounded-xl">Pending</span>';
+                    echo '<span class="text-nhd-brown font-semibold ml-2">₱0.00</span>';
+                }
+            }
     return ob_get_clean();
 }
 
-function renderMobileActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView = true)
-{
+function renderMobileActions(
+    $appointment,
+    $user,
+    $appointmentPayments,
+    $sectionId,
+    $isPatientView = true
+) {
     ob_start();
 
     if ($isPatientView) {
-        if ($sectionId === 'upcoming') {
+        if ($sectionId === "upcoming") {
             // New cancellation logic
             $appointmentDateTime = strtotime($appointment["DateTime"]);
             $currentTime = time();
             $timeDifference = $appointmentDateTime - $currentTime;
             $isWithin24Hours = $timeDifference < 86400; // 24 hours = 86400 seconds
-            
+
             // Check if payment is paid
-            $payment = isset($appointmentPayments[$appointment["AppointmentID"]]) ? $appointmentPayments[$appointment["AppointmentID"]] : null;
+            $payment = isset(
+                $appointmentPayments[$appointment["AppointmentID"]]
+            )
+                ? $appointmentPayments[$appointment["AppointmentID"]]
+                : null;
             $isPaid = $payment && strtolower($payment["Status"]) === "paid";
-            
+
             // Determine if cancellation should be disabled
             $canCancel = !$isPaid && !$isWithin24Hours;
-            
-            if (!$canCancel) {
-                ?>
-                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+
+            if (!$canCancel) { ?>
+                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                         class="bg-gray-500/80 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors">
                     View Details
                 </button>
@@ -458,73 +653,84 @@ function renderMobileActions($appointment, $user, $appointmentPayments, $section
                         No Cancellation
                     <?php endif; ?>
                 </span>
-                <?php
-            } else {
-                ?>
-                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+                <?php } else { ?>
+                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                         class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                     Manage
                 </button>
-                <?php
-            }
-        } elseif ($sectionId === 'completed') {
-            ?>
-            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+                <?php }
+                } elseif ($sectionId === "completed") { ?>
+            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                     class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-colors rounded-2xl">
                 View Report
             </button>
-            <?php
-        } elseif ($sectionId === 'cancelled') {
-            ?>
-            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+            <?php } elseif ($sectionId === "cancelled") { ?>
+            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                     class="bg-gray-500/80 text-white px-2 py-1 text-xs hover:bg-gray-600 transition-colors rounded-2xl">
                 View Details
             </button>
-            <?php
-        } elseif ($sectionId === 'pending-cancellation') {
-            ?>
-            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+            <?php } elseif ($sectionId === "pending-cancellation") { ?>
+            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                     class="bg-purple-500/80 text-white px-2 py-1 text-xs hover:bg-purple-600 transition-colors rounded-2xl">
                 View Status
             </button>
             <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">Awaiting Approval</span>
-            <?php
-        }
-    } else {
-        ?>
-        <button onclick="openAppointmentDetailsModal(<?php echo $appointment["AppointmentID"]; ?>)" 
+            <?php }
+            } else {
+                ?>
+        <button onclick="openAppointmentDetailsModal(<?php echo $appointment[
+                   "AppointmentID"
+        ]; ?>)" 
                 class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
             Details
         </button>
         <?php
-    }
+            }
 
     return ob_get_clean();
 }
 
-function renderDesktopActions($appointment, $user, $appointmentPayments, $sectionId, $isPatientView = true)
-{
+function renderDesktopActions(
+    $appointment,
+    $user,
+    $appointmentPayments,
+    $sectionId,
+    $isPatientView = true
+) {
     ob_start();
 
     if ($isPatientView) {
-        if ($sectionId === 'upcoming') {
+        if ($sectionId === "upcoming") {
             // New cancellation logic
             $appointmentDateTime = strtotime($appointment["DateTime"]);
             $currentTime = time();
             $timeDifference = $appointmentDateTime - $currentTime;
             $isWithin24Hours = $timeDifference < 86400; // 24 hours = 86400 seconds
-            
+
             // Check if payment is paid
-            $payment = isset($appointmentPayments[$appointment["AppointmentID"]]) ? $appointmentPayments[$appointment["AppointmentID"]] : null;
+            $payment = isset(
+                $appointmentPayments[$appointment["AppointmentID"]]
+            )
+                ? $appointmentPayments[$appointment["AppointmentID"]]
+                : null;
             $isPaid = $payment && strtolower($payment["Status"]) === "paid";
-            
+
             // Determine if cancellation should be disabled
             $canCancel = !$isPaid && !$isWithin24Hours;
-            
-            if (!$canCancel) {
-                ?>
+
+            if (!$canCancel) { ?>
                 <div class="flex items-center space-x-1">
-                    <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+                    <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                             class="bg-gray-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-gray-600 transition-colors">
                         View Details
                     </button>
@@ -538,59 +744,59 @@ function renderDesktopActions($appointment, $user, $appointmentPayments, $sectio
                         <?php endif; ?>
                     </span>
                 </div>
-                <?php
-            } else {
-                ?>
-                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+                <?php } else { ?>
+                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                         class="bg-nhd-blue/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-nhd-blue transition-colors">
                     Manage
                 </button>
-                <?php
-            }
-        } elseif ($sectionId === 'completed') {
-            ?>
-            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+                <?php }
+                } elseif ($sectionId === "completed") { ?>
+            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                     class="bg-nhd-blue/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-nhd-blue transition-colors">
                 View Report
             </button>
-            <?php
-        } elseif ($sectionId === 'cancelled') {
-            ?>
-            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+            <?php } elseif ($sectionId === "cancelled") { ?>
+            <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                     class="bg-gray-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-gray-600 transition-colors">
                 View Details
             </button>
-            <?php
-        } elseif ($sectionId === 'pending-cancellation') {
-            ?>
+            <?php } elseif ($sectionId === "pending-cancellation") { ?>
             <div class="flex items-center space-x-1">
-                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+                <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
+    "id"
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
                         class="bg-purple-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-purple-600 transition-colors">
                     View Status
                 </button>
                 <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-xl text-xs">Awaiting Approval</span>
             </div>
-            <?php
-        }
-    } else {
-        ?>
+            <?php }
+            } else {
+                ?>
         <div class="flex space-x-1">
-            <button onclick="openAppointmentDetailsModal(<?php echo $appointment["AppointmentID"]; ?>)" 
+            <button onclick="openAppointmentDetailsModal(<?php echo $appointment[
+                       "AppointmentID"
+                   ]; ?>)" 
                     class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                 Details
             </button>
         </div>
         <?php
-    }
+            }
 
     return ob_get_clean();
 }
 
-function renderPaginationControls($sectionId, $position = 'bottom')
+function renderPaginationControls($sectionId, $position = "bottom")
 {
-    ob_start();
-    ?>
-    <div class="pagination-controls pagination-<?php echo $position; ?> flex justify-between items-center px-4 py-3 bg-gray-50/30 <?php echo $position === 'top' ? 'border-b' : 'border-t'; ?> border-gray-200/50" data-section="<?php echo $sectionId; ?>">
+    ob_start(); ?>
+    <div class="pagination-controls pagination-<?php echo $position; ?> flex justify-between items-center px-4 py-3 bg-gray-50/30 <?php echo $position === "top" ? "border-b" : "border-t"; ?> border-gray-200/50" data-section="<?php echo $sectionId; ?>">
         <!-- Left side: Showing X-Y of Z entries -->
         <div class="pagination-info text-sm text-gray-600">
             <span id="pagination-info-<?php echo $sectionId; ?>">Showing 1-10 of 0 entries</span>
@@ -637,16 +843,14 @@ function renderPaginationControls($sectionId, $position = 'bottom')
             </button>
         </div>
     </div>
-    <?php
-    return ob_get_clean();
+    <?php return ob_get_clean();
 }
 
 function renderPendingCancellationTable($pendingCancellations, $csrf_token)
 {
     if (empty($pendingCancellations)) {
         return;
-    }
-    ?>
+    } ?>
     
     <div class="bg-red-50/60 mb-8">
         <div class="p-4 border-b border-red-200/50">
@@ -654,7 +858,9 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                Pending Cancellation Requests (<?php echo count($pendingCancellations); ?>)
+                Pending Cancellation Requests (<?php echo count(
+                    $pendingCancellations
+                ); ?>)
             </h3>
             <p class="text-red-600 text-sm mt-1">Appointment cancellation requests requiring your approval</p>
         </div>
@@ -662,28 +868,46 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
         <div id="table-container-pending-cancellation-requests" class="table-container">
             <!-- Mobile View for Pending Cancellations -->
             <div class="block lg:hidden">
-                <?php foreach ($pendingCancellations as $index => $appointment): ?>
+                <?php foreach (
+                    $pendingCancellations as $index => $appointment
+                ): ?>
                     <div class="p-4 border-b border-red-200/30 bg-white/40 table-row" data-row-index="<?php echo $index; ?>">
                         <div class="flex justify-between items-start mb-3">
                             <div class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
-                                <?php echo date("M j", strtotime($appointment["DateTime"])); ?> • <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                <?php echo date(
+                                    "M j",
+                                    strtotime($appointment["DateTime"])
+                                ); ?> • <?php echo date(
+                                    "g:i A",
+                                    strtotime($appointment["DateTime"])
+                                ); ?>
                             </div>
                             <span class="bg-purple-100/60 text-purple-800 px-2 py-1 rounded-full text-xs">Pending Cancellation</span>
                         </div>
                         <h4 class="font-semibold text-gray-900 mb-1">
-                            <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                            <?php echo htmlspecialchars(
+                                $appointment["PatientFirstName"] .
+                                    " " .
+                                    $appointment["PatientLastName"]
+                            ); ?>
                         </h4>
                         <div class="text-sm text-gray-600 mb-2">
-                            <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                            <?php echo htmlspecialchars(
+                                $appointment["PatientEmail"]
+                            ); ?>
                         </div>
                         <div class="text-sm text-gray-600 mb-3">
                             <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
-                                <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                <?php echo htmlspecialchars(
+                                    $appointment["AppointmentType"]
+                                ); ?>
                             </span>
                         </div>
                         <div class="flex space-x-2">
                             <form method="POST" action="<?php echo BASE_URL; ?>/doctor/approve-cancellation" class="inline">
-                                <input type="hidden" name="appointment_id" value="<?php echo $appointment["AppointmentID"]; ?>">
+                                <input type="hidden" name="appointment_id" value="<?php echo $appointment[
+                                    "AppointmentID"
+                                ]; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')" 
                                         class="bg-green-500/80 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors">
@@ -691,7 +915,9 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                 </button>
                             </form>
                             <form method="POST" action="<?php echo BASE_URL; ?>/doctor/deny-cancellation" class="inline">
-                                <input type="hidden" name="appointment_id" value="<?php echo $appointment["AppointmentID"]; ?>">
+                                <input type="hidden" name="appointment_id" value="<?php echo $appointment[
+                                    "AppointmentID"
+                                ]; ?>">
                                 <input type="hidden" name="new_status" value="Approved">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                 <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')" 
@@ -763,38 +989,69 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-red-200/30" id="table-body-pending-cancellation-requests">
-                        <?php foreach ($pendingCancellations as $index => $appointment): ?>
+                        <?php foreach (
+                            $pendingCancellations as $index => $appointment
+                        ): ?>
                             <tr class="hover:bg-white/60 transition-colors duration-200 table-row" data-row-index="<?php echo $index; ?>">
                                 <td class="py-2 px-3">
                                     <div class="bg-red-100 text-red-700 px-2 py-1 rounded inline-block text-xs">
                                         <div class="font-medium">
-                                            <?php echo date("M j", strtotime($appointment["DateTime"])); ?>
+                                            <?php echo date(
+                                                "M j",
+                                                strtotime(
+                                                    $appointment["DateTime"]
+                                                )
+                                            ); ?>
                                         </div>
                                         <div class="font-bold">
-                                            <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                            <?php echo date(
+                                                "g:i A",
+                                                strtotime(
+                                                    $appointment["DateTime"]
+                                                )
+                                            ); ?>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <div class="font-medium text-gray-900 text-sm">
-                                        <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["PatientFirstName"] .
+                                                " " .
+                                                $appointment["PatientLastName"]
+                                        ); ?>
                                     </div>
-                                    <div class="text-xs text-gray-500">ID #<?php echo str_pad($appointment["AppointmentID"], 4, "0", STR_PAD_LEFT); ?></div>
+                                    <div class="text-xs text-gray-500">ID #<?php echo str_pad(
+                                        $appointment["AppointmentID"],
+                                        4,
+                                        "0",
+                                        STR_PAD_LEFT
+                                    ); ?></div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <div class="text-sm text-gray-600">
-                                        <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["PatientEmail"]
+                                        ); ?>
                                     </div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                                        <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["AppointmentType"]
+                                        ); ?>
                                     </span>
                                 </td>
                                 <td class="py-2 px-3 max-w-xs">
-                                    <?php if (!empty($appointment["Reason"])): ?>
-                                        <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($appointment["Reason"]); ?>">
-                                            <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                    <?php if (
+                                        !empty($appointment["Reason"])
+                                    ): ?>
+                                        <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars(
+                                            $appointment["Reason"]
+                                        ); ?>">
+                                            <?php echo htmlspecialchars(
+                                                $appointment["Reason"]
+                                            ); ?>
                                         </div>
                                     <?php else: ?>
                                         <span class="text-gray-400 text-sm italic">-</span>
@@ -803,7 +1060,9 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                 <td class="py-2 px-3">
                                     <div class="flex space-x-1">
                                         <form method="POST" action="<?php echo BASE_URL; ?>/doctor/approve-cancellation" class="inline">
-                                            <input type="hidden" name="appointment_id" value="<?php echo $appointment["AppointmentID"]; ?>">
+                                            <input type="hidden" name="appointment_id" value="<?php echo $appointment[
+                                                "AppointmentID"
+                                            ]; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                             <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')" 
                                                     class="bg-green-500/80 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors">
@@ -811,7 +1070,9 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                             </button>
                                         </form>
                                         <form method="POST" action="<?php echo BASE_URL; ?>/doctor/deny-cancellation" class="inline">
-                                            <input type="hidden" name="appointment_id" value="<?php echo $appointment["AppointmentID"]; ?>">
+                                            <input type="hidden" name="appointment_id" value="<?php echo $appointment[
+                                                "AppointmentID"
+                                            ]; ?>">
                                             <input type="hidden" name="new_status" value="Approved">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                             <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')" 
@@ -828,7 +1089,10 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
             </div>
             
             <!-- Pagination Controls Bottom -->
-            <?php echo renderPaginationControls('pending-cancellation-requests', 'bottom'); ?>
+            <?php echo renderPaginationControls(
+                "pending-cancellation-requests",
+                "bottom"
+            ); ?>
         </div>
         
         <div class="text-center mt-4 mb-4">

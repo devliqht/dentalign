@@ -4,7 +4,9 @@
     <div class="pb-6">
         <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">Privacy Policy</h2>
         <p class="text-gray-600">Learn how North Hill Dental protects and manages your personal information.</p>
-        <p class="text-sm text-gray-500 mt-2">Last updated: <?php echo date('F j, Y'); ?></p>
+        <p class="text-sm text-gray-500 mt-2">Last updated: <?php echo date(
+            "F j, Y"
+        ); ?></p>
     </div>
 
     <!-- Privacy Policy Categories -->

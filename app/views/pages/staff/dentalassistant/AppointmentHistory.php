@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../components/SortableAppointmentTable.php';
+require_once __DIR__ . "/../../../components/SortableAppointmentTable.php";
 
 function getAppointmentStatusClass($status)
 {
@@ -41,12 +41,13 @@ function getStatusHeaderClass($status)
     }
 }
 
-function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_token)
-{
+function renderPendingCancellationTableForStaff(
+    $pendingCancellations,
+    $csrf_token
+) {
     if (empty($pendingCancellations)) {
         return;
-    }
-    ?>
+    } ?>
     
     <div class="bg-red-50/60 mb-8" id="pending-cancellation-requests-section">
         <div class="p-4 border-b border-red-200/50">
@@ -54,7 +55,9 @@ function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_tok
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                Pending Cancellation Requests (<?php echo count($pendingCancellations); ?>)
+                Pending Cancellation Requests (<?php echo count(
+                    $pendingCancellations
+                ); ?>)
             </h3>
             <p class="text-red-600 text-sm mt-1">Appointment cancellation requests requiring doctor approval</p>
         </div>
@@ -62,26 +65,46 @@ function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_tok
         <div id="table-container-pending-cancellation-requests" class="table-container">
             <!-- Mobile View for Pending Cancellations -->
             <div class="block lg:hidden">
-                <?php foreach ($pendingCancellations as $index => $appointment): ?>
+                <?php foreach (
+                    $pendingCancellations as $index => $appointment
+                ): ?>
                     <div class="p-4 border-b border-red-200/30 bg-white/40 table-row" data-row-index="<?php echo $index; ?>">
                         <div class="flex justify-between items-start mb-3">
                             <div class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">
-                                <?php echo date("M j", strtotime($appointment["DateTime"])); ?> • <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                <?php echo date(
+                                    "M j",
+                                    strtotime($appointment["DateTime"])
+                                ); ?> • <?php echo date(
+                                    "g:i A",
+                                    strtotime($appointment["DateTime"])
+                                ); ?>
                             </div>
                             <span class="bg-purple-100/60 text-purple-800 px-2 py-1 rounded-full text-xs">Pending Cancellation</span>
                         </div>
                         <h4 class="font-semibold text-gray-900 mb-1">
-                            <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                            <?php echo htmlspecialchars(
+                                $appointment["PatientFirstName"] .
+                                    " " .
+                                    $appointment["PatientLastName"]
+                            ); ?>
                         </h4>
                         <div class="text-sm text-gray-600 mb-2">
-                            <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                            <?php echo htmlspecialchars(
+                                $appointment["PatientEmail"]
+                            ); ?>
                         </div>
                         <div class="text-sm text-gray-600 mb-2">
-                            <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                            <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars(
+                                $appointment["DoctorFirstName"] .
+                                    " " .
+                                    $appointment["DoctorLastName"]
+                            ); ?>
                         </div>
                         <div class="text-sm text-gray-600 mb-3">
                             <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
-                                <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                <?php echo htmlspecialchars(
+                                    $appointment["AppointmentType"]
+                                ); ?>
                             </span>
                         </div>
                         <div class="text-sm text-gray-500 italic">
@@ -160,44 +183,81 @@ function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_tok
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-red-200/30" id="table-body-pending-cancellation-requests">
-                        <?php foreach ($pendingCancellations as $index => $appointment): ?>
+                        <?php foreach (
+                            $pendingCancellations as $index => $appointment
+                        ): ?>
                             <tr class="hover:bg-white/60 transition-colors duration-200 table-row" data-row-index="<?php echo $index; ?>">
                                 <td class="py-2 px-3">
                                     <div class="bg-red-100 text-red-700 px-2 py-1 rounded inline-block text-xs">
                                         <div class="font-medium">
-                                            <?php echo date("M j", strtotime($appointment["DateTime"])); ?>
+                                            <?php echo date(
+                                                "M j",
+                                                strtotime(
+                                                    $appointment["DateTime"]
+                                                )
+                                            ); ?>
                                         </div>
                                         <div class="font-bold">
-                                            <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                            <?php echo date(
+                                                "g:i A",
+                                                strtotime(
+                                                    $appointment["DateTime"]
+                                                )
+                                            ); ?>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <div class="font-medium text-gray-900 text-sm">
-                                        <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["PatientFirstName"] .
+                                                " " .
+                                                $appointment["PatientLastName"]
+                                        ); ?>
                                     </div>
-                                    <div class="text-xs text-gray-500">ID #<?php echo str_pad($appointment["AppointmentID"], 4, "0", STR_PAD_LEFT); ?></div>
+                                    <div class="text-xs text-gray-500">ID #<?php echo str_pad(
+                                        $appointment["AppointmentID"],
+                                        4,
+                                        "0",
+                                        STR_PAD_LEFT
+                                    ); ?></div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <div class="font-medium text-gray-900 text-sm">
-                                        Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                        Dr. <?php echo htmlspecialchars(
+                                            $appointment["DoctorFirstName"] .
+                                                " " .
+                                                $appointment["DoctorLastName"]
+                                        ); ?>
                                     </div>
-                                    <div class="text-xs text-gray-500"><?php echo htmlspecialchars($appointment["Specialization"] ?? ""); ?></div>
+                                    <div class="text-xs text-gray-500"><?php echo htmlspecialchars(
+                                        $appointment["Specialization"] ?? ""
+                                    ); ?></div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <div class="text-sm text-gray-600">
-                                        <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["PatientEmail"]
+                                        ); ?>
                                     </div>
                                 </td>
                                 <td class="py-2 px-3">
                                     <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                                        <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["AppointmentType"]
+                                        ); ?>
                                     </span>
                                 </td>
                                 <td class="py-2 px-3 max-w-xs">
-                                    <?php if (!empty($appointment["Reason"])): ?>
-                                        <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($appointment["Reason"]); ?>">
-                                            <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                    <?php if (
+                                        !empty($appointment["Reason"])
+                                    ): ?>
+                                        <div class="text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars(
+                                            $appointment["Reason"]
+                                        ); ?>">
+                                            <?php echo htmlspecialchars(
+                                                $appointment["Reason"]
+                                            ); ?>
                                         </div>
                                     <?php else: ?>
                                         <span class="text-gray-400 text-sm italic">-</span>
@@ -215,7 +275,10 @@ function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_tok
             </div>
             
             <!-- Pagination Controls Bottom -->
-            <?php echo renderPaginationControls('pending-cancellation-requests', 'bottom'); ?>
+            <?php echo renderPaginationControls(
+                "pending-cancellation-requests",
+                "bottom"
+            ); ?>
         </div>
         
         <!-- Collapse Button -->
@@ -236,8 +299,14 @@ function renderPendingCancellationTableForStaff($pendingCancellations, $csrf_tok
     <?php
 }
 
-function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $emptyMessage, $emptyIcon, $user)
-{
+function renderStaffAppointmentTable(
+    $appointments,
+    $sectionId,
+    $sectionTitle,
+    $emptyMessage,
+    $emptyIcon,
+    $user
+) {
     ?>
     
     <div id="<?php echo $sectionId; ?>-section" class="appointment-section">
@@ -253,35 +322,62 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
                         <div class="p-4 border-b border-gray-200/30 hover:bg-white/40 transition-colors rounded-2xl glass-card mb-3 table-row" data-row-index="<?php echo $index; ?>">
                             <div class="flex justify-between items-start mb-2">
                                 <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded text-xs font-medium">
-                                    #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                    #<?php echo str_pad(
+                                        $appointment["AppointmentID"],
+                                        6,
+                                        "0",
+                                        STR_PAD_LEFT
+                                    ); ?>
                                     &nbsp;|&nbsp;
-                                    <?php echo date("M j", strtotime($appointment["DateTime"])); ?> • <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                    <?php echo date(
+                                        "M j",
+                                        strtotime($appointment["DateTime"])
+                                    ); ?> • <?php echo date(
+                                        "g:i A",
+                                        strtotime($appointment["DateTime"])
+                                    ); ?>
                                 </div>
-                                <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
+                                <span class="<?php echo getAppointmentStatusClass(
+                                    $appointment["Status"]
+                                ); ?> px-2 py-1 rounded-full text-xs">
                                     <?php echo $appointment["Status"]; ?>
                                 </span>
                             </div>
                             
                             <h4 class="font-semibold text-gray-900 mb-1">
-                                <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                <?php echo htmlspecialchars(
+                                    $appointment["PatientFirstName"] .
+                                        " " .
+                                        $appointment["PatientLastName"]
+                                ); ?>
                             </h4>
                             
                             <div class="text-sm text-gray-600 mb-2">
-                                <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                <?php echo htmlspecialchars(
+                                    $appointment["PatientEmail"]
+                                ); ?>
                             </div>
                             
                             <div class="text-sm text-gray-600 mb-2">
-                                <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars(
+                                    $appointment["DoctorFirstName"] .
+                                        " " .
+                                        $appointment["DoctorLastName"]
+                                ); ?>
                             </div>
                             
                             <div class="flex justify-between items-center mb-2">
                                 <div class="text-sm">
                                     <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
-                                        <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                        <?php echo htmlspecialchars(
+                                            $appointment["AppointmentType"]
+                                        ); ?>
                                     </span>
                                 </div>
                                 <div class="flex space-x-1">
-                                    <button onclick="showAppointmentDetails('<?php echo $appointment["AppointmentID"]; ?>')" 
+                                    <button onclick="showAppointmentDetails('<?php echo $appointment[
+                                        "AppointmentID"
+                                    ]; ?>')" 
                                             class="bg-nhd-blue/80 text-white px-3 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                                         View Details
                                     </button>
@@ -290,7 +386,9 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
                             
                             <?php if (!empty($appointment["Reason"])): ?>
                                 <div class="mt-2 text-sm text-gray-600">
-                                    <span class="font-medium">Reason:</span> <?php echo htmlspecialchars($appointment["Reason"]); ?>
+                                    <span class="font-medium">Reason:</span> <?php echo htmlspecialchars(
+                                        $appointment["Reason"]
+                                    ); ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -358,49 +456,96 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200/30" id="table-body-<?php echo $sectionId; ?>">
-                            <?php foreach ($appointments as $index => $appointment): ?>
+                            <?php foreach (
+                                $appointments as $index => $appointment
+                            ): ?>
                                 <tr class="hover:bg-white/60 transition-colors duration-200 table-row" data-row-index="<?php echo $index; ?>">
                                     <td class="py-2 px-2">
                                         <div class="bg-nhd-blue/10 text-nhd-blue px-2 py-1 rounded inline-block text-xs">
-                                            #<?php echo str_pad($appointment["AppointmentID"], 6, "0", STR_PAD_LEFT); ?>
+                                            #<?php echo str_pad(
+                                                $appointment["AppointmentID"],
+                                                6,
+                                                "0",
+                                                STR_PAD_LEFT
+                                            ); ?>
                                         </div>
                                     </td>
                                     <td class="py-2 px-3">
                                         <div class="text-sm font-medium text-gray-900">
-                                            <?php echo date("M j, Y", strtotime($appointment["DateTime"])); ?>
+                                            <?php echo date(
+                                                "M j, Y",
+                                                strtotime(
+                                                    $appointment["DateTime"]
+                                                )
+                                            ); ?>
                                         </div>
                                         <div class="text-xs text-gray-500">
-                                            <?php echo date("g:i A", strtotime($appointment["DateTime"])); ?>
+                                            <?php echo date(
+                                                "g:i A",
+                                                strtotime(
+                                                    $appointment["DateTime"]
+                                                )
+                                            ); ?>
                                         </div>
                                     </td>
                                     <td class="py-2 px-3">
                                         <div class="font-medium text-gray-900 text-sm">
-                                            <?php echo htmlspecialchars($appointment["PatientFirstName"] . " " . $appointment["PatientLastName"]); ?>
+                                            <?php echo htmlspecialchars(
+                                                $appointment[
+                                                    "PatientFirstName"
+                                                ] .
+                                                    " " .
+                                                    $appointment[
+                                                        "PatientLastName"
+                                                    ]
+                                            ); ?>
                                         </div>
                                         <div class="text-xs text-gray-500">
-                                            <?php echo htmlspecialchars($appointment["PatientEmail"]); ?>
+                                            <?php echo htmlspecialchars(
+                                                $appointment["PatientEmail"]
+                                            ); ?>
                                         </div>
                                     </td>
                                     <td class="py-2 px-3">
                                         <div class="font-medium text-gray-900 text-sm">
-                                            Dr. <?php echo htmlspecialchars($appointment["DoctorFirstName"] . " " . $appointment["DoctorLastName"]); ?>
+                                            Dr. <?php echo htmlspecialchars(
+                                                $appointment[
+                                                    "DoctorFirstName"
+                                                ] .
+                                                    " " .
+                                                    $appointment[
+                                                        "DoctorLastName"
+                                                    ]
+                                            ); ?>
                                         </div>
                                         <div class="text-xs text-gray-500">
-                                            <?php echo htmlspecialchars($appointment["Specialization"] ?? ""); ?>
+                                            <?php echo htmlspecialchars(
+                                                $appointment[
+                                                    "Specialization"
+                                                ] ?? ""
+                                            ); ?>
                                         </div>
                                     </td>
                                     <td class="py-2 px-3">
                                         <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                                            <?php echo htmlspecialchars($appointment["AppointmentType"]); ?>
+                                            <?php echo htmlspecialchars(
+                                                $appointment["AppointmentType"]
+                                            ); ?>
                                         </span>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <span class="<?php echo getAppointmentStatusClass($appointment["Status"]); ?> px-2 py-1 rounded-full text-xs">
-                                            <?php echo $appointment["Status"]; ?>
+                                        <span class="<?php echo getAppointmentStatusClass(
+                                            $appointment["Status"]
+                                        ); ?> px-2 py-1 rounded-full text-xs">
+                                            <?php echo $appointment[
+                                                "Status"
+                                            ]; ?>
                                         </span>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <button onclick="showAppointmentDetails('<?php echo $appointment["AppointmentID"]; ?>')" 
+                                        <button onclick="showAppointmentDetails('<?php echo $appointment[
+                                            "AppointmentID"
+                                        ]; ?>')" 
                                                 class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                                             View Details
                                         </button>
@@ -411,7 +556,7 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
                     </table>
                 </div>
                 
-                <?php echo renderPaginationControls($sectionId, 'bottom'); ?>
+                <?php echo renderPaginationControls($sectionId, "bottom"); ?>
             <?php else: ?>
                 <div class="glass-card bg-gray-50/50 rounded-2xl p-8 text-center m-4 shadow-none border-1 border-gray-200">
                     <?php echo $emptyIcon; ?>
@@ -452,11 +597,13 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
                         </svg>
                         Total appointments: <?php
                         $totalAppointments = 0;
-                        foreach ($appointmentHistory as $status => $appointments) {
-                            $totalAppointments += count($appointments);
-                        }
-                        echo $totalAppointments;
-                        ?>
+foreach (
+    $appointmentHistory as $status => $appointments
+) {
+    $totalAppointments += count($appointments);
+}
+echo $totalAppointments;
+?>
                     </span>
                 </div>
             </div>
@@ -471,7 +618,9 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
             </button>
             <?php if (!empty($pendingCancellations)): ?>
                 <button onclick="showSection('pending-cancellation-requests')" id="pending-cancellation-requests-btn" class="glass-card bg-red-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-red-700">
-                    Pending Cancellations (<?php echo count($pendingCancellations); ?>)
+                    Pending Cancellations (<?php echo count(
+                        $pendingCancellations
+                    ); ?>)
                 </button>
             <?php endif; ?>
             <button onclick="showSection('pending')" id="pending-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
@@ -502,40 +651,65 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
             <div class="text-sm text-gray-600">Total</div>
         </div>
         
-        <?php foreach (["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"] as $status): ?>
+        <?php foreach (
+            [
+                "Pending",
+                "Approved",
+                "Rescheduled",
+                "Completed",
+                "Declined",
+                "Cancelled",
+            ] as $status
+        ): ?>
             <div class="glass-card shadow-sm bg-white/60 border-gray-200 border-1 rounded-2xl p-4 text-center">
-                <div class="text-2xl font-bold <?php echo getStatusHeaderClass($status); ?>"><?php echo count($appointmentHistory[$status] ?? []); ?></div>
+                <div class="text-2xl font-bold <?php echo getStatusHeaderClass(
+                    $status
+                ); ?>"><?php echo count(
+                    $appointmentHistory[$status] ?? []
+                ); ?></div>
                 <div class="text-xs text-gray-600"><?php echo $status; ?></div>
             </div>
         <?php endforeach; ?>
     </div>
 
     <!-- Pending Cancellation Requests Section -->
-    <?php
-    if (!empty($pendingCancellations)) {
-        renderPendingCancellationTableForStaff($pendingCancellations, $csrf_token ?? '');
-    }
-    ?>
+    <?php if (!empty($pendingCancellations)) {
+        renderPendingCancellationTableForStaff(
+            $pendingCancellations,
+            $csrf_token ?? ""
+        );
+    } ?>
 
     <!-- Appointment History Sections by Status -->
     <?php
-    $statusOrder = ["Pending", "Approved", "Rescheduled", "Completed", "Declined", "Cancelled"];
-    $hasAnyAppointments = false;
-    foreach ($statusOrder as $status) {
-        if (!empty($appointmentHistory[$status])) {
-            $hasAnyAppointments = true;
-            break;
-        }
+    $statusOrder = [
+        "Pending",
+        "Approved",
+        "Rescheduled",
+        "Completed",
+        "Declined",
+        "Cancelled",
+    ];
+$hasAnyAppointments = false;
+foreach ($statusOrder as $status) {
+    if (!empty($appointmentHistory[$status])) {
+        $hasAnyAppointments = true;
+        break;
     }
-    ?>
+}
+?>
 
     <?php if ($hasAnyAppointments): ?>
         <?php foreach ($statusOrder as $status): ?>
             <?php if (!empty($appointmentHistory[$status])): ?>
                 <?php
-                // Prepare section data
-                $sectionId = strtolower(str_replace(" ", "-", $status));
-                $sectionTitle = $status . ' Appointments <span class="text-sm font-normal text-gray-600">(' . count($appointmentHistory[$status]) . ' appointments)</span>';
+            // Prepare section data
+            $sectionId = strtolower(str_replace(" ", "-", $status));
+                $sectionTitle =
+                    $status .
+                    ' Appointments <span class="text-sm font-normal text-gray-600">(' .
+                    count($appointmentHistory[$status]) .
+                    " appointments)</span>";
                 $emptyMessage = "No {$status} appointments";
                 $emptyIcon = '<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -563,7 +737,8 @@ function renderStaffAppointmentTable($appointments, $sectionId, $sectionTitle, $
     <?php endif; ?>
 </div>
 
-<?php include __DIR__ . '/../../../components/SchedulePage/AppointmentDetailsModal.php'; ?>
+<?php include __DIR__ .
+    "/../../../components/SchedulePage/AppointmentDetailsModal.php"; ?>
 
 <script>
 function showAppointmentDetails(appointmentId) {
