@@ -12,7 +12,8 @@
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-nhd-blue mx-auto"></div>
                 <p class="text-gray-600 mt-2">Loading appointment details...</p>
             </div>
-            
+                                                        
+
             <div id="modalContent" class="hidden">
                 <div class="glass-card bg-gray-50/50 border-gray-200 shadow-sm border-2 rounded-2xl p-6 mb-6">
                     <h4 class="text-lg font-semibold text-nhd-blue mb-4">Appointment Information</h4>
@@ -21,9 +22,12 @@
                             <span class="font-medium text-gray-700">Patient:</span>
                             <p id="modalPatientName" class="text-gray-900 font-semibold"></p>
                         </div>
-                        <div>
+                        <div class="flex items-center space-x-2">
                             <span class="font-medium text-gray-700">Date & Time:</span>
                             <p id="modalDateTime" class="text-gray-900"></p>
+                            <button id="toggleRescheduleBtn" onclick="toggleRescheduleForm()" type="button"  class="px-3 py-1 text-xs bg-nhd-blue text-white rounded hover:bg-opacity-80 transition-colors">
+                                Reschedule
+                            </button>
                         </div>
                         <div>
                             <span class="font-medium text-gray-700">Doctor:</span>
@@ -57,6 +61,50 @@
    
                     </div>
                 </div>
+                <!-- NEW: Reschedule Form Section (Initially hidden) -->
+                <div id="rescheduleSection" class="hidden glass-card bg-gray-50/50 border-gray-200 shadow-sm border-2 rounded-2xl p-6 mb-6">
+                    <h4 class="text-lg font-semibold text-nhd-blue mb-4">Reschedule Appointment</h4>
+                    <form id="rescheduleForm" onsubmit="submitReschedule(event)">
+                        <!-- Hidden fields to store IDs -->
+                        <input type="hidden" id="rescheduleAppointmentId">
+                        <input type="hidden" id="rescheduleDoctorId">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                            <!-- New Date Input -->
+                            <div>
+                                <label for="newAppointmentDate" class="block text-sm font-medium text-gray-700 mb-1">New Date</label>
+                                <input type="date" id="newAppointmentDate" name="newAppointmentDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue" required>
+                            </div>
+
+                            <!-- New Time Input -->
+                            <div>
+                                <label for="newAppointmentTime" class="block text-sm font-medium text-gray-700 mb-1">New Time</label>
+                                <select id="newAppointmentTime" name="newAppointmentTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue" required>
+                                    <option value="">Select a time slot...</option>
+                                    <option value="08:00:00">8:00 AM</option>
+                                    <option value="09:00:00">9:00 AM</option>
+                                    <option value="10:00:00">10:00 AM</option>
+                                    <option value="11:00:00">11:00 AM</option>
+                                    <option value="12:00:00">12:00 PM</option>
+                                    <option value="13:00:00">1:00 PM</option>
+                                    <option value="14:00:00">2:00 PM</option>
+                                    <option value="15:00:00">3:00 PM</option>
+                                    <option value="16:00:00">4:00 PM</option>
+                                    <option value="17:00:00">5:00 PM</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Action Button -->
+                            <div>
+                                <button type="submit" id="confirmRescheduleBtn" class="w-full px-6 py-2 glass-card bg-nhd-brown/85 text-white font-semibold rounded-2xl hover:bg-opacity-90 transition-colors">
+                                    Check Availability & Confirm
+                                </button>
+                            </div>
+                        </div>
+                        <div id="rescheduleStatus" class="mt-3 text-sm text-center font-medium"></div>
+                    </form>
+                </div>
+                <!-- END NEW SECTION -->
                 
                 <!-- Medical Report Form -->
                 <div class="glass-card bg-white/50 border-gray-200 shadow-sm border-2 rounded-2xl p-6">

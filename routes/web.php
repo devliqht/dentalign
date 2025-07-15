@@ -81,6 +81,7 @@ $router->group("POST", "DentalAssistantController", [
     "dentalassistant/approve-cancellation" => "approveCancellation",
     "dentalassistant/deny-cancellation" => "denyCancellation",
     "dentalassistant/update-profile" => "updateProfile",
+    "dentalassistant/reschedule-appointment" => "rescheduleAppointment",
 ]);
 
 $router->group("GET", "DoctorController", [

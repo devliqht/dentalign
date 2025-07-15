@@ -611,6 +611,38 @@ class Appointment
 
         return false;
     }
+    public function updateAppointmentDateTime($appointmentID, $newDateTime)
+    {
+        // We update the status as well for a clear audit trail.
+        $query = "UPDATE " . $this->table . " SET DateTime = ?, Status = 'Rescheduled' WHERE AppointmentID = ?";
+                
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("si", $newDateTime, $appointmentID);
+        
+        if ($stmt->execute()) {
+            return $stmt->affected_rows > 0;
+        }
+
+        return false;
+    }
+    public function isDoctorAvailableAtDateTime($doctorID, $dateTime)
+    {
+        // Check against appointments that are not cancelled
+        $query = "SELECT COUNT(*) FROM " . $this->table . " 
+                WHERE DoctorID = ? AND DateTime = ? AND Status NOT IN ('Cancelled')";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("is", $doctorID, $dateTime);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            return $row["COUNT(*)"] == 0;
+        }
+        // In case of error, assume not available to be safe
+        return false;
+    }
+
 
     public function getAppointmentById($appointmentID)
     {

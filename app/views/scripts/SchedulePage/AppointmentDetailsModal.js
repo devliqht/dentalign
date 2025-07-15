@@ -1,5 +1,77 @@
 let currentAppointmentId = null;
 
+function toggleRescheduleForm() {
+    const rescheduleSection = document.getElementById('rescheduleSection');
+    const isHidden = rescheduleSection.classList.contains('hidden');
+    
+    // Set the minimum date for the date picker to today, only when showing the form
+    if (isHidden) {
+        document.getElementById('newAppointmentDate').min = new Date().toISOString().split("T")[0];
+    }
+    
+    rescheduleSection.classList.toggle('hidden');
+}
+
+// Function to handle the reschedule form submission
+async function submitReschedule(event) {
+    event.preventDefault();
+
+    const statusDiv = document.getElementById('rescheduleStatus');
+    const confirmBtn = document.getElementById('confirmRescheduleBtn');
+    
+    const appointmentId = document.getElementById('rescheduleAppointmentId').value;
+    const doctorId = document.getElementById('rescheduleDoctorId').value;
+    const newDate = document.getElementById('newAppointmentDate').value;
+    const newTime = document.getElementById('newAppointmentTime').value;
+
+    statusDiv.textContent = 'Checking availability...';
+    statusDiv.className = 'mt-3 text-sm text-center text-gray-600 font-medium';
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Checking...';
+
+    try {
+        // Your existing API endpoints suggest a dentalassistant/ prefix is used
+        const response = await fetch(`${window.BASE_URL}/dentalassistant/reschedule-appointment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                appointmentId: appointmentId,
+                doctorId: doctorId,
+                newDate: newDate,
+                newTime: newTime,
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            statusDiv.textContent = 'Appointment rescheduled successfully!';
+            statusDiv.className = 'mt-3 text-sm text-center text-green-600 font-medium';
+            if (window.toast) {
+                window.toast.success('Appointment rescheduled!');
+            }
+            setTimeout(() => {
+                closeAppointmentDetailsModal();
+                location.reload(); // Reload the main page to see the changes
+            }, 1500);
+        } else {
+            // Handle specific error messages from the backend
+            statusDiv.textContent = data.message || 'An unknown error occurred.';
+            statusDiv.className = 'mt-3 text-sm text-center text-red-600 font-medium';
+        }
+
+    } catch (error) {
+        statusDiv.textContent = 'A network error occurred. Please try again.';
+        statusDiv.className = 'mt-3 text-sm text-center text-red-600 font-medium';
+        console.error("Reschedule Error:", error);
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Check Availability & Confirm';
+    }
+}
+// ===== END: NEW CODE TO ADD =====
+
+
 function showAppointmentDetails(appointmentId) {
   openAppointmentDetailsModal(appointmentId);
 }
@@ -90,6 +162,13 @@ function populateModal(appointment, report, doctors) {
   } else {
     treatmentPlanSection.classList.add("hidden");
   }
+    document.getElementById('rescheduleAppointmentId').value = appointment.AppointmentID;
+    document.getElementById('rescheduleDoctorId').value = appointment.DoctorID;
+    
+    // Hide the reschedule form by default every time a new modal is opened
+    document.getElementById('rescheduleSection').classList.add('hidden');
+    // Also reset its status message
+    document.getElementById('rescheduleStatus').textContent = '';
 }
 
 function showModalContent() {

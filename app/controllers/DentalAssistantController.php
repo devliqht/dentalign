@@ -1365,6 +1365,7 @@ class DentalAssistantController extends Controller
                 );
             }
         }
+    
 
         // Handle password update
         if (isset($data["action"]) && $data["action"] === "update_password") {
@@ -1422,6 +1423,47 @@ class DentalAssistantController extends Controller
         }
 
         $this->redirectBack("Invalid action");
+    }
+    public function rescheduleAppointment()
+    {
+        // Set header to return JSON
+        header('Content-Type: application/json');
+
+        // Basic security check
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        $appointmentId = $input['appointmentId'] ?? null;
+        $doctorId = $input['doctorId'] ?? null;
+        $newDate = $input['newDate'] ?? null;
+        $newTime = $input['newTime'] ?? null;
+
+        if (!$appointmentId || !$doctorId || !$newDate || !$newTime) {
+            echo json_encode(['success' => false, 'message' => 'Missing required information.']);
+            return;
+        }
+
+        // IMPORTANT: Combine date and time to match your 'DateTime' database column format
+        $newDateTime = $newDate . ' ' . $newTime;
+
+        $appointmentModel = new Appointment($this->conn); // Or $this->conn
+
+        // 1. Check if the new slot is available
+        if (!$appointmentModel->isDoctorAvailableAtDateTime($doctorId, $newDateTime)) {
+            echo json_encode(['success' => false, 'message' => 'The selected time slot is no longer available.']);
+            return;
+        }
+
+        // 2. If available, perform the update
+        $success = $appointmentModel->updateAppointmentDateTime($appointmentId, $newDateTime);
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Appointment rescheduled successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update the appointment in the database.']);
+        }
     }
     private function validatePassword($password)
     {
