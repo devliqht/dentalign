@@ -273,13 +273,21 @@ class DoctorController extends Controller
                 $html .= '<div class="space-y-2">';
                 foreach ($dayAppointments as $appointment) {
                     $html .=
-                        '<div class="glass-card bg-white/40 border-gray-200 border-1 shadow-sm p-3 rounded-xl text-xs">';
+                        '<div class="glass-card bg-white/40 border-gray-200 border-1 shadow-sm p-3 rounded-xl text-xs cursor-pointer hover:bg-white/60 transition-colors group" ' .
+                        'onclick="openAppointmentDetailsModal(' . $appointment['AppointmentID'] . ')" ' .
+                        'title="Click to view appointment details">';
+                    $html .= '<div class="flex items-center justify-between mb-1">';
                     $html .=
-                        '<div class="font-semibold text-nhd-blue">' .
+                        '<div class="font-semibold text-nhd-blue group-hover:text-nhd-blue/80">' .
                         date("g:i A", strtotime($appointment["DateTime"])) .
                         "</div>";
                     $html .=
-                        '<div class="text-gray-900 font-medium">' .
+                        '<div class="text-xs text-gray-400 group-hover:text-gray-500">' .
+                        '#' . str_pad($appointment["AppointmentID"], 4, "0", STR_PAD_LEFT) .
+                        "</div>";
+                    $html .= '</div>';
+                    $html .=
+                        '<div class="text-gray-900 font-medium group-hover:text-gray-700">' .
                         htmlspecialchars(
                             $appointment["PatientFirstName"] .
                                 " " .
@@ -287,8 +295,12 @@ class DoctorController extends Controller
                         ) .
                         "</div>";
                     $html .=
-                        '<div class="text-gray-600 truncate">' .
+                        '<div class="text-gray-600 truncate group-hover:text-gray-500">' .
                         htmlspecialchars($appointment["AppointmentType"]) .
+                        "</div>";
+                    $html .=
+                        '<div class="mt-2 text-xs text-gray-400 group-hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">' .
+                        'Click for details →' .
                         "</div>";
                     $html .= "</div>";
                 }
