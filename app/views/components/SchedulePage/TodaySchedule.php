@@ -52,7 +52,7 @@
                                 <div>
                                     <span class="font-medium text-gray-700">Type:</span>
                                     <p class="text-gray-600"><?php echo htmlspecialchars(
-                                        $appointment["AppointmentType"]
+                                       $appointment["AppointmentType"]
                                     ); ?></p>
                                 </div>
                             </div>
@@ -162,24 +162,39 @@
                     <?php if (!empty($dayAppointments)): ?>
                         <div class="space-y-2">
                             <?php foreach ($dayAppointments as $appointment): ?>
-                                <div class="glass-card bg-white/40 p-3 border-gray-200 border-1 shadow-sm rounded-xl text-xs">
-                                    <div class="font-semibold text-nhd-blue">
-                                        <?php echo date(
-                                            "g:i A",
-                                            strtotime($appointment["DateTime"])
-                                        ); ?>
+                                <div class="glass-card bg-white/40 p-3 border-gray-200 border-1 shadow-sm rounded-xl text-xs cursor-pointer hover:bg-white/60 transition-colors group" 
+                                     onclick="openAppointmentDetailsModal(<?php echo $appointment['AppointmentID']; ?>)"
+                                     title="Click to view appointment details">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="font-semibold text-nhd-blue group-hover:text-nhd-blue/80">
+                                            <?php echo date(
+                                                "g:i A",
+                                                strtotime($appointment["DateTime"])
+                                            ); ?>
+                                        </div>
+                                        <div class="text-xs text-gray-400 group-hover:text-gray-500">
+                                            #<?php echo str_pad(
+                                                $appointment["AppointmentID"],
+                                                4,
+                                                "0",
+                                                STR_PAD_LEFT
+                                            ); ?>
+                                        </div>
                                     </div>
-                                    <div class="text-gray-900 font-medium">
+                                    <div class="text-gray-900 font-medium group-hover:text-gray-700">
                                         <?php echo htmlspecialchars(
                                             $appointment["PatientFirstName"] .
                                                 " " .
                                                 $appointment["PatientLastName"]
                                         ); ?>
                                     </div>
-                                    <div class="text-gray-600 truncate">
+                                    <div class="text-gray-600 truncate group-hover:text-gray-500">
                                         <?php echo htmlspecialchars(
                                             $appointment["AppointmentType"]
                                         ); ?>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-400 group-hover:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        Click for details →
                                     </div>
                                 </div>
                             <?php endforeach; ?>
