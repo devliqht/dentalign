@@ -1569,6 +1569,12 @@ class PatientController extends Controller
             '</p>
                             </div>
                         </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500 block mb-1">Reference Number</label>
+                            <p class="text-lg font-semibold text-gray-900 bg-white px-3 py-2 rounded-lg border-1 border-gray-200">' .
+            (!empty($payment["ProofOfPayment"]) ? htmlspecialchars($payment["ProofOfPayment"]) : "None applies")  .
+            '</p>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div>
