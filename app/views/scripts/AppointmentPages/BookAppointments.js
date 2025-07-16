@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
         timeSlotsContainer.innerHTML =
             '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Loading available time slots...</p></div>';
 
-        // 1. **THE FIX: Use the new, correct API endpoint**
+        // Use the existing endpoint that returns available slots
         const url = `${window.BASE_URL}/patient/get-available-slots?doctor_id=${doctorId}&date=${date}`;
         console.log("Making AJAX request to:", url);
 
@@ -256,32 +256,53 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 console.log("Parsed data:", data);
 
-                // 2. **THE FIX: Process the simple array from the new endpoint**
-                if (data.success && data.timeSlots && data.timeSlots.length > 0) {
+                if (data.success) {
                     timeSlotsContainer.innerHTML = ""; // Clear loading message
 
-                    data.timeSlots.forEach(timeString => {
+                    // Define ALL clinic hours (8:00 AM - 5:00 PM with 1 hour intervals)
+                    const allClinicHours = [
+                        "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", 
+                        "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00"
+                    ];
+
+                    // Get the available slots from the response
+                    const availableSlots = data.timeSlots || [];
+
+                    allClinicHours.forEach(timeString => {
                         const button = document.createElement("button");
                         button.type = "button";
-                        button.className =
-                            "glass-card px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none";
                         
-                        // Set the database-friendly time (e.g., "08:00:00") as a data attribute
+                        // Check if this time slot is in the available slots array
+                        const isAvailable = availableSlots.includes(timeString);
+                        
+                        // Set the database-friendly time as a data attribute
                         button.setAttribute("data-time", timeString);
                         
-                        // Set the user-friendly time (e.g., "8:00 AM") as the button text
+                        // Set the user-friendly time as the button text
                         button.textContent = formatTime(timeString);
 
-                        button.addEventListener("click", function () {
-                            selectTimeSlot(timeString, button);
-                        });
+                        if (isAvailable) {
+                            // GREEN/NORMAL styling for available slots - CLICKABLE
+                            button.className = "glass-card px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none";
+                            button.setAttribute("data-available", "true");
+                            
+                            button.addEventListener("click", function () {
+                                selectTimeSlot(timeString, button);
+                            });
+                        } else {
+                            // RED styling for unavailable slots (blocked/booked) - UNCLICKABLE
+                            button.className = "glass-card px-4 py-2 text-sm font-medium text-red-500 bg-red-50 border border-red-200 rounded-lg cursor-not-allowed transition-all duration-200 opacity-60";
+                            button.disabled = true;
+                            button.setAttribute("data-available", "false");
+                            button.textContent += " (Unavailable)";
+                        }
 
                         timeSlotsContainer.appendChild(button);
                     });
                 } else {
-                    // This handles cases where the array is empty (no slots available)
+                    // This handles cases where the API call fails
                     timeSlotsContainer.innerHTML =
-                        '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">No available time slots for the selected date.</p></div>';
+                        '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Error loading time slots.</p></div>';
                 }
             })
             .catch(error => {
@@ -290,7 +311,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<div class="w-full text-center py-8"><p class="text-red-500 text-sm">Error loading time slots. Please try again.</p></div>';
             });
     } else {
-        // This part is fine and doesn't need to change
         console.log("Either doctor or date is missing - not fetching timeslots");
         timeSlotsContainer.innerHTML =
             '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Please select a doctor and date to view available time slots.</p></div>';
