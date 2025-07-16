@@ -2,7 +2,7 @@
     <div class="glass-card bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
             <h3 class="text-xl font-bold text-nhd-brown">Manage Availability</h3>
-            <button onclick="closeBlockScheduleModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">×</button>
+            <button onclick="closeBlockScheduleModal()" class="inline-flex items-center px-4 py-2 text-sm bg-nhd-blue/80 glass-card text-white rounded-2xl hover:bg-nhd-blue transition-colors">×</button>
         </div>
         
         <form id="blockScheduleForm" onsubmit="submitBlockedSlots(event)">
@@ -22,7 +22,7 @@
                 <button type="button" onclick="closeBlockScheduleModal()" class="px-4 py-2 text-gray-600 glass-card bg-gray-100/85 rounded-2xl hover:bg-gray-200">
                     Cancel
                 </button>
-                <button type="submit" class="px-6 py-2 glass-card bg-red-600/85 text-white font-semibold rounded-2xl hover:bg-opacity-90">
+                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm bg-nhd-blue/80 glass-card text-white rounded-2xl hover:bg-nhd-blue transition-colors">
                     Save Blocked Slots
                 </button>
             </div>
