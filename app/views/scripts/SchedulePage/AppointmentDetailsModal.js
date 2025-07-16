@@ -1,15 +1,32 @@
 let currentAppointmentId = null;
 
+// NEW FUNCTION: Checks the date and sets button visibility
+function updateRescheduleButtonVisibility(dateTimeString) {
+  const rescheduleButton = document.getElementById('toggleRescheduleBtn');
+  const appointmentDate = new Date(dateTimeString);
+  const now = new Date();
+
+  if (appointmentDate < now) {
+    // If appointment is in the past, hide the button
+    rescheduleButton.classList.add('hidden');
+  } else {
+    // Otherwise, make sure the button is visible
+    rescheduleButton.classList.remove('hidden');
+  }
+}
+
+// SIMPLIFIED FUNCTION: This now only toggles the form
 function toggleRescheduleForm() {
-    const rescheduleSection = document.getElementById('rescheduleSection');
-    const isHidden = rescheduleSection.classList.contains('hidden');
-    
-    // Set the minimum date for the date picker to today, only when showing the form
-    if (isHidden) {
-        document.getElementById('newAppointmentDate').min = new Date().toISOString().split("T")[0];
-    }
-    
-    rescheduleSection.classList.toggle('hidden');
+  const rescheduleSection = document.getElementById('rescheduleSection');
+  const isHidden = rescheduleSection.classList.contains('hidden');
+  
+  // Set the minimum date for the date picker to today, only when showing the form
+  if (isHidden) {
+      document.getElementById('newAppointmentDate').min = new Date().toISOString().split("T")[0];
+  }
+  
+  // This just shows or hides the form section
+  rescheduleSection.classList.toggle('hidden');
 }
 
 // Function to handle the reschedule form submission
@@ -128,6 +145,11 @@ function populateModal(appointment, report, doctors) {
   document.getElementById("modalDateTime").textContent = formatDateTime(
     appointment.DateTime,
   );
+  
+  // ===== THIS IS THE NEW LINE TO ADD =====
+  // Check the appointment date and set the reschedule button's visibility
+  updateRescheduleButtonVisibility(appointment.DateTime);
+  // =======================================
 
   document.getElementById("modalType").textContent =
     appointment.AppointmentType;
