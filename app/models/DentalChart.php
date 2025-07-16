@@ -3,7 +3,7 @@
 class DentalChart
 {
     private $conn;
-    private $table = "dentalcharts";
+    private $table = "DentalCharts";
 
     public $dentalChartID;
     public $patientID;

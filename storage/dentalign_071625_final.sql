@@ -24,10 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `appointment`
+-- Table structure for table `Appointment`
 --
 
-CREATE TABLE `appointment` (
+CREATE TABLE `Appointment` (
   `AppointmentID` int(11) NOT NULL,
   `PatientID` int(11) NOT NULL,
   `DoctorID` int(11) NOT NULL,
@@ -39,10 +39,10 @@ CREATE TABLE `appointment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `appointment`
+-- Dumping data for table `Appointment`
 --
 
-INSERT INTO `appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`, `AppointmentType`, `Reason`, `CreatedAt`, `Status`) VALUES
+INSERT INTO `Appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`, `AppointmentType`, `Reason`, `CreatedAt`, `Status`) VALUES
 (1, 1, 2, '2025-06-22 08:00:00', 'Consultation', 'Lets gooo hello world', '2025-06-20 16:00:18', 'Completed'),
 (8, 1, 3, '2025-06-26 10:00:00', 'Cleaning', 'asgagsagagasga', '2025-06-23 11:54:20', 'Completed'),
 (22, 1, 3, '2025-07-16 13:00:00', 'Consultation', 'hello world hehehe', '2025-06-25 13:46:50', 'Rescheduled'),
@@ -82,10 +82,10 @@ INSERT INTO `appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`,
 (59, 16, 2, '2025-07-20 08:00:00', 'Cleaning', 'Dr. Matthewww', '2025-07-16 14:40:27', 'Pending');
 
 --
--- Triggers `appointment`
+-- Triggers `Appointment`
 --
 DELIMITER $$
-CREATE TRIGGER `create_appointment_report_after_appointment_insert` AFTER INSERT ON `appointment` FOR EACH ROW BEGIN
+CREATE TRIGGER `create_appointment_report_after_appointment_insert` AFTER INSERT ON `Appointment` FOR EACH ROW BEGIN
     DECLARE patient_record_id INT;
     
     -- Get the PatientRecord ID for the patient
@@ -101,7 +101,7 @@ END
 $$
 DELIMITER ;
 DELIMITER $$
-CREATE TRIGGER `delete_appointment_report_after_appointment_delete` AFTER DELETE ON `appointment` FOR EACH ROW BEGIN
+CREATE TRIGGER `delete_appointment_report_after_appointment_delete` AFTER DELETE ON `Appointment` FOR EACH ROW BEGIN
     DELETE FROM AppointmentReport WHERE AppointmentID = OLD.AppointmentID;
 END
 $$
@@ -110,10 +110,10 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `appointmentreport`
+-- Table structure for table `AppointmentReport`
 --
 
-CREATE TABLE `appointmentreport` (
+CREATE TABLE `AppointmentReport` (
   `AppointmentReportID` int(11) NOT NULL,
   `PatientRecordID` int(11) NOT NULL,
   `AppointmentID` int(11) NOT NULL,
@@ -124,10 +124,10 @@ CREATE TABLE `appointmentreport` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `appointmentreport`
+-- Dumping data for table `AppointmentReport`
 --
 
-INSERT INTO `appointmentreport` (`AppointmentReportID`, `PatientRecordID`, `AppointmentID`, `CreatedAt`, `OralNotes`, `Diagnosis`, `XrayImages`) VALUES
+INSERT INTO `AppointmentReport` (`AppointmentReportID`, `PatientRecordID`, `AppointmentID`, `CreatedAt`, `OralNotes`, `Diagnosis`, `XrayImages`) VALUES
 (1, 1, 1, '2025-06-24 00:31:51', 'adadadad', '', ''),
 (4, 1, 8, '2025-06-24 00:31:51', NULL, NULL, NULL),
 (31, 1, 22, '2025-06-25 13:46:50', NULL, NULL, NULL),
@@ -201,19 +201,19 @@ INSERT INTO `blocked_slots` (`id`, `doctor_id`, `blocked_date`, `blocked_time`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `clinic_staff`
+-- Table structure for table `CLINIC_STAFF`
 --
 
-CREATE TABLE `clinic_staff` (
+CREATE TABLE `CLINIC_STAFF` (
   `ClinicStaffID` int(11) NOT NULL,
   `StaffType` varchar(100) NOT NULL COMMENT 'e.g., Doctor, Nurse, Receptionist, Admin'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `clinic_staff`
+-- Dumping data for table `CLINIC_STAFF`
 --
 
-INSERT INTO `clinic_staff` (`ClinicStaffID`, `StaffType`) VALUES
+INSERT INTO `CLINIC_STAFF` (`ClinicStaffID`, `StaffType`) VALUES
 (2, 'Doctor'),
 (3, 'Doctor'),
 (4, 'DentalAssistant');
@@ -221,10 +221,10 @@ INSERT INTO `clinic_staff` (`ClinicStaffID`, `StaffType`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dentalchartitem`
+-- Table structure for table `DentalChartItem`
 --
 
-CREATE TABLE `dentalchartitem` (
+CREATE TABLE `DentalChartItem` (
   `DentalChartItemID` int(11) NOT NULL,
   `DentalChartID` int(11) NOT NULL,
   `ToothNumber` varchar(5) NOT NULL,
@@ -233,10 +233,10 @@ CREATE TABLE `dentalchartitem` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `dentalchartitem`
+-- Dumping data for table `DentalChartItem`
 --
 
-INSERT INTO `dentalchartitem` (`DentalChartItemID`, `DentalChartID`, `ToothNumber`, `Status`, `Notes`) VALUES
+INSERT INTO `DentalChartItem` (`DentalChartItemID`, `DentalChartID`, `ToothNumber`, `Status`, `Notes`) VALUES
 (33, 1, '1', 'Healthy', ''),
 (34, 1, '2', 'Healthy', ''),
 (35, 1, '3', 'Healthy', ''),
@@ -497,10 +497,10 @@ INSERT INTO `dentalchartitem` (`DentalChartItemID`, `DentalChartID`, `ToothNumbe
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dentalcharts`
+-- Table structure for table `DentalCharts`
 --
 
-CREATE TABLE `dentalcharts` (
+CREATE TABLE `DentalCharts` (
   `DentalChartID` int(11) NOT NULL,
   `PatientID` int(11) NOT NULL,
   `DentistID` int(11) DEFAULT NULL,
@@ -508,10 +508,10 @@ CREATE TABLE `dentalcharts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `dentalcharts`
+-- Dumping data for table `DentalCharts`
 --
 
-INSERT INTO `dentalcharts` (`DentalChartID`, `PatientID`, `DentistID`, `CreatedAt`) VALUES
+INSERT INTO `DentalCharts` (`DentalChartID`, `PatientID`, `DentistID`, `CreatedAt`) VALUES
 (1, 1, NULL, '2025-07-02 18:12:48'),
 (2, 5, NULL, '2025-07-02 22:56:48'),
 (3, 11, NULL, '2025-07-10 01:00:06'),
@@ -524,29 +524,29 @@ INSERT INTO `dentalcharts` (`DentalChartID`, `PatientID`, `DentistID`, `CreatedA
 -- --------------------------------------------------------
 
 --
--- Table structure for table `doctor`
+-- Table structure for table `Doctor`
 --
 
-CREATE TABLE `doctor` (
+CREATE TABLE `Doctor` (
   `DoctorID` int(11) NOT NULL,
   `Specialization` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `doctor`
+-- Dumping data for table `Doctor`
 --
 
-INSERT INTO `doctor` (`DoctorID`, `Specialization`) VALUES
+INSERT INTO `Doctor` (`DoctorID`, `Specialization`) VALUES
 (2, 'General Dentistry'),
 (3, 'Orthodontics');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `overdueconfig`
+-- Table structure for table `OverdueConfig`
 --
 
-CREATE TABLE `overdueconfig` (
+CREATE TABLE `OverdueConfig` (
   `ConfigID` int(11) NOT NULL,
   `ConfigName` varchar(255) NOT NULL DEFAULT 'Default',
   `OverduePercentage` decimal(5,2) NOT NULL DEFAULT 5.00,
@@ -558,10 +558,10 @@ CREATE TABLE `overdueconfig` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `overdueconfig`
+-- Dumping data for table `OverdueConfig`
 --
 
-INSERT INTO `overdueconfig` (`ConfigID`, `ConfigName`, `OverduePercentage`, `GracePeriodDays`, `IsActive`, `CreatedAt`, `UpdatedAt`, `UpdatedBy`) VALUES
+INSERT INTO `OverdueConfig` (`ConfigID`, `ConfigName`, `OverduePercentage`, `GracePeriodDays`, `IsActive`, `CreatedAt`, `UpdatedAt`, `UpdatedBy`) VALUES
 (1, 'Default Overdue Settings', 5.00, 0, 0, '2025-07-11 06:19:13', '2025-07-11 06:24:59', NULL),
 (2, 'Default Overdue Settings', 5.00, 0, 0, '2025-07-11 06:20:18', '2025-07-11 06:24:59', NULL),
 (3, 'Default Overdue Settings', 7.00, 0, 0, '2025-07-11 06:24:59', '2025-07-11 07:11:16', 4),
@@ -599,19 +599,19 @@ INSERT INTO `password_reset_tokens` (`id`, `user_id`, `token`, `expires_at`, `cr
 -- --------------------------------------------------------
 
 --
--- Table structure for table `patient`
+-- Table structure for table `PATIENT`
 --
 
-CREATE TABLE `patient` (
+CREATE TABLE `PATIENT` (
   `PatientID` int(11) NOT NULL,
   `InsuranceProvider` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `patient`
+-- Dumping data for table `PATIENT`
 --
 
-INSERT INTO `patient` (`PatientID`, `InsuranceProvider`) VALUES
+INSERT INTO `PATIENT` (`PatientID`, `InsuranceProvider`) VALUES
 (1, NULL),
 (5, NULL),
 (11, NULL),
@@ -635,10 +635,10 @@ INSERT INTO `patient` (`PatientID`, `InsuranceProvider`) VALUES
 (29, NULL);
 
 --
--- Triggers `patient`
+-- Triggers `PATIENT`
 --
 DELIMITER $$
-CREATE TRIGGER `create_patient_record_after_patient_insert` AFTER INSERT ON `patient` FOR EACH ROW BEGIN
+CREATE TRIGGER `create_patient_record_after_patient_insert` AFTER INSERT ON `PATIENT` FOR EACH ROW BEGIN
     INSERT INTO PatientRecord (PatientID, Height, Weight, Allergies, LastVisit)
     VALUES (NEW.PatientID, NULL, NULL, NULL, NULL);
 END
@@ -648,10 +648,10 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Table structure for table `patientrecord`
+-- Table structure for table `PatientRecord`
 --
 
-CREATE TABLE `patientrecord` (
+CREATE TABLE `PatientRecord` (
   `RecordID` int(11) NOT NULL,
   `PatientID` int(11) NOT NULL,
   `Height` decimal(5,2) DEFAULT NULL COMMENT 'e.g., in meters or feet',
@@ -662,10 +662,10 @@ CREATE TABLE `patientrecord` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `patientrecord`
+-- Dumping data for table `PatientRecord`
 --
 
-INSERT INTO `patientrecord` (`RecordID`, `PatientID`, `Height`, `Weight`, `Allergies`, `CreatedAt`, `LastVisit`) VALUES
+INSERT INTO `PatientRecord` (`RecordID`, `PatientID`, `Height`, `Weight`, `Allergies`, `CreatedAt`, `LastVisit`) VALUES
 (1, 1, 172.00, 70.00, 'Nothing', '2025-06-24 00:31:51', NULL),
 (2, 5, 160.00, 58.00, NULL, '2025-06-24 00:31:51', NULL),
 (28, 11, NULL, NULL, NULL, '2025-06-24 05:32:47', NULL),
@@ -691,10 +691,10 @@ INSERT INTO `patientrecord` (`RecordID`, `PatientID`, `Height`, `Weight`, `Aller
 -- --------------------------------------------------------
 
 --
--- Table structure for table `paymentitems`
+-- Table structure for table `PaymentItems`
 --
 
-CREATE TABLE `paymentitems` (
+CREATE TABLE `PaymentItems` (
   `PaymentItemID` int(11) NOT NULL,
   `PaymentID` int(11) NOT NULL,
   `Description` varchar(255) NOT NULL,
@@ -707,10 +707,10 @@ CREATE TABLE `paymentitems` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `paymentitems`
+-- Dumping data for table `PaymentItems`
 --
 
-INSERT INTO `paymentitems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`, `TreatmentItemID`) VALUES
+INSERT INTO `PaymentItems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount`, `Quantity`, `Total`, `CreatedAt`, `UpdatedAt`, `TreatmentItemID`) VALUES
 (11, 9, 'General Consultation', 75.00, 1, 75.00, '2025-07-11 02:57:36', '2025-07-11 02:57:36', NULL),
 (12, 10, 'Dental Cleaning', 120.00, 1, 120.00, '2025-07-11 02:57:36', '2025-07-11 02:57:36', NULL),
 (13, 11, 'General Consultation', 75.00, 1, 75.00, '2025-07-11 02:57:36', '2025-07-11 02:57:36', NULL),
@@ -755,10 +755,10 @@ INSERT INTO `paymentitems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount
 -- --------------------------------------------------------
 
 --
--- Table structure for table `payments`
+-- Table structure for table `Payments`
 --
 
-CREATE TABLE `payments` (
+CREATE TABLE `Payments` (
   `PaymentID` int(11) NOT NULL,
   `AppointmentID` int(11) NOT NULL,
   `PatientID` int(11) NOT NULL,
@@ -772,10 +772,10 @@ CREATE TABLE `payments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `payments`
+-- Dumping data for table `Payments`
 --
 
-INSERT INTO `payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `UpdatedBy`, `UpdatedAt`, `Notes`, `DeadlineDate`, `PaymentMethod`, `ProofOfPayment`) VALUES
+INSERT INTO `Payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `UpdatedBy`, `UpdatedAt`, `Notes`, `DeadlineDate`, `PaymentMethod`, `ProofOfPayment`) VALUES
 (9, 1, 1, 'Cancelled', 4, '2025-07-12 10:26:27', 'Payment cancelled by dental assistant', '2025-07-10', 'Bank Transfer', '43543637364364'),
 (10, 8, 1, 'Paid', 4, '2025-07-16 11:52:07', 'Auto-created for existing appointment', '2025-07-12', 'Cash', NULL),
 (11, 22, 1, 'Pending', NULL, '2025-07-11 02:54:01', 'Auto-created for existing appointment', '2025-07-27', 'Cash', NULL),
@@ -848,10 +848,10 @@ INSERT INTO `ServicePrices` (`ServicePriceID`, `ServiceName`, `ServicePrice`, `I
 -- --------------------------------------------------------
 
 --
--- Table structure for table `treatmentplan`
+-- Table structure for table `TreatmentPlan`
 --
 
-CREATE TABLE `treatmentplan` (
+CREATE TABLE `TreatmentPlan` (
   `TreatmentPlanID` int(11) NOT NULL,
   `AppointmentReportID` int(11) NOT NULL,
   `Status` enum('pending','in_progress','completed','cancelled') NOT NULL DEFAULT 'pending',
@@ -860,20 +860,20 @@ CREATE TABLE `treatmentplan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `treatmentplan`
+-- Dumping data for table `TreatmentPlan`
 --
 
-INSERT INTO `treatmentplan` (`TreatmentPlanID`, `AppointmentReportID`, `Status`, `DentistNotes`, `AssignedAt`) VALUES
+INSERT INTO `TreatmentPlan` (`TreatmentPlanID`, `AppointmentReportID`, `Status`, `DentistNotes`, `AssignedAt`) VALUES
 (1, 38, 'completed', 'Hello world', '2025-07-09 18:30:14'),
 (3, 34, 'pending', 'asfnkaskfasf', '2025-07-16 11:01:56');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `treatmentplanitem`
+-- Table structure for table `TreatmentPlanItem`
 --
 
-CREATE TABLE `treatmentplanitem` (
+CREATE TABLE `TreatmentPlanItem` (
   `TreatmentItemID` int(11) NOT NULL,
   `TreatmentPlanID` int(11) NOT NULL,
   `ToothNumber` varchar(5) NOT NULL,
@@ -886,10 +886,10 @@ CREATE TABLE `treatmentplanitem` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `treatmentplanitem`
+-- Dumping data for table `TreatmentPlanItem`
 --
 
-INSERT INTO `treatmentplanitem` (`TreatmentItemID`, `TreatmentPlanID`, `ToothNumber`, `ProcedureCode`, `Description`, `Cost`, `ScheduledDate`, `CreatedAt`, `CompletedAt`) VALUES
+INSERT INTO `TreatmentPlanItem` (`TreatmentItemID`, `TreatmentPlanID`, `ToothNumber`, `ProcedureCode`, `Description`, `Cost`, `ScheduledDate`, `CreatedAt`, `CompletedAt`) VALUES
 (1, 1, '1', 'D1208', 'Topical application of fluoride', 25555.00, '2025-07-11', '2025-07-10 00:30:14', '2025-07-12 11:43:40'),
 (2, 1, '10', 'D2330', 'Resin based composite stuff', 23455.00, '2025-07-14', '2025-07-10 00:59:05', '2025-07-16 09:03:07'),
 (4, 3, '10', 'D2160', 'Amalgam', 2300.00, '2025-07-17', '2025-07-16 17:01:56', NULL);
@@ -897,10 +897,10 @@ INSERT INTO `treatmentplanitem` (`TreatmentItemID`, `TreatmentPlanID`, `ToothNum
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Table structure for table `USER`
 --
 
-CREATE TABLE `user` (
+CREATE TABLE `USER` (
   `UserID` int(11) NOT NULL,
   `FirstName` varchar(100) NOT NULL,
   `LastName` varchar(100) NOT NULL,
@@ -911,10 +911,10 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `USER`
 --
 
-INSERT INTO `user` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `UserType`, `PasswordHash`) VALUES
+INSERT INTO `USER` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `UserType`, `PasswordHash`) VALUES
 (1, 'Matt Erron', 'Cabarrubias', 'matt.cabarrubias@gmail.com', '2025-06-16 14:24:50', 'Patient', '$2y$10$ym7hW7H1ectnFxo.WaoNDecwCvKSCay1cCSjm9S.7/DJ/cNmnlnNC'),
 (2, 'Matthew Angelo', 'Lumayno', 'matthew.lumayno@gmail.com', '2025-06-19 03:09:10', 'ClinicStaff', '$2y$10$iBfRH9IIaeupUaFEJyOESOG7IhjejpZIJMhUhB0hAzNY0d0qemE9W'),
 (3, 'Jeane ', 'Diputado', 'jeane@gmail.com', '2025-06-21 06:20:13', 'ClinicStaff', '$2y$10$xuTwNTGDGGni2x919pFvXe3l8gEGE3mf.DTIK60goXpQGk2/AFgF6'),
@@ -945,18 +945,18 @@ INSERT INTO `user` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `Us
 --
 
 --
--- Indexes for table `appointment`
+-- Indexes for table `Appointment`
 --
-ALTER TABLE `appointment`
+ALTER TABLE `Appointment`
   ADD PRIMARY KEY (`AppointmentID`),
   ADD KEY `FK_Appointment_Patient` (`PatientID`),
   ADD KEY `FK_Appointment_Doctor` (`DoctorID`),
   ADD KEY `IDX_Appointment_DateTime` (`DateTime`);
 
 --
--- Indexes for table `appointmentreport`
+-- Indexes for table `AppointmentReport`
 --
-ALTER TABLE `appointmentreport`
+ALTER TABLE `AppointmentReport`
   ADD PRIMARY KEY (`AppointmentReportID`),
   ADD UNIQUE KEY `AppointmentID` (`AppointmentID`),
   ADD KEY `FK_AppointmentReport_PatientRecord` (`PatientRecordID`);
@@ -969,36 +969,36 @@ ALTER TABLE `blocked_slots`
   ADD UNIQUE KEY `unique_slot` (`doctor_id`,`blocked_date`,`blocked_time`);
 
 --
--- Indexes for table `clinic_staff`
+-- Indexes for table `CLINIC_STAFF`
 --
-ALTER TABLE `clinic_staff`
+ALTER TABLE `CLINIC_STAFF`
   ADD PRIMARY KEY (`ClinicStaffID`);
 
 --
--- Indexes for table `dentalchartitem`
+-- Indexes for table `DentalChartItem`
 --
-ALTER TABLE `dentalchartitem`
+ALTER TABLE `DentalChartItem`
   ADD PRIMARY KEY (`DentalChartItemID`),
   ADD KEY `dentalchartitem_ibfk_1` (`DentalChartID`);
 
 --
--- Indexes for table `dentalcharts`
+-- Indexes for table `DentalCharts`
 --
-ALTER TABLE `dentalcharts`
+ALTER TABLE `DentalCharts`
   ADD PRIMARY KEY (`DentalChartID`),
   ADD KEY `PatientID` (`PatientID`),
   ADD KEY `DentistID` (`DentistID`);
 
 --
--- Indexes for table `doctor`
+-- Indexes for table `Doctor`
 --
-ALTER TABLE `doctor`
+ALTER TABLE `Doctor`
   ADD PRIMARY KEY (`DoctorID`);
 
 --
--- Indexes for table `overdueconfig`
+-- Indexes for table `OverdueConfig`
 --
-ALTER TABLE `overdueconfig`
+ALTER TABLE `OverdueConfig`
   ADD PRIMARY KEY (`ConfigID`),
   ADD KEY `UpdatedBy` (`UpdatedBy`),
   ADD KEY `idx_overdue_config_active` (`IsActive`);
@@ -1014,30 +1014,30 @@ ALTER TABLE `password_reset_tokens`
   ADD KEY `idx_cleanup` (`expires_at`,`used_at`);
 
 --
--- Indexes for table `patient`
+-- Indexes for table `PATIENT`
 --
-ALTER TABLE `patient`
+ALTER TABLE `PATIENT`
   ADD PRIMARY KEY (`PatientID`);
 
 --
--- Indexes for table `patientrecord`
+-- Indexes for table `PatientRecord`
 --
-ALTER TABLE `patientrecord`
+ALTER TABLE `PatientRecord`
   ADD PRIMARY KEY (`RecordID`),
   ADD UNIQUE KEY `PatientID` (`PatientID`);
 
 --
--- Indexes for table `paymentitems`
+-- Indexes for table `PaymentItems`
 --
-ALTER TABLE `paymentitems`
+ALTER TABLE `PaymentItems`
   ADD PRIMARY KEY (`PaymentItemID`),
   ADD KEY `idx_payment_id` (`PaymentID`),
   ADD KEY `fk_treatmentitem_payment` (`TreatmentItemID`);
 
 --
--- Indexes for table `payments`
+-- Indexes for table `Payments`
 --
-ALTER TABLE `payments`
+ALTER TABLE `Payments`
   ADD PRIMARY KEY (`PaymentID`),
   ADD KEY `FK_Payments_Appointment` (`AppointmentID`),
   ADD KEY `FK_Payments_Patient` (`PatientID`),
@@ -1051,23 +1051,23 @@ ALTER TABLE `ServicePrices`
   ADD UNIQUE KEY `unique_service_name` (`ServiceName`);
 
 --
--- Indexes for table `treatmentplan`
+-- Indexes for table `TreatmentPlan`
 --
-ALTER TABLE `treatmentplan`
+ALTER TABLE `TreatmentPlan`
   ADD PRIMARY KEY (`TreatmentPlanID`),
   ADD KEY `fk_treatmentplan_appointment` (`AppointmentReportID`);
 
 --
--- Indexes for table `treatmentplanitem`
+-- Indexes for table `TreatmentPlanItem`
 --
-ALTER TABLE `treatmentplanitem`
+ALTER TABLE `TreatmentPlanItem`
   ADD PRIMARY KEY (`TreatmentItemID`),
   ADD KEY `fk_treatmentitem_plan` (`TreatmentPlanID`);
 
 --
--- Indexes for table `user`
+-- Indexes for table `USER`
 --
-ALTER TABLE `user`
+ALTER TABLE `USER`
   ADD PRIMARY KEY (`UserID`),
   ADD UNIQUE KEY `Email` (`Email`);
 
@@ -1076,15 +1076,15 @@ ALTER TABLE `user`
 --
 
 --
--- AUTO_INCREMENT for table `appointment`
+-- AUTO_INCREMENT for table `Appointment`
 --
-ALTER TABLE `appointment`
+ALTER TABLE `Appointment`
   MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
--- AUTO_INCREMENT for table `appointmentreport`
+-- AUTO_INCREMENT for table `AppointmentReport`
 --
-ALTER TABLE `appointmentreport`
+ALTER TABLE `AppointmentReport`
   MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
@@ -1094,21 +1094,21 @@ ALTER TABLE `blocked_slots`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
--- AUTO_INCREMENT for table `dentalchartitem`
+-- AUTO_INCREMENT for table `DentalChartItem`
 --
-ALTER TABLE `dentalchartitem`
+ALTER TABLE `DentalChartItem`
   MODIFY `DentalChartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=289;
 
 --
--- AUTO_INCREMENT for table `dentalcharts`
+-- AUTO_INCREMENT for table `DentalCharts`
 --
-ALTER TABLE `dentalcharts`
+ALTER TABLE `DentalCharts`
   MODIFY `DentalChartID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `overdueconfig`
+-- AUTO_INCREMENT for table `OverdueConfig`
 --
-ALTER TABLE `overdueconfig`
+ALTER TABLE `OverdueConfig`
   MODIFY `ConfigID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
@@ -1118,21 +1118,21 @@ ALTER TABLE `password_reset_tokens`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
--- AUTO_INCREMENT for table `patientrecord`
+-- AUTO_INCREMENT for table `PatientRecord`
 --
-ALTER TABLE `patientrecord`
+ALTER TABLE `PatientRecord`
   MODIFY `RecordID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
--- AUTO_INCREMENT for table `paymentitems`
+-- AUTO_INCREMENT for table `PaymentItems`
 --
-ALTER TABLE `paymentitems`
+ALTER TABLE `PaymentItems`
   MODIFY `PaymentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
--- AUTO_INCREMENT for table `payments`
+-- AUTO_INCREMENT for table `Payments`
 --
-ALTER TABLE `payments`
+ALTER TABLE `Payments`
   MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
@@ -1142,21 +1142,21 @@ ALTER TABLE `ServicePrices`
   MODIFY `ServicePriceID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `treatmentplan`
+-- AUTO_INCREMENT for table `TreatmentPlan`
 --
-ALTER TABLE `treatmentplan`
+ALTER TABLE `TreatmentPlan`
   MODIFY `TreatmentPlanID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `treatmentplanitem`
+-- AUTO_INCREMENT for table `TreatmentPlanItem`
 --
-ALTER TABLE `treatmentplanitem`
+ALTER TABLE `TreatmentPlanItem`
   MODIFY `TreatmentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT for table `user`
+-- AUTO_INCREMENT for table `USER`
 --
-ALTER TABLE `user`
+ALTER TABLE `USER`
   MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
@@ -1166,99 +1166,99 @@ ALTER TABLE `user`
 --
 -- Constraints for table `appointment`
 --
-ALTER TABLE `appointment`
-  ADD CONSTRAINT `FK_Appointment_Doctor` FOREIGN KEY (`DoctorID`) REFERENCES `doctor` (`DoctorID`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_Appointment_Patient` FOREIGN KEY (`PatientID`) REFERENCES `patient` (`PatientID`) ON UPDATE CASCADE;
+ALTER TABLE `Appointment`
+  ADD CONSTRAINT `FK_Appointment_Doctor` FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`DoctorID`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_Appointment_Patient` FOREIGN KEY (`PatientID`) REFERENCES `PATIENT` (`PatientID`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `appointmentreport`
 --
-ALTER TABLE `appointmentreport`
-  ADD CONSTRAINT `FK_AppointmentReport_Appointment` FOREIGN KEY (`AppointmentID`) REFERENCES `appointment` (`AppointmentID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_AppointmentReport_PatientRecord` FOREIGN KEY (`PatientRecordID`) REFERENCES `patientrecord` (`RecordID`) ON UPDATE CASCADE;
+ALTER TABLE `AppointmentReport`
+  ADD CONSTRAINT `FK_AppointmentReport_Appointment` FOREIGN KEY (`AppointmentID`) REFERENCES `Appointment` (`AppointmentID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_AppointmentReport_PatientRecord` FOREIGN KEY (`PatientRecordID`) REFERENCES `PatientRecord` (`RecordID`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `blocked_slots`
 --
 ALTER TABLE `blocked_slots`
-  ADD CONSTRAINT `blocked_slots_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctor` (`DoctorID`);
+  ADD CONSTRAINT `blocked_slots_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `Doctor` (`DoctorID`);
 
 --
 -- Constraints for table `clinic_staff`
 --
-ALTER TABLE `clinic_staff`
-  ADD CONSTRAINT `FK_ClinicStaff_User` FOREIGN KEY (`ClinicStaffID`) REFERENCES `user` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `CLINIC_STAFF`
+  ADD CONSTRAINT `FK_ClinicStaff_User` FOREIGN KEY (`ClinicStaffID`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `dentalchartitem`
 --
-ALTER TABLE `dentalchartitem`
-  ADD CONSTRAINT `dentalchartitem_ibfk_1` FOREIGN KEY (`DentalChartID`) REFERENCES `dentalcharts` (`DentalChartID`) ON DELETE CASCADE;
+ALTER TABLE `DentalChartItem`
+  ADD CONSTRAINT `dentalchartitem_ibfk_1` FOREIGN KEY (`DentalChartID`) REFERENCES `DentalCharts` (`DentalChartID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `dentalcharts`
 --
-ALTER TABLE `dentalcharts`
-  ADD CONSTRAINT `dentalcharts_ibfk_1` FOREIGN KEY (`PatientID`) REFERENCES `patient` (`PatientID`) ON DELETE CASCADE;
+ALTER TABLE `DentalCharts`
+  ADD CONSTRAINT `dentalcharts_ibfk_1` FOREIGN KEY (`PatientID`) REFERENCES `PATIENT` (`PatientID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `doctor`
 --
-ALTER TABLE `doctor`
-  ADD CONSTRAINT `FK_Doctor_ClinicStaff` FOREIGN KEY (`DoctorID`) REFERENCES `clinic_staff` (`ClinicStaffID`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `Doctor`
+  ADD CONSTRAINT `FK_Doctor_ClinicStaff` FOREIGN KEY (`DoctorID`) REFERENCES `CLINIC_STAFF` (`ClinicStaffID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `overdueconfig`
 --
-ALTER TABLE `overdueconfig`
-  ADD CONSTRAINT `overdueconfig_ibfk_1` FOREIGN KEY (`UpdatedBy`) REFERENCES `clinic_staff` (`ClinicStaffID`) ON DELETE SET NULL;
+ALTER TABLE `OverdueConfig`
+  ADD CONSTRAINT `overdueconfig_ibfk_1` FOREIGN KEY (`UpdatedBy`) REFERENCES `CLINIC_STAFF` (`ClinicStaffID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `password_reset_tokens`
 --
 ALTER TABLE `password_reset_tokens`
-  ADD CONSTRAINT `password_reset_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`UserID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `password_reset_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `patient`
 --
-ALTER TABLE `patient`
-  ADD CONSTRAINT `FK_Patient_User` FOREIGN KEY (`PatientID`) REFERENCES `user` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `PATIENT`
+  ADD CONSTRAINT `FK_Patient_User` FOREIGN KEY (`PatientID`) REFERENCES `USER` (`UserID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `patientrecord`
 --
-ALTER TABLE `patientrecord`
-  ADD CONSTRAINT `FK_PatientRecord_Patient` FOREIGN KEY (`PatientID`) REFERENCES `patient` (`PatientID`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `PatientRecord`
+  ADD CONSTRAINT `FK_PatientRecord_Patient` FOREIGN KEY (`PatientID`) REFERENCES `PATIENT` (`PatientID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `paymentitems`
 --
-ALTER TABLE `paymentitems`
-  ADD CONSTRAINT `fk_treatmentitem_payment` FOREIGN KEY (`TreatmentItemID`) REFERENCES `treatmentplanitem` (`TreatmentItemID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `paymentitems_ibfk_1` FOREIGN KEY (`PaymentID`) REFERENCES `payments` (`PaymentID`) ON DELETE CASCADE;
+ALTER TABLE `PaymentItems`
+  ADD CONSTRAINT `fk_treatmentitem_payment` FOREIGN KEY (`TreatmentItemID`) REFERENCES `TreatmentPlanItem` (`TreatmentItemID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `paymentitems_ibfk_1` FOREIGN KEY (`PaymentID`) REFERENCES `Payments` (`PaymentID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `payments`
 --
-ALTER TABLE `payments`
-  ADD CONSTRAINT `FK_Payments_Appointment` FOREIGN KEY (`AppointmentID`) REFERENCES `appointment` (`AppointmentID`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_Payments_Patient` FOREIGN KEY (`PatientID`) REFERENCES `patient` (`PatientID`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_Payments_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `clinic_staff` (`ClinicStaffID`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Payments`
+  ADD CONSTRAINT `FK_Payments_Appointment` FOREIGN KEY (`AppointmentID`) REFERENCES `Appointment` (`AppointmentID`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_Payments_Patient` FOREIGN KEY (`PatientID`) REFERENCES `PATIENT` (`PatientID`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_Payments_UpdatedBy` FOREIGN KEY (`UpdatedBy`) REFERENCES `CLINIC_STAFF` (`ClinicStaffID`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `treatmentplan`
 --
-ALTER TABLE `treatmentplan`
-  ADD CONSTRAINT `fk_treatmentplan_appointment` FOREIGN KEY (`AppointmentReportID`) REFERENCES `appointmentreport` (`AppointmentReportID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `treatmentplan_ibfk_1` FOREIGN KEY (`AppointmentReportID`) REFERENCES `appointmentreport` (`AppointmentReportID`);
+ALTER TABLE `TreatmentPlan`
+  ADD CONSTRAINT `fk_treatmentplan_appointment` FOREIGN KEY (`AppointmentReportID`) REFERENCES `AppointmentReport` (`AppointmentReportID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `treatmentplan_ibfk_1` FOREIGN KEY (`AppointmentReportID`) REFERENCES `AppointmentReport` (`AppointmentReportID`);
 
 --
 -- Constraints for table `treatmentplanitem`
 --
-ALTER TABLE `treatmentplanitem`
-  ADD CONSTRAINT `fk_treatmentitem_plan` FOREIGN KEY (`TreatmentPlanID`) REFERENCES `treatmentplan` (`TreatmentPlanID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `treatmentplanitem_ibfk_1` FOREIGN KEY (`TreatmentPlanID`) REFERENCES `treatmentplan` (`TreatmentPlanID`);
+ALTER TABLE `TreatmentPlanItem`
+  ADD CONSTRAINT `fk_treatmentitem_plan` FOREIGN KEY (`TreatmentPlanID`) REFERENCES `TreatmentPlan` (`TreatmentPlanID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `treatmentplanitem_ibfk_1` FOREIGN KEY (`TreatmentPlanID`) REFERENCES `TreatmentPlan` (`TreatmentPlanID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
