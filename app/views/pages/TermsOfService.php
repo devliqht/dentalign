@@ -12,7 +12,7 @@
 
     <!-- Terms of Service Categories -->
     <div class="glass-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h3 class="text-xl font-semibold text-white mb-4">Quick Navigation</h3>
+        <h3 class="text-xl font-semibold text-gray-600 mb-4">Quick Navigation</h3>
         <div class="flex flex-wrap gap-2">
             <button class="terms-category-btn active glass-card bg-nhd-blue/80 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:bg-nhd-blue transition-colors shadow-sm" data-category="all">
                 All Sections
@@ -411,17 +411,17 @@
     </div>
 
     <!-- Contact Section -->
-    <div class="glass-card bg-gradient-to-r from-nhd-blue/80 to-nhd-blue rounded-2xl shadow-sm p-8 text-white mt-8">
+    <div class="glass-card bg-gradient-to-r from-nhd-blue/80  to-nhd-blue rounded-2xl shadow-sm p-8 text-white mt-8">
         <div class="text-center">
-            <h3 class="text-2xl text-gray-600 font-bold mb-4">Questions About Our Terms?</h3>
-            <p class="text-gray-600  mb-6">Our team is here to clarify any questions you may have about our Terms of Service.</p>
+            <h3 class="text-2xl text-white font-bold mb-4">Still have questions?</h3>
+            <p class="text-white mb-6">Can't find what you're looking for? Our support team is here to help.</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="<?php echo BASE_URL; ?>/login#contact" class="glass-card border border-white/80 text-gray-600 px-6 py-3 rounded-2xl font-medium hover:bg-nhd-blue hover:text-white transition-colors shadow-sm">
+                <button class="glass-card border from-nhd-blue/80 text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
                     Contact Support
-                </a>
-                <a href="<?php echo BASE_URL; ?>/login#contact" class="glass-card border border-white/80 text-gray-600 px-6 py-3 rounded-2xl font-medium hover:bg-nhd-blue hover:text-white transition-colors shadow-sm">
+                </button>
+                <button class="glass-card border from-nhd-blue/80 text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
                     Call Us: (555) 123-4567
-                </a>
+                </button>
             </div>
         </div>
     </div>
