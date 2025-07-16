@@ -47,7 +47,6 @@ async function submitReschedule(event) {
     confirmBtn.textContent = 'Checking...';
 
     try {
-        // Your existing API endpoints suggest a dentalassistant/ prefix is used
         const response = await fetch(`${window.BASE_URL}/dentalassistant/reschedule-appointment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
