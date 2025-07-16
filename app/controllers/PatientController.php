@@ -232,6 +232,29 @@ class PatientController extends Controller
         $this->view("pages/patient/Dashboard", $data, $layoutConfig);
     }
 
+    // In app/controllers/PatientController.php
+
+// Add this new method
+    public function getAvailableSlotsForDoctor()
+    {
+        // This will be our API endpoint, so it should return JSON
+        header('Content-Type: application/json');
+        $this->requireAuth(); // Ensure user is logged in
+
+        $doctorId = $_GET['doctor_id'] ?? null;
+        $date = $_GET['date'] ?? null;
+
+        if (!$doctorId || !$date) {
+            echo json_encode(['success' => false, 'message' => 'Doctor ID and date are required.']);
+            return;
+        }
+
+        // Use your already-updated model method!
+        $appointmentModel = new Appointment($this->conn);
+        $availableSlots = $appointmentModel->getAvailableTimeSlots($doctorId, $date);
+
+        echo json_encode(['success' => true, 'timeSlots' => $availableSlots]);
+    }
     public function bookings()
     {
         $this->requireAuth();

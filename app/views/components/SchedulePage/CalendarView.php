@@ -42,9 +42,16 @@
 
             <!-- Selected Date Appointments -->
             <div class="flex-1">
-                <h3 class="text-lg font-semibold text-nhd-brown mb-4">
-                    Appointments for <span id="calendar-selected-date-title">Today</span>
-                </h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-nhd-brown mb-4">
+                        Appointments for <span id="calendar-selected-date-title">Today</span>
+                    </h3>
+                    <button onclick="openBlockScheduleModal()"
+                        class="glass-card bg-red-600/80 text-white px-4 py-2 text-sm font-semibold rounded-2xl hover:bg-red-700/80 transition-colors">
+                        Block Schedule
+                    </button>
+                </div>
+            
                 <div id="calendar-appointments-container" class="space-y-4">
                     <!-- Appointments will be loaded by JavaScript -->
                 </div>

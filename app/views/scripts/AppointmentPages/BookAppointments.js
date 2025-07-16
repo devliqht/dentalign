@@ -156,6 +156,81 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // function updateTimeSlots() {
+  //   const doctorId = doctorIdInput.value;
+  //   const date = dateInput.value;
+
+  //   console.log("updateTimeSlots called with:", { doctorId, date });
+
+  //   if (doctorId && date) {
+  //     timeSlotsContainer.innerHTML =
+  //       '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Loading available time slots...</p></div>';
+
+  //     const url = `${window.BASE_URL}/patient/get-timeslots?doctor_id=${doctorId}&date=${date}`;
+  //     console.log("Making AJAX request to:", url);
+
+  //     fetch(url)
+  //       .then((response) => {
+  //         console.log("Response status:", response.status);
+  //         console.log("Response headers:", response.headers);
+  //         return response.text();
+  //       })
+  //       .then((text) => {
+  //         console.log("Raw response:", text);
+  //         try {
+  //           const data = JSON.parse(text);
+  //           console.log("Parsed data:", data);
+
+  //           if (data.success && data.timeSlots && data.timeSlots.length > 0) {
+  //             timeSlotsContainer.innerHTML = "";
+  //             data.timeSlots.forEach((timeSlotData) => {
+  //               const button = document.createElement("button");
+  //               button.type = "button";
+
+  //               if (timeSlotData.available) {
+  //                 button.className =
+  //                   "glass-card px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-nhd-brown focus:ring-offset-2";
+  //                 button.addEventListener("click", function () {
+  //                   selectTimeSlot(timeSlotData.time, button);
+  //                 });
+  //               } else {
+  //                 button.className =
+  //                   "glass-card px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed rounded-lg transition-all duration-200 disabled";
+  //                 button.disabled = true;
+  //               }
+
+  //               button.setAttribute("data-time", timeSlotData.time);
+  //               button.setAttribute("data-available", timeSlotData.available);
+  //               button.innerHTML =
+  //                 formatTime(timeSlotData.time) +
+  //                 (timeSlotData.available
+  //                   ? ""
+  //                   : ' <span class="ml-1 text-xs">(Taken)</span>');
+
+  //               timeSlotsContainer.appendChild(button);
+  //             });
+  //           } else {
+  //             timeSlotsContainer.innerHTML =
+  //               '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">No available time slots for the selected date.</p></div>';
+  //           }
+  //         } catch (e) {
+  //           console.error("Failed to parse JSON:", e);
+  //           console.error("Raw text was:", text);
+  //           timeSlotsContainer.innerHTML =
+  //             '<div class="w-full text-center py-8"><p class="text-red-500 text-sm">Error loading time slots.</p></div>';
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching time slots:", error);
+  //         timeSlotsContainer.innerHTML =
+  //           '<div class="w-full text-center py-8"><p class="text-red-500 text-sm">Error loading time slots.</p></div>';
+  //       });
+  //   } else {
+  //     console.log("Either doctor or date is missing - not fetching timeslots");
+  //     timeSlotsContainer.innerHTML =
+  //       '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Please select a doctor and date to view available time slots.</p></div>';
+  //   }
+  // }
   function updateTimeSlots() {
     const doctorId = doctorIdInput.value;
     const date = dateInput.value;
@@ -163,74 +238,64 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("updateTimeSlots called with:", { doctorId, date });
 
     if (doctorId && date) {
-      timeSlotsContainer.innerHTML =
-        '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Loading available time slots...</p></div>';
+        // Show loading message
+        timeSlotsContainer.innerHTML =
+            '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Loading available time slots...</p></div>';
 
-      const url = `${window.BASE_URL}/patient/get-timeslots?doctor_id=${doctorId}&date=${date}`;
-      console.log("Making AJAX request to:", url);
+        // 1. **THE FIX: Use the new, correct API endpoint**
+        const url = `${window.BASE_URL}/patient/get-available-slots?doctor_id=${doctorId}&date=${date}`;
+        console.log("Making AJAX request to:", url);
 
-      fetch(url)
-        .then((response) => {
-          console.log("Response status:", response.status);
-          console.log("Response headers:", response.headers);
-          return response.text();
-        })
-        .then((text) => {
-          console.log("Raw response:", text);
-          try {
-            const data = JSON.parse(text);
-            console.log("Parsed data:", data);
-
-            if (data.success && data.timeSlots && data.timeSlots.length > 0) {
-              timeSlotsContainer.innerHTML = "";
-              data.timeSlots.forEach((timeSlotData) => {
-                const button = document.createElement("button");
-                button.type = "button";
-
-                if (timeSlotData.available) {
-                  button.className =
-                    "glass-card px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-nhd-brown focus:ring-offset-2";
-                  button.addEventListener("click", function () {
-                    selectTimeSlot(timeSlotData.time, button);
-                  });
-                } else {
-                  button.className =
-                    "glass-card px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 cursor-not-allowed rounded-lg transition-all duration-200 disabled";
-                  button.disabled = true;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Parsed data:", data);
 
-                button.setAttribute("data-time", timeSlotData.time);
-                button.setAttribute("data-available", timeSlotData.available);
-                button.innerHTML =
-                  formatTime(timeSlotData.time) +
-                  (timeSlotData.available
-                    ? ""
-                    : ' <span class="ml-1 text-xs">(Taken)</span>');
+                // 2. **THE FIX: Process the simple array from the new endpoint**
+                if (data.success && data.timeSlots && data.timeSlots.length > 0) {
+                    timeSlotsContainer.innerHTML = ""; // Clear loading message
 
-                timeSlotsContainer.appendChild(button);
-              });
-            } else {
-              timeSlotsContainer.innerHTML =
-                '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">No available time slots for the selected date.</p></div>';
-            }
-          } catch (e) {
-            console.error("Failed to parse JSON:", e);
-            console.error("Raw text was:", text);
-            timeSlotsContainer.innerHTML =
-              '<div class="w-full text-center py-8"><p class="text-red-500 text-sm">Error loading time slots.</p></div>';
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching time slots:", error);
-          timeSlotsContainer.innerHTML =
-            '<div class="w-full text-center py-8"><p class="text-red-500 text-sm">Error loading time slots.</p></div>';
-        });
+                    data.timeSlots.forEach(timeString => {
+                        const button = document.createElement("button");
+                        button.type = "button";
+                        button.className =
+                            "glass-card px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-200 focus:outline-none";
+                        
+                        // Set the database-friendly time (e.g., "08:00:00") as a data attribute
+                        button.setAttribute("data-time", timeString);
+                        
+                        // Set the user-friendly time (e.g., "8:00 AM") as the button text
+                        button.textContent = formatTime(timeString);
+
+                        button.addEventListener("click", function () {
+                            selectTimeSlot(timeString, button);
+                        });
+
+                        timeSlotsContainer.appendChild(button);
+                    });
+                } else {
+                    // This handles cases where the array is empty (no slots available)
+                    timeSlotsContainer.innerHTML =
+                        '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">No available time slots for the selected date.</p></div>';
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching time slots:", error);
+                timeSlotsContainer.innerHTML =
+                    '<div class="w-full text-center py-8"><p class="text-red-500 text-sm">Error loading time slots. Please try again.</p></div>';
+            });
     } else {
-      console.log("Either doctor or date is missing - not fetching timeslots");
-      timeSlotsContainer.innerHTML =
-        '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Please select a doctor and date to view available time slots.</p></div>';
+        // This part is fine and doesn't need to change
+        console.log("Either doctor or date is missing - not fetching timeslots");
+        timeSlotsContainer.innerHTML =
+            '<div class="w-full text-center py-8"><p class="text-gray-500 text-sm">Please select a doctor and date to view available time slots.</p></div>';
     }
-  }
+}
 
   function selectTimeSlot(timeSlot, button) {
     if (button.disabled || button.getAttribute("data-available") === "false") {

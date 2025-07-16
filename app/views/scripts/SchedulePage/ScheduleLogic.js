@@ -24,6 +24,139 @@ function showSection(sectionName) {
     initializeWeekView();
   }
 }
+// // ===== START: NEW CODE FOR BLOCK SCHEDULE FEATURE =====
+
+// // A constant array of your clinic's operating hours in a format the database expects.
+// const clinicHours = [
+//     "08:00:00", "09:00:00", "10:00:00", "11:00:00", "12:00:00", 
+//     "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00"
+// ];
+
+// /**
+//  * Opens the "Block Schedule" modal. It uses the global 'selectedDate'
+//  * from your calendar logic to know which day to manage.
+//  */
+// function openBlockScheduleModal() {
+//     const modal = document.getElementById('blockScheduleModal');
+//     const dateDisplay = document.getElementById('block-modal-date-display');
+    
+//     // Use the existing 'selectedDate' global variable
+//     if (!selectedDate) {
+//         alert("Please select a date from the calendar first.");
+//         return;
+//     }
+    
+//     // Format the date for display in the modal title
+//     const formattedDate = selectedDate.toLocaleDateString('en-US', { 
+//         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+//     });
+//     dateDisplay.textContent = formattedDate;
+    
+//     modal.classList.remove('hidden');
+    
+//     // Trigger the function to load the slots for the selected day
+//     loadSlotsForModal(selectedDate);
+// }
+
+// /**
+//  * Closes the "Block Schedule" modal.
+//  */
+// function closeBlockScheduleModal() {
+//     document.getElementById('blockScheduleModal').classList.add('hidden');
+// }
+
+// /**
+//  * Fetches availability for the selected date and populates the modal's checkboxes.
+//  * It will disable slots that are already booked and check slots that are already blocked.
+//  * @param {Date} date - The date object for which to load slots.
+//  */
+// async function loadSlotsForModal(date) {
+//     const container = document.getElementById('time-slot-checkboxes');
+//     container.innerHTML = `<div class="text-center col-span-full py-4">Loading slots...</div>`;
+
+//     const dateString = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    
+//     // Assumes BASE_URL is a global variable, which is consistent with your other JS files.
+//     const apiUrl = `${window.BASE_URL}/doctor/get-availability?date=${dateString}`;
+
+//     try {
+//         const response = await fetch(apiUrl);
+//         const data = await response.json();
+
+//         if (data.success) {
+//             container.innerHTML = ''; // Clear loading message
+            
+//             clinicHours.forEach(time => {
+//                 const isBlocked = data.blocked_times.includes(time);
+//                 const isBooked = data.booked_times.includes(time);
+                
+//                 // Format the time for user-friendly display (e.g., "8:00 AM")
+//                 const timeFormatted = new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+//                 const slotHtml = `
+//                     <div class="flex items-center p-2 rounded-lg ${isBooked ? 'bg-gray-200' : 'bg-gray-50'}">
+//                         <input id="slot-${time}" type="checkbox" value="${time}" name="blocked_slots[]"
+//                                class="h-4 w-4 text-nhd-blue border-gray-300 rounded focus:ring-nhd-blue"
+//                                ${isBlocked ? 'checked' : ''}
+//                                ${isBooked ? 'disabled' : ''}>
+//                         <label for="slot-${time}" class="ml-3 block text-sm font-medium ${isBooked ? 'text-gray-400 cursor-not-allowed' : 'text-gray-900'}">
+//                             ${timeFormatted}
+//                             ${isBooked ? '<span class="text-xs text-red-600 ml-1">(Booked)</span>' : ''}
+//                         </label>
+//                     </div>
+//                 `;
+//                 container.insertAdjacentHTML('beforeend', slotHtml);
+//             });
+//         } else {
+//             container.innerHTML = `<div class="text-center col-span-full py-4 text-red-500">Failed to load slots.</div>`;
+//         }
+//     } catch (error) {
+//         console.error("Error loading slots:", error);
+//         container.innerHTML = `<div class="text-center col-span-full py-4 text-red-500">A network error occurred.</div>`;
+//     }
+// }
+
+// /**
+//  * Handles the submission of the "Block Schedule" form.
+//  * It sends the list of checked time slots to the backend.
+//  * @param {Event} event - The form submission event.
+//  */
+// async function submitBlockedSlots(event) {
+//     event.preventDefault();
+    
+//     const dateString = selectedDate.toISOString().split('T')[0];
+//     const checkedBoxes = document.querySelectorAll('#blockScheduleForm input[type="checkbox"]:checked');
+    
+//     const timesToBlock = Array.from(checkedBoxes).map(cb => cb.value);
+
+//     const apiUrl = `${window.BASE_URL}/doctor/update-blocked-slots`;
+
+//     try {
+//         const response = await fetch(apiUrl, {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ date: dateString, times: timesToBlock })
+//         });
+//         const result = await response.json();
+
+//         if (result.success) {
+//             closeBlockScheduleModal();
+            
+//             // This is the key integration point!
+//             // We re-run your existing functions to refresh the view with the new data.
+//             loadAppointmentsForDate(selectedDate); // Refreshes the right-side appointment list.
+//             renderCalendar(); // Redraws the calendar (useful if you add a "blocked" indicator later).
+            
+//             alert('Availability updated successfully!');
+//         } else {
+//             alert(result.message || 'Failed to update availability.');
+//         }
+//     } catch (error) {
+//         console.error("Error submitting blocked slots:", error);
+//         alert('A network error occurred.');
+//     }
+// }
+// // ===== END: NEW CODE FOR BLOCK SCHEDULE FEATURE =====
 
 function initializeWeekView() {
   // Store the original week start if not already stored

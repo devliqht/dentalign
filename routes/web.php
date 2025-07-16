@@ -44,6 +44,7 @@ $router->group("GET", "PatientController", [
     "patient/profile" => "profile",
     "patient/get-treatment-plan" => "getTreatmentPlan",
     "patient/get-treatment-plan-details" => "getTreatmentPlanDetails",
+    "patient/get-available-slots" => "getAvailableSlotsForDoctor",
 ]);
 
 $router->group("POST", "PatientController", [
@@ -103,6 +104,7 @@ $router->group("GET", "DoctorController", [
         "sortAppointmentHistory", // jeane added this
     "doctor/sortAppointmentHistory/{sortOption}/{direction}/{status}" =>
         "sortAppointmentHistory", // Added status parameter
+    "doctor/get-availability" => "getAvailabilityForDate",
 ]);
 
 $router->group("POST", "DoctorController", [
@@ -122,6 +124,7 @@ $router->group("POST", "DoctorController", [
     "doctor/approve-cancellation" => "approveCancellation",
     "doctor/deny-cancellation" => "denyCancellation",
     "staff/profile" => "updateProfile",
+    "doctor/update-blocked-slots" => "updateBlockedSlots", // NEW
 ]);
 
 // Search functionality

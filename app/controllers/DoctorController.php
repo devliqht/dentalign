@@ -11,6 +11,7 @@ require_once "app/models/Payment.php";
 require_once "app/models/PaymentItem.php";
 require_once "app/models/TreatmentPlan.php";
 require_once "app/models/TreatmentPlanItem.php";
+require_once 'app/models/BlockedSlot.php';
 
 class DoctorController extends Controller
 {
@@ -2094,6 +2095,55 @@ class DoctorController extends Controller
             ]);
         }
         exit();
+    }
+
+    public function getAvailabilityForDate() {
+        header('Content-Type: application/json');
+        $this->requireAuth();
+        $user = $this->getAuthUser();
+        $doctorId = $user["id"];
+        $date = $_GET['date'] ?? date('Y-m-d');
+
+        // Get already blocked slots
+        $blockedSlotModel = new BlockedSlot($this->conn);
+        $blockedTimes = $blockedSlotModel->getByDoctorAndDate($doctorId, $date);
+        
+        // Get already booked appointments
+        $appointmentModel = new Appointment($this->conn);
+        $appointments = $appointmentModel->getAppointmentsByDoctorAndDate($doctorId, $date);
+        $bookedTimes = array_map(function($appt) {
+            return date("H:i:s", strtotime($appt['DateTime']));
+        }, $appointments);
+
+        echo json_encode([
+            'success' => true,
+            'blocked_times' => $blockedTimes,
+            'booked_times' => $bookedTimes
+        ]);
+    }
+    public function updateBlockedSlots() {
+        header('Content-Type: application/json');
+        $this->requireAuth();
+        $user = $this->getAuthUser();
+        $doctorId = $user["id"];
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $date = $input['date'] ?? null;
+        $times = $input['times'] ?? [];
+
+        if (!$date) {
+            echo json_encode(['success' => false, 'message' => 'Date is required.']);
+            return;
+        }
+
+        $blockedSlotModel = new BlockedSlot($this->conn);
+        $success = $blockedSlotModel->updateForDoctor($doctorId, $date, $times);
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Availability updated successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update availability.']);
+        }
     }
 
     private function validatePassword($password)

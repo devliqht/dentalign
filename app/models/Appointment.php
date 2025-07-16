@@ -163,6 +163,51 @@ class Appointment
         return [];
     }
 
+public function isSlotTrulyAvailableForBooking($doctorID, $dateTime)
+{
+    // Extract date and time from the full DateTime string
+    $date = date('Y-m-d', strtotime($dateTime));
+    $time = date('H:i:s', strtotime($dateTime));
+    
+    // Check 1: Is there an existing, non-cancelled appointment at this time?
+    // Using FOR UPDATE to lock the rows to prevent another booking at the same time.
+    $appointmentQuery = "
+        SELECT COUNT(*) 
+        FROM Appointment 
+        WHERE DoctorID = ? 
+        AND DateTime = ? 
+        AND Status NOT IN ('Cancelled', 'Declined') 
+        FOR UPDATE";
+
+    $stmtAppt = $this->conn->prepare($appointmentQuery);
+    $stmtAppt->bind_param("is", $doctorID, $dateTime);
+    $stmtAppt->execute();
+    $resultAppt = $stmtAppt->get_result();
+    $countAppt = $resultAppt->fetch_row()[0];
+
+    if ($countAppt > 0) {
+        // Slot is booked by another appointment
+        return false;
+    }
+
+    // Check 2: Is this slot manually blocked by the doctor?
+    $blockedSlotQuery = "SELECT COUNT(*) FROM blocked_slots WHERE doctor_id = ? AND blocked_date = ? AND blocked_time = ?";
+    
+    $stmtBlocked = $this->conn->prepare($blockedSlotQuery);
+    $stmtBlocked->bind_param("iss", $doctorID, $date, $time);
+    $stmtBlocked->execute();
+    $resultBlocked = $stmtBlocked->get_result();
+    $countBlocked = $resultBlocked->fetch_row()[0];
+    
+    if ($countBlocked > 0) {
+        // Slot is manually blocked
+        return false;
+    }
+
+    // If both checks pass, the slot is truly available.
+    return true;
+}
+
     public function getUpcomingAppointmentsByPatient($patientID)
     {
         $query =
@@ -246,11 +291,19 @@ class Appointment
             $this->conn->query("SET SESSION innodb_lock_wait_timeout = 5");
             error_log("Lock timeout set");
 
-            if (!$this->checkDoctorAvailabilityWithLock($doctorID, $dateTime)) {
-                error_log("FAIL: Doctor not available with lock");
-                $this->conn->rollback();
-                return false;
-            }
+            // if (!$this->checkDoctorAvailabilityWithLock($doctorID, $dateTime)) {
+            //     error_log("FAIL: Doctor not available with lock");
+            //     $this->conn->rollback();
+            //     return false;
+            // }
+               // == THE FIX: Replace the old check with our new, definitive check ==
+        // ========================================================================
+        if (!$this->isSlotTrulyAvailableForBooking($doctorID, $dateTime)) {
+            error_log("FAIL: Slot is not available. It is either booked or manually blocked by the doctor.");
+            $this->conn->rollback();
+            return false; // This will stop the appointment from being created
+        }
+        // ========================================================================
             error_log("Doctor availability with lock: CONFIRMED");
 
             $this->patientID = $patientID;
@@ -284,34 +337,81 @@ class Appointment
         }
     }
 
-    public function getAvailableTimeSlots($doctorID, $date)
-    {
-        // Define clinic hours (8 AM to 6 PM, 1-hour slots)
-        $timeSlots = [];
-        for ($hour = 8; $hour < 18; $hour++) {
-            $timeSlots[] = sprintf("%02d:00", $hour);
-        }
+    // public function getAvailableTimeSlots($doctorID, $date)
+    // {
+    //     // Define clinic hours (8 AM to 6 PM, 1-hour slots)
+    //     $timeSlots = [];
+    //     for ($hour = 8; $hour < 18; $hour++) {
+    //         $timeSlots[] = sprintf("%02d:00", $hour);
+    //     }
 
-        $query =
-            "SELECT TIME_FORMAT(TIME(DateTime), '%H:%i') as time FROM " .
-            $this->table .
-            " 
-                  WHERE DoctorID = ? AND DATE(DateTime) = ?";
+    //     $query =
+    //         "SELECT TIME_FORMAT(TIME(DateTime), '%H:%i') as time FROM " .
+    //         $this->table .
+    //         " 
+    //               WHERE DoctorID = ? AND DATE(DateTime) = ?";
 
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("is", $doctorID, $date);
+    //     $stmt = $this->conn->prepare($query);
+    //     $stmt->bind_param("is", $doctorID, $date);
 
-        $bookedTimes = [];
-        if ($stmt->execute()) {
-            $result = $stmt->get_result();
-            while ($row = $result->fetch_assoc()) {
-                $bookedTimes[] = $row["time"];
-            }
-        }
+    //     $bookedTimes = [];
+    //     if ($stmt->execute()) {
+    //         $result = $stmt->get_result();
+    //         while ($row = $result->fetch_assoc()) {
+    //             $bookedTimes[] = $row["time"];
+    //         }
+    //     }
 
-        // remove the booked times
-        return array_diff($timeSlots, $bookedTimes);
+    //     // remove the booked times
+    //     return array_diff($timeSlots, $bookedTimes);
+    // }
+public function getAvailableTimeSlots($doctorID, $date)
+{
+    // 1. Define all possible clinic hours in the consistent 'H:i:s' format.
+    $allPossibleSlots = [];
+    for ($hour = 8; $hour < 18; $hour++) {
+        $allPossibleSlots[] = sprintf("%02d:00:00", $hour);
     }
+
+    // 2. Build a UNION query to get all unavailable times from BOTH tables in one go.
+    //    - The first part gets times from booked appointments (that are not cancelled).
+    //    - The second part gets times from the new 'blocked_slots' table.
+    $query = "
+        (SELECT TIME(DateTime) as unavailable_time 
+         FROM " . $this->table . " 
+         WHERE DoctorID = ? AND DATE(DateTime) = ? AND Status NOT IN ('Cancelled', 'Declined'))
+        
+        UNION
+        
+        (SELECT blocked_time as unavailable_time 
+         FROM blocked_slots 
+         WHERE doctor_id = ? AND blocked_date = ?)
+    ";
+
+    $stmt = $this->conn->prepare($query);
+    if (!$stmt) {
+        error_log("Prepare failed: (" . $this->conn->errno . ") " . $this->conn->error);
+        return []; // Return empty on error to be safe
+    }
+    
+    // 3. Bind the parameters. Note that we need to bind for both parts of the UNION.
+    $stmt->bind_param("isis", $doctorID, $date, $doctorID, $date);
+
+    $unavailableTimes = [];
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            // Ensure the time is in the correct H:i:s format
+            $unavailableTimes[] = date("H:i:s", strtotime($row["unavailable_time"]));
+        }
+    } else {
+        error_log("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+        return []; // Return empty on error
+    }
+
+    // 4. Return the difference: all possible slots MINUS the unavailable ones.
+    return array_values(array_diff($allPossibleSlots, $unavailableTimes));
+}
 
     public function getAllTimeSlotsWithStatus($doctorID, $date)
     {
