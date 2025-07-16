@@ -7,9 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectedTimeDisplay = document.getElementById("selected-time-display");
   const selectedTypeDisplay = document.getElementById("selected-type-display");
   const doctorCards = document.querySelectorAll(".doctor-card");
-  const appointmentTypeCards = document.querySelectorAll(
-    "#appointment-types-container .glass-card",
-  );
+  const appointmentTypesContainer = document.getElementById("appointment-types-container");
 
   let currentDate = new Date();
   let selectedDate = null;
@@ -137,23 +135,29 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  appointmentTypeCards.forEach((card) => {
-    card.addEventListener("click", function () {
-      const appointmentType = this.getAttribute("data-type");
-
-      appointmentTypeCards.forEach((c) => {
+  // Use event delegation for appointment type selection
+  appointmentTypesContainer.addEventListener("click", function (event) {
+    const card = event.target.closest(".glass-card[data-type]");
+    
+    if (card) {
+      const appointmentType = card.getAttribute("data-type");
+      
+      // Remove selection from all cards
+      const allCards = appointmentTypesContainer.querySelectorAll(".glass-card[data-type]");
+      allCards.forEach((c) => {
         c.classList.remove("selected");
         c.classList.remove("bg-nhd-brown/85", "text-white", "border-nhd-brown");
         c.classList.add("text-gray-700", "border-gray-200");
       });
 
-      this.classList.add("selected");
-      this.classList.remove("text-gray-700", "border-gray-200");
-      this.classList.add("bg-nhd-brown/85", "text-white", "border-nhd-brown");
+      // Add selection to clicked card
+      card.classList.add("selected");
+      card.classList.remove("text-gray-700", "border-gray-200");
+      card.classList.add("bg-nhd-brown/85", "text-white", "border-nhd-brown");
 
       appointmentTypeInput.value = appointmentType;
       selectedTypeDisplay.textContent = appointmentType;
-    });
+    }
   });
 
   // function updateTimeSlots() {

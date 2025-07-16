@@ -1,8 +1,6 @@
 <?php
-// Include the SortableAppointmentTable component
 require_once __DIR__ . "/../../../components/SortableAppointmentTable.php";
 
-// Function to render payment management table
 function renderPaymentManagementTable(
     $appointments,
     $appointmentPayments,
@@ -27,7 +25,7 @@ function renderPaymentManagementTable(
                                 <span class="sort-icon-active hidden"></span>
                             </span>
                         </th>
-                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientFirstName">
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientName">
                             Patient 
                             <span class="sort-indicator ml-1">
                                 <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
@@ -37,7 +35,7 @@ function renderPaymentManagementTable(
                                 <span class="sort-icon-active hidden"></span>
                             </span>
                         </th>
-                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorFirstName">
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorName">
                             Doctor 
                             <span class="sort-indicator ml-1">
                                 <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
@@ -47,8 +45,17 @@ function renderPaymentManagementTable(
                                 <span class="sort-icon-active hidden"></span>
                             </span>
                         </th>
-
-                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="TotalAmount">
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
+                            Appointment Status 
+                            <span class="sort-indicator ml-1">
+                                <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                                    <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                                    <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                                </svg>
+                                <span class="sort-icon-active hidden"></span>
+                            </span>
+                        </th>
+                        <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Amount">
                             Amount 
                             <span class="sort-indicator ml-1">
                                 <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
@@ -96,60 +103,6 @@ function renderPaymentManagementTable(
                     <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
                     </svg>Refresh
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overdue Configuration -->
-    <div class="glass-card bg-blue-50/50 rounded-2xl border-blue-200 border-1 shadow-sm mb-6 p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-nhd-blue">Overdue Payment Configuration</h3>
-            <button id="editConfigBtn" class="glass-card bg-nhd-blue text-white px-4 py-2 rounded-xl shadow-sm hover:bg-nhd-blue/90 transition-colors">
-                <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                </svg>Edit Configuration
-            </button>
-        </div>
-        
-        <div id="configDisplay" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass-card bg-white/60 p-4 rounded-xl shadow-none border-1 border-gray-200">
-                <p class="text-sm text-gray-600">Overdue Fee Percentage</p>
-                <p class="text-2xl font-bold text-nhd-blue" id="currentPercentage">5.00%</p>
-            </div>
-            <div class="glass-card bg-white/60 p-4 rounded-xl shadow-none border-1 border-gray-200">
-                <p class="text-sm text-gray-600">Grace Period</p>
-                <p class="text-2xl font-bold text-nhd-blue" id="currentGracePeriod">0 days</p>
-            </div>
-            <div class="glass-card bg-white/60 p-4 rounded-xl shadow-none border-1 border-gray-200">
-                <p class="text-sm text-gray-600">Last Updated</p>
-                <p class="text-sm font-medium text-gray-700" id="lastUpdated">Never</p>
-            </div>
-        </div>
-        
-        <div id="configForm" class="hidden mt-4 p-4 bg-white/60 rounded-xl">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Overdue Fee Percentage (%)</label>
-                    <input type="number" id="overduePercentage" step="0.01" min="0" max="100" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Grace Period (Days)</label>
-                    <input type="number" id="gracePeriodDays" min="0" max="365" class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
-                </div>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Configuration Name</label>
-                <input type="text" id="configName" placeholder="Enter configuration name..." class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-nhd-blue/20">
-            </div>
-            <div class="flex space-x-3">
-                <button id="saveConfigBtn" class="glass-card bg-green-500 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-green-600 transition-colors">
-                    <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                    </svg>Save Configuration
-                </button>
-                <button id="cancelConfigBtn" class="glass-card bg-gray-500 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-gray-600 transition-colors">
-                    Cancel
                 </button>
             </div>
         </div>
@@ -252,6 +205,27 @@ function renderPaymentManagementTable(
 
     <!-- Appointments Table -->
     <div id="appointments-table-container">
+        <!-- Section Navigation -->
+        <div class="mb-6">
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="showPaymentSection('all')" id="all-btn" class="glass-card bg-nhd-blue/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-white">
+                    All Appointments
+                </button>
+                <button onclick="showPaymentSection('overdue')" id="overdue-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
+                    Overdue
+                </button>
+                <button onclick="showPaymentSection('pending')" id="pending-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
+                    Pending
+                </button>
+                <button onclick="showPaymentSection('paid')" id="paid-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
+                    Paid
+                </button>
+                <button onclick="showPaymentSection('cancelled')" id="cancelled-btn" class="glass-card bg-gray-200/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-gray-700">
+                    Cancelled
+                </button>
+            </div>
+        </div>
+
         <div id="loadingSpinner" class="text-center py-8">
             <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-nhd-blue bg-white">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-nhd-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -268,13 +242,55 @@ function renderPaymentManagementTable(
             </svg>
             <p>No appointments found</p>
         </div>
-        <div id="appointments-table-content">
-            <!-- SortableAppointmentTable will be rendered here -->
-        </div>
         
-        <!-- Pagination Controls -->
-        <div id="pagination-controls-container" class="hidden">
-            <?php echo renderPaginationControls("payment-management"); ?>
+        <!-- All Appointments Section -->
+        <div id="all-section" class="appointment-section">
+            <div id="all-appointments-table-content">
+                <!-- SortableAppointmentTable will be rendered here -->
+            </div>
+            <div id="all-pagination-controls-container" class="hidden">
+                <?php echo renderPaginationControls("all-appointments"); ?>
+            </div>
+        </div>
+
+        <!-- Overdue Appointments Section -->
+        <div id="overdue-section" class="appointment-section hidden">
+            <div id="overdue-appointments-table-content">
+                <!-- SortableAppointmentTable will be rendered here -->
+            </div>
+            <div id="overdue-pagination-controls-container" class="hidden">
+                <?php echo renderPaginationControls("overdue-appointments"); ?>
+            </div>
+        </div>
+
+        <!-- Pending Appointments Section -->
+        <div id="pending-section" class="appointment-section hidden">
+            <div id="pending-appointments-table-content">
+                <!-- SortableAppointmentTable will be rendered here -->
+            </div>
+            <div id="pending-pagination-controls-container" class="hidden">
+                <?php echo renderPaginationControls("pending-appointments"); ?>
+            </div>
+        </div>
+
+        <!-- Paid Appointments Section -->
+        <div id="paid-section" class="appointment-section hidden">
+            <div id="paid-appointments-table-content">
+                <!-- SortableAppointmentTable will be rendered here -->
+            </div>
+            <div id="paid-pagination-controls-container" class="hidden">
+                <?php echo renderPaginationControls("paid-appointments"); ?>
+            </div>
+        </div>
+
+        <!-- Cancelled Appointments Section -->
+        <div id="cancelled-section" class="appointment-section hidden">
+            <div id="cancelled-appointments-table-content">
+                <!-- SortableAppointmentTable will be rendered here -->
+            </div>
+            <div id="cancelled-pagination-controls-container" class="hidden">
+                <?php echo renderPaginationControls("cancelled-appointments"); ?>
+            </div>
         </div>
     </div>
 </div>
@@ -409,6 +425,11 @@ function renderPaymentManagementTable(
 window.BASE_URL = '<?php echo BASE_URL; ?>';
 </script>
 
+<!-- Load the SortableTable.js script first -->
+<script src="<?php echo BASE_URL; ?>/app/views/scripts/SortableTable.js"></script>
+<!-- Load the PaymentManagement.js script -->
+<script src="<?php echo BASE_URL; ?>/app/views/scripts/PaymentManagement/PaymentManagement.js"></script>
+
 <style>
 .glass-card {
     backdrop-filter: blur(10px);
@@ -448,6 +469,39 @@ window.BASE_URL = '<?php echo BASE_URL; ?>';
     @apply bg-red-100 text-red-800;
 }
 
+.sort-icon-active {
+    font-size: 12px;
+    font-weight: bold;
+    color: #374151;
+}
+
+.sort-icon-active.asc::before {
+    content: '▲';
+    color: #059669;
+}
+
+.sort-icon-active.desc::before {
+    content: '▼';
+    color: #DC2626;
+}
+
+/* Active sorting state */
+.sortable-header.sorting .sort-icon-default {
+    display: none;
+}
+
+.appointment-section {
+    display: none;
+}
+
+.appointment-section.active {
+    display: block;
+}
+
+#all-section {
+    display: block;
+}
+
 @media (max-width: 768px) {
     .container {
         padding-left: 1rem;
@@ -464,3 +518,35 @@ window.BASE_URL = '<?php echo BASE_URL; ?>';
     }
 }
 </style>
+
+<script>
+function showPaymentSection(sectionName) {
+    document.querySelectorAll('.appointment-section').forEach(section => {
+        section.classList.remove('active');
+        section.style.display = 'none';
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('[id$="-btn"]').forEach(btn => {
+        btn.classList.remove('bg-nhd-blue/80', 'text-white');
+        btn.classList.add('bg-gray-200/80', 'text-gray-700');
+    });
+    
+    // Show selected section
+    const targetSection = document.getElementById(sectionName + '-section');
+    if (targetSection) {
+        targetSection.classList.add('active');
+        targetSection.style.display = 'block';
+    }
+    
+    const activeBtn = document.getElementById(sectionName + '-btn');
+    if (activeBtn) {
+        activeBtn.classList.remove('bg-gray-200/80', 'text-gray-700');
+        activeBtn.classList.add('bg-nhd-blue/80', 'text-white');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    showPaymentSection('all');
+});
+</script>

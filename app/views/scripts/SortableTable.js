@@ -35,12 +35,11 @@ function showSection(sectionName) {
     sections.forEach((section) => {
       section.style.display = "block";
     });
-    document
-      .getElementById("all-btn")
-      .classList.remove("bg-gray-200/80", "text-gray-700");
-    document
-      .getElementById("all-btn")
-      .classList.add("bg-nhd-blue/80", "text-white");
+    const allBtn = document.getElementById("all-btn");
+    if (allBtn) {
+      allBtn.classList.remove("bg-gray-200/80", "text-gray-700");
+      allBtn.classList.add("bg-nhd-blue/80", "text-white");
+    }
   } else {
     const targetSection =
       document.getElementById(sectionName + "-section") ||
@@ -63,11 +62,13 @@ function showSection(sectionName) {
 window.addEventListener("load", function () {
   const urlParams = new URLSearchParams(window.location.search);
   const filter = urlParams.get("filter");
-  if (filter) {
+  if (filter && typeof showSection === "function") {
     showSection(filter);
   } else {
-    // If no filter is specified in the URL, default to showing 'all'
-    showSection("all");
+    // If no filter is specified in the URL, default to showing 'all' only if the function exists
+    if (typeof showSection === "function" && document.getElementById("all-btn")) {
+      showSection("all");
+    }
   }
 });
 
@@ -341,7 +342,6 @@ class SortableTableManager {
         let aValue, bValue;
 
         if (isMobileView) {
-          // Mobile view sorting logic remains the same
           switch (sortKey) {
             case "DateTime":
               const aDateText =
@@ -413,23 +413,38 @@ class SortableTableManager {
             case "DeadlineDate":
               const aDueDateEl = a.querySelector(".text-sm.text-gray-600");
               const bDueDateEl = b.querySelector(".text-sm.text-gray-600");
+              
               if (aDueDateEl && bDueDateEl) {
                 const aDueText = aDueDateEl.textContent;
                 const bDueText = bDueDateEl.textContent;
-                if (aDueText.includes("Due:") && bDueText.includes("Due:")) {
-                  aValue = new Date(aDueText.replace("Due:", "").trim());
-                  bValue = new Date(bDueText.replace("Due:", "").trim());
+                
+                if (aDueText.includes("No deadline")) {
+                  aValue = new Date("9999-12-31");
+                } else if (aDueText.includes("Due:")) {
+                  const dateText = aDueText.replace("Due:", "").trim();
+                  aValue = new Date(dateText);
                 } else {
-                  aValue = aDueText.includes("Due:")
-                    ? new Date(aDueText.replace("Due:", "").trim())
-                    : new Date("9999-12-31");
-                  bValue = bDueText.includes("Due:")
-                    ? new Date(bDueText.replace("Due:", "").trim())
-                    : new Date("9999-12-31");
+                  const parsedDate = new Date(aDueText.trim());
+                  aValue = !isNaN(parsedDate.getTime()) ? parsedDate : new Date("9999-12-31");
+                }
+                
+                if (bDueText.includes("No deadline")) {
+                  bValue = new Date("9999-12-31");
+                } else if (bDueText.includes("Due:")) {
+                  const dateText = bDueText.replace("Due:", "").trim();
+                  bValue = new Date(dateText);
+                } else {
+                  const parsedDate = new Date(bDueText.trim());
+                  bValue = !isNaN(parsedDate.getTime()) ? parsedDate : new Date("9999-12-31");
                 }
               } else {
-                aValue = new Date("9999-12-31");
-                bValue = new Date("9999-12-31");
+                const aDueFallback = a.querySelector(".text-gray-400");
+                const bDueFallback = b.querySelector(".text-gray-400");
+                
+                aValue = aDueFallback && aDueFallback.textContent.includes("No deadline") ? 
+                  new Date("9999-12-31") : new Date("9999-12-31");
+                bValue = bDueFallback && bDueFallback.textContent.includes("No deadline") ? 
+                  new Date("9999-12-31") : new Date("9999-12-31");
               }
               break;
             case "PaymentMethod":
@@ -450,40 +465,24 @@ class SortableTableManager {
                 ".text-lg.font-semibold.text-nhd-brown",
               );
               if (aMobileAmountEl && bMobileAmountEl) {
-                aValue =
-                  parseFloat(
-                    aMobileAmountEl.textContent
-                      .replace("₱", "")
-                      .replace(",", ""),
-                  ) || 0;
-                bValue =
-                  parseFloat(
-                    bMobileAmountEl.textContent
-                      .replace("₱", "")
-                      .replace(",", ""),
-                  ) || 0;
+                const aText = aMobileAmountEl.textContent;
+                const bText = bMobileAmountEl.textContent;
+                
+                // Handle "Not set" case
+                aValue = aText.includes("Not set") ? 0 : parseFloat(aText.replace(/[₱,]/g, "")) || 0;
+                bValue = bText.includes("Not set") ? 0 : parseFloat(bText.replace(/[₱,]/g, "")) || 0;
               } else {
-                aValue = aMobileAmountEl
-                  ? parseFloat(
-                      aMobileAmountEl.textContent
-                        .replace("₱", "")
-                        .replace(",", ""),
-                    ) || 0
-                  : 0;
-                bValue = bMobileAmountEl
-                  ? parseFloat(
-                      bMobileAmountEl.textContent
-                        .replace("₱", "")
-                        .replace(",", ""),
-                    ) || 0
-                  : 0;
+                const aText = aMobileAmountEl?.textContent || "";
+                const bText = bMobileAmountEl?.textContent || "";
+                
+                aValue = aText.includes("Not set") ? 0 : parseFloat(aText.replace(/[₱,]/g, "")) || 0;
+                bValue = bText.includes("Not set") ? 0 : parseFloat(bText.replace(/[₱,]/g, "")) || 0;
               }
               break;
             default:
               return 0;
           }
         } else {
-          // Desktop view - use dynamic column detection
           switch (sortKey) {
             case "DateTime":
               // Look for date/time in different possible formats
@@ -520,9 +519,9 @@ class SortableTableManager {
               break;
 
             case "Status":
-              // Look for status badges
-              aValue = this.extractStatus(a);
-              bValue = this.extractStatus(b);
+              // Look for status badges (appointment status)
+              aValue = this.extractAppointmentStatus(a);
+              bValue = this.extractAppointmentStatus(b);
               break;
 
             case "Reason":
@@ -539,12 +538,9 @@ class SortableTableManager {
               break;
 
             case "PaymentStatus":
-              aValue =
-                a.querySelector(".status-badge")?.textContent.toLowerCase() ||
-                "";
-              bValue =
-                b.querySelector(".status-badge")?.textContent.toLowerCase() ||
-                "";
+              // Look for payment status badges
+              aValue = this.extractPaymentStatus(a);
+              bValue = this.extractPaymentStatus(b);
               break;
 
             case "PaymentID":
@@ -588,9 +584,30 @@ class SortableTableManager {
     }
   }
 
-  // Helper methods to extract values from different table structures
+  // Enhanced extraction methods for PaymentManagement table
   extractDateTimeValue(row) {
-    // Try different selectors for date/time
+    // Try PaymentManagement specific structure first (column 1)
+    let dateTimeCell = row.querySelector("td:nth-child(1)");
+    if (dateTimeCell) {
+      let dateText = dateTimeCell.querySelector(".font-medium")?.textContent || "";
+      let timeText = dateTimeCell.querySelector(".text-sm.text-gray-500")?.textContent || "";
+      
+      if (dateText && timeText) {
+        return new Date(dateText + " " + timeText);
+      }
+      
+      // Fallback: try to parse the entire cell content
+      let cellText = dateTimeCell.textContent.trim();
+      if (cellText) {
+        // Extract date part (should be first line)
+        let lines = cellText.split('\n').map(line => line.trim()).filter(line => line);
+        if (lines.length >= 2) {
+          return new Date(lines[0] + " " + lines[1]);
+        }
+      }
+    }
+    
+    // Original extraction methods for other table types
     let dateElement =
       row.querySelector(".bg-nhd-blue\\/10 .font-medium") ||
       row.querySelector(".bg-red-100 .font-medium") ||
@@ -619,8 +636,36 @@ class SortableTableManager {
     return new Date("1900-01-01");
   }
 
+  extractPatientName(row) {
+    // Try PaymentManagement specific structure first (column 2)
+    let patientCell = row.querySelector("td:nth-child(2)");
+    if (patientCell) {
+      let nameElement = patientCell.querySelector(".font-medium");
+      if (nameElement) {
+        return nameElement.textContent.toLowerCase().trim();
+      }
+    }
+    
+    // Original extraction methods for other table types
+    let patientElement =
+      row.querySelector("td:nth-child(2) .font-medium") || // Staff view patient column
+      row.querySelector("td:nth-child(3) .font-medium") || // Alternative position
+      row.querySelector("td:nth-child(3)"); // Revenue view
+
+    return patientElement?.textContent.toLowerCase().trim() || "";
+  }
+
   extractDoctorName(row) {
-    // Try different selectors for doctor names
+    // Try PaymentManagement specific structure first (column 3)
+    let doctorCell = row.querySelector("td:nth-child(3)");
+    if (doctorCell) {
+      let nameElement = doctorCell.querySelector(".font-medium");
+      if (nameElement) {
+        return nameElement.textContent.toLowerCase().trim();
+      }
+    }
+    
+    // Original extraction methods for other table types
     let doctorElement =
       row.querySelector("td:nth-child(3) .font-medium") || // Patient view
       row.querySelector("td:nth-child(4) .font-medium") || // Staff view
@@ -640,51 +685,17 @@ class SortableTableManager {
     return doctorElement?.textContent.toLowerCase().trim() || "";
   }
 
-  extractPatientName(row) {
-    // Try different selectors for patient names
-    let patientElement =
-      row.querySelector("td:nth-child(2) .font-medium") || // Staff view patient column
-      row.querySelector("td:nth-child(3) .font-medium") || // Alternative position
-      row.querySelector("td:nth-child(3)"); // Revenue view
-
-    return patientElement?.textContent.toLowerCase().trim() || "";
-  }
-
-  extractPatientEmail(row) {
-    // Look for email in different positions
-    let emailElement =
-      row.querySelector("td:nth-child(3) .text-sm") || // Staff view
-      row.querySelector("td:nth-child(2) .text-xs"); // Alternative
-
-    // If no direct match, search for elements containing "@"
-    if (!emailElement) {
-      const cells = row.querySelectorAll("td .text-sm");
-      for (let cell of cells) {
-        if (cell.textContent.includes("@")) {
-          emailElement = cell;
-          break;
-        }
+  extractAppointmentStatus(row) {
+    // Try PaymentManagement specific structure first (column 4)
+    let statusCell = row.querySelector("td:nth-child(4)");
+    if (statusCell) {
+      let statusElement = statusCell.querySelector(".status-badge");
+      if (statusElement) {
+        return statusElement.textContent.toLowerCase().trim();
       }
     }
-
-    return emailElement?.textContent.toLowerCase().trim() || "";
-  }
-
-  extractAppointmentType(row) {
-    // Look for appointment type spans
-    let typeElement =
-      row.querySelector("span.bg-gray-100\\/60") || // Common format
-      row.querySelector("td:nth-child(4) span") || // Patient view
-      row.querySelector("td:nth-child(5) span") || // Staff view
-      row.querySelector("td:nth-child(5)") || // Revenue view
-      row.querySelector(".font-medium") ||
-      row.querySelector("span.rounded-full");
-
-    return typeElement?.textContent.toLowerCase().trim() || "";
-  }
-
-  extractStatus(row) {
-    // Look for status badges
+    
+    // Original extraction methods for other table types
     let statusElement =
       row.querySelector("span.px-2.py-1.rounded-full") || // Common status format
       row.querySelector(".status-badge") || // Payment status
@@ -694,25 +705,37 @@ class SortableTableManager {
     return statusElement?.textContent.toLowerCase().trim() || "";
   }
 
-  extractReason(row) {
-    // Look for reason text
-    let reasonElement =
-      row.querySelector("td:nth-child(5) .text-sm") || // Staff view
-      row.querySelector("td:last-child .text-sm"); // Alternative
-
-    return reasonElement?.textContent.toLowerCase().trim() || "";
-  }
-
   extractAmount(row) {
-    // Look for amounts in different formats
+    // Try PaymentManagement specific structure first (column 5)
+    let amountCell = row.querySelector("td:nth-child(5)");
+    if (amountCell) {
+      let amountElement = amountCell.querySelector(".font-medium");
+      if (amountElement) {
+        const amountText = amountElement.textContent || "₱0";
+        
+        // Handle complex amount displays with overdue fees
+        if (amountText.includes("₱")) {
+          // Extract the main amount (first ₱ value)
+          const amountMatch = amountText.match(/₱([\d,]+\.?\d*)/);
+          if (amountMatch) {
+            const numericValue = amountMatch[1].replace(/,/g, "");
+            return parseFloat(numericValue) || 0;
+          }
+        }
+      }
+    }
+    
+    // Original extraction methods for other table types
     let amountElement =
-      row.querySelector(".text-green-600") || // Revenue view
-      row.querySelector("td:nth-child(6)") || // Revenue column
-      row.querySelector("td:nth-child(7) .font-semibold"); // Payment amount
+      row.querySelector("td:nth-child(7) .text-sm.font-semibold.text-nhd-brown") || // Primary amount
+      row.querySelector("td:nth-child(7) .text-gray-400") || // "Not set" text  
+      row.querySelector("td:nth-child(7)") || // Fallback to entire cell
+      row.querySelector(".text-lg.font-semibold.text-nhd-brown") || // Mobile view amount
+      row.querySelector(".text-green-600"); // Revenue view
 
     // If no direct match, search for elements containing "₱"
     if (!amountElement) {
-      const cells = row.querySelectorAll("td, .font-bold");
+      const cells = row.querySelectorAll("td");
       for (let cell of cells) {
         if (cell.textContent.includes("₱")) {
           amountElement = cell;
@@ -723,82 +746,40 @@ class SortableTableManager {
 
     if (amountElement) {
       const amountText = amountElement.textContent || "₱0";
-      return parseFloat(amountText.replace("₱", "").replace(",", "")) || 0;
+      
+      // Handle "Not set" case
+      if (amountText.includes("Not set")) {
+        return 0;
+      }
+      
+      // Extract numeric value from text like "₱1,250.00"
+      const amountMatch = amountText.match(/₱([\d,]+\.?\d*)/);
+      if (amountMatch) {
+        const numericValue = amountMatch[1].replace(/,/g, "");
+        return parseFloat(numericValue) || 0;
+      }
+      
+      // Fallback: remove all non-numeric characters except decimal point
+      const fallbackValue = amountText.replace(/[^0-9.]/g, "");
+      return parseFloat(fallbackValue) || 0;
     }
+    
     return 0;
   }
 
-  extractId(row, sortKey) {
-    // Extract ID numbers from different formats
-    if (sortKey === "PaymentID") {
-      let paymentElement =
-        row.querySelector("td:nth-child(1)") || row.querySelector(".font-mono");
-      if (paymentElement) {
-        const text = paymentElement.textContent || "";
-        const match = text.match(/Payment #(\d+)/) || text.match(/#(\d+)/);
-        return match ? parseInt(match[1]) : 0;
-      }
-    } else {
-      let appointmentElement =
-        row.querySelector(".font-mono") ||
-        row.querySelector("td:nth-child(1)") ||
-        row.querySelector("td:nth-child(2)");
-      if (appointmentElement) {
-        const text = appointmentElement.textContent || "";
-        const match = text.match(/#(\d+)/);
-        return match ? parseInt(match[1]) : 0;
+  extractPaymentStatus(row) {
+    // Try PaymentManagement specific structure first (column 6)
+    let paymentStatusCell = row.querySelector("td:nth-child(6)");
+    if (paymentStatusCell) {
+      let statusElement = paymentStatusCell.querySelector(".status-badge");
+      if (statusElement) {
+        return statusElement.textContent.toLowerCase().trim();
       }
     }
-    return 0;
-  }
-
-  extractPaymentMethod(row) {
-    // Look for payment method spans
-    let methodElement = row.querySelector("td:nth-child(6) span");
-
-    // If no direct match, search for elements containing payment methods
-    if (!methodElement) {
-      const cells = row.querySelectorAll("td span");
-      for (let cell of cells) {
-        const text = cell.textContent.toLowerCase();
-        if (
-          text.includes("cash") ||
-          text.includes("card") ||
-          text.includes("online") ||
-          text.includes("bank") ||
-          text.includes("credit") ||
-          text.includes("debit")
-        ) {
-          methodElement = cell;
-          break;
-        }
-      }
-    }
-
-    return methodElement?.textContent.toLowerCase().trim() || "";
-  }
-
-  extractDeadlineDate(row) {
-    // Look for deadline dates
-    let deadlineElement = row.querySelector(".text-sm.text-gray-900");
-
-    // If no direct match, search for elements containing "Due:"
-    if (!deadlineElement) {
-      const cells = row.querySelectorAll(".text-sm");
-      for (let cell of cells) {
-        if (cell.textContent.includes("Due:")) {
-          deadlineElement = cell;
-          break;
-        }
-      }
-    }
-
-    if (deadlineElement) {
-      const text = deadlineElement.textContent.replace("Due:", "").trim();
-      return new Date(text);
-    }
-
-    return new Date("9999-12-31");
+    
+    // Fallback to general status extraction
+    let statusElement = row.querySelector(".status-badge");
+    return statusElement?.textContent.toLowerCase().trim() || "";
   }
 
   updateSortIndicators(table, currentSortKey, direction) {
@@ -855,6 +836,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.navigatePage = navigatePage;
   window.handleRowsPerPageChange = handleRowsPerPageChange;
 
+  // Only call showSection if the elements exist
   if (typeof showSection === "function" && document.getElementById("all-btn")) {
     showSection("all");
   }

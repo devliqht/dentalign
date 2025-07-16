@@ -1,4 +1,6 @@
-class PaymentManagement {
+// Prevent duplicate class declarations
+if (typeof window.PaymentManagement === 'undefined') {
+  window.PaymentManagement = class PaymentManagement {
   constructor() {
     this.appointments = [];
     this.filteredAppointments = [];
@@ -6,6 +8,8 @@ class PaymentManagement {
     this.currentAppointment = null;
     this.paymentItems = [];
     this.isEditMode = false;
+    this.currentSection = 'all';
+    this.currentSort = null;
 
     this.init();
   }
@@ -13,87 +17,119 @@ class PaymentManagement {
   init() {
     this.bindEvents();
     this.loadAppointments();
-    this.loadOverdueConfig();
   }
 
   bindEvents() {
-    document
-      .getElementById("refreshDataBtn")
-      .addEventListener("click", () => this.loadAppointments());
+    // Basic functionality buttons
+    const refreshBtn = document.getElementById("refreshDataBtn");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", () => this.loadAppointments());
+    }
 
-    document
-      .getElementById("closeModal")
-      .addEventListener("click", () => this.closeModal());
-    document.getElementById("paymentModal").addEventListener("click", (e) => {
-      if (e.target.id === "paymentModal") this.closeModal();
-    });
+    const closeModalBtn = document.getElementById("closeModal");
+    if (closeModalBtn) {
+      closeModalBtn.addEventListener("click", () => this.closeModal());
+    }
 
-    document
-      .getElementById("filterStatus")
-      .addEventListener("change", () => this.applyFilters());
-    document
-      .getElementById("filterDateRange")
-      .addEventListener("change", () => this.applyFilters());
-    document
-      .getElementById("filterDoctor")
-      .addEventListener("change", () => this.applyFilters());
-    document
-      .getElementById("searchPatient")
-      .addEventListener("input", () => this.applyFilters());
+    const paymentModal = document.getElementById("paymentModal");
+    if (paymentModal) {
+      paymentModal.addEventListener("click", (e) => {
+        if (e.target.id === "paymentModal") this.closeModal();
+      });
+    }
 
-    document
-      .getElementById("addItemBtn")
-      .addEventListener("click", () => this.addPaymentItem());
-    document
-      .getElementById("savePaymentBtn")
-      .addEventListener("click", () => this.savePayment());
-    document
-      .getElementById("deletePaymentBtn")
-      .addEventListener("click", () => this.deletePayment());
-    document
-      .getElementById("markAsPaidBtn")
-      .addEventListener("click", () => this.updatePaymentStatus("Paid"));
-    document
-      .getElementById("markAsPendingBtn")
-      .addEventListener("click", () => this.updatePaymentStatus("Pending"));
+    // Filter events
+    const filterStatus = document.getElementById("filterStatus");
+    if (filterStatus) {
+      filterStatus.addEventListener("change", () => this.applyFilters());
+    }
 
-    document.getElementById("paymentStatus").addEventListener("change", (e) => {
-      this.updateQuickActionButtons(e.target.value);
-    });
+    const filterDateRange = document.getElementById("filterDateRange");
+    if (filterDateRange) {
+      filterDateRange.addEventListener("change", () => this.applyFilters());
+    }
 
-    // Overdue configuration events
-    document
-      .getElementById("editConfigBtn")
-      .addEventListener("click", () => this.showConfigForm());
-    document
-      .getElementById("saveConfigBtn")
-      .addEventListener("click", () => this.saveOverdueConfig());
-    document
-      .getElementById("cancelConfigBtn")
-      .addEventListener("click", () => this.hideConfigForm());
+    const filterDoctor = document.getElementById("filterDoctor");
+    if (filterDoctor) {
+      filterDoctor.addEventListener("change", () => this.applyFilters());
+    }
+
+    const searchPatient = document.getElementById("searchPatient");
+    if (searchPatient) {
+      searchPatient.addEventListener("input", () => this.applyFilters());
+    }
+
+    // Payment modal events
+    const addItemBtn = document.getElementById("addItemBtn");
+    if (addItemBtn) {
+      addItemBtn.addEventListener("click", () => this.addPaymentItem());
+    }
+
+    const savePaymentBtn = document.getElementById("savePaymentBtn");
+    if (savePaymentBtn) {
+      savePaymentBtn.addEventListener("click", () => this.savePayment());
+    }
+
+    const deletePaymentBtn = document.getElementById("deletePaymentBtn");
+    if (deletePaymentBtn) {
+      deletePaymentBtn.addEventListener("click", () => this.deletePayment());
+    }
+
+    const markAsPaidBtn = document.getElementById("markAsPaidBtn");
+    if (markAsPaidBtn) {
+      markAsPaidBtn.addEventListener("click", () => this.updatePaymentStatus("Paid"));
+    }
+
+    const markAsPendingBtn = document.getElementById("markAsPendingBtn");
+    if (markAsPendingBtn) {
+      markAsPendingBtn.addEventListener("click", () => this.updatePaymentStatus("Pending"));
+    }
+
+    const paymentStatus = document.getElementById("paymentStatus");
+    if (paymentStatus) {
+      paymentStatus.addEventListener("change", (e) => {
+        this.updateQuickActionButtons(e.target.value);
+      });
+    }
+
+    console.log("Events bound successfully");
   }
 
   async loadAppointments() {
     try {
       this.showLoading(true);
 
-      const response = await fetch(
-        `${window.BASE_URL}/dentalassistant/get-all-appointments-payments`,
-      );
+      const url = `${window.BASE_URL}/dentalassistant/get-all-appointments-payments`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
 
       if (data.success) {
-        this.appointments = data.appointments;
+        this.appointments = data.appointments || [];
         this.filteredAppointments = [...this.appointments];
-        this.renderAppointmentsTable();
+        this.renderAppointmentsSections();
         this.updateStats();
         this.populateFilterOptions();
       } else {
-        this.showToast("Error loading appointments: " + data.message, "error");
+        this.appointments = [];
+        this.filteredAppointments = [];
+        this.renderAppointmentsSections();
+        this.updateStats();
+        this.populateFilterOptions();
+        this.showToast("Error loading appointments: " + (data.message || "Unknown error"), "error");
       }
     } catch (error) {
       console.error("Error loading appointments:", error);
-      this.showToast("Failed to load appointments", "error");
+      this.appointments = [];
+      this.filteredAppointments = [];
+      this.renderAppointmentsSections();
+      this.updateStats();
+      this.populateFilterOptions();
+      this.showToast("Failed to load appointments. Please refresh the page.", "error");
     } finally {
       this.showLoading(false);
     }
@@ -101,16 +137,175 @@ class PaymentManagement {
 
   showLoading(show) {
     const spinner = document.getElementById("loadingSpinner");
-    const container = document.getElementById("appointments-table-content");
     const noData = document.getElementById("noDataMessage");
 
     if (show) {
       if (spinner) spinner.classList.remove("hidden");
-      if (container) container.innerHTML = "";
       if (noData) noData.classList.add("hidden");
     } else {
       if (spinner) spinner.classList.add("hidden");
+      // Make sure the 'all' section is visible after loading
+      setTimeout(() => {
+        const allSection = document.getElementById('all-section');
+        if (allSection) {
+          allSection.classList.add('active');
+          allSection.style.display = 'block';
+        }
+      }, 100);
     }
+  }
+
+  renderAppointmentsSections() {
+    this.renderAllSection();
+    this.renderOverdueSection();
+    this.renderPendingSection();
+    this.renderPaidSection();
+    this.renderCancelledSection();
+  }
+
+  renderAllSection() {
+    const appointments = this.filteredAppointments;
+    this.renderSectionTable('all', appointments, 'All Appointments');
+  }
+
+  renderOverdueSection() {
+    const appointments = this.filteredAppointments.filter(app => 
+      app.PaymentStatus === 'Overdue'
+    );
+    this.renderSectionTable('overdue', appointments, 'Overdue Appointments');
+  }
+
+  renderPendingSection() {
+    const appointments = this.filteredAppointments.filter(app => 
+      app.PaymentStatus === 'Pending'
+    );
+    this.renderSectionTable('pending', appointments, 'Pending Appointments');
+  }
+
+  renderPaidSection() {
+    const appointments = this.filteredAppointments.filter(app => 
+      app.PaymentStatus === 'Paid'
+    );
+    this.renderSectionTable('paid', appointments, 'Paid Appointments');
+  }
+
+  renderCancelledSection() {
+    const appointments = this.filteredAppointments.filter(app => 
+      app.AppointmentStatus === 'Cancelled'
+    );
+    this.renderSectionTable('cancelled', appointments, 'Cancelled Appointments');
+  }
+
+  renderSectionTable(section, appointments, title) {
+    const container = document.getElementById(`${section}-appointments-table-content`);
+    const paginationContainer = document.getElementById(`${section}-pagination-controls-container`);
+
+    if (!container) {
+      console.error(`Container not found: ${section}-appointments-table-content`);
+      return;
+    }
+
+    if (appointments.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+          <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+          <p>No ${title.toLowerCase()} found</p>
+        </div>
+      `;
+      if (paginationContainer) paginationContainer.classList.add("hidden");
+      return;
+    }
+
+    if (paginationContainer) paginationContainer.classList.remove("hidden");
+
+    const tableHTML = `
+      <div class="glass-card rounded-2xl border-gray-200 border-1 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-xl font-semibold text-nhd-blue font-family-bodoni">${title}</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full payment-table" id="${section}PaymentManagementTable" data-section="${section}-appointments">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DateTime">
+                  Date & Time 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientName">
+                  Patient 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorName">
+                  Doctor 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
+                  Appointment Status 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Amount">
+                  Amount 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PaymentStatus">
+                  Payment Status 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-body-${section}-appointments" class="bg-white divide-y divide-gray-200">
+              ${this.generateTableRows(appointments)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = tableHTML;
+
+    // Initialize SortableTable system for this section
+    setTimeout(() => {
+      this.initializeSortableTable(section);
+    }, 100);
   }
 
   renderAppointmentsTable() {
@@ -170,7 +365,17 @@ class PaymentManagement {
                     <span class="sort-icon-active hidden"></span>
                   </span>
                 </th>
-                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="TotalAmount">
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
+                  Appointment Status 
+                  <span class="sort-indicator ml-1">
+                    <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
+                      <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
+                      <path d="M6 11L4 8H8L6 11Z" fill="#9CA3AF"/>
+                    </svg>
+                    <span class="sort-icon-active hidden"></span>
+                  </span>
+                </th>
+                <th class="sortable-header px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Amount">
                   Amount 
                   <span class="sort-indicator ml-1">
                     <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
@@ -194,7 +399,7 @@ class PaymentManagement {
               </tr>
             </thead>
             <tbody id="table-body-payment-management" class="bg-white divide-y divide-gray-200">
-              ${this.generateTableRows()}
+              ${this.generateTableRows(this.filteredAppointments)}
             </tbody>
           </table>
         </div>
@@ -203,14 +408,21 @@ class PaymentManagement {
 
     container.innerHTML = tableHTML;
 
-    // Initialize pagination and sorting
+    // Initialize SortableTable system for payment management
     setTimeout(() => {
-      this.initializeTableFeatures();
+      if (window.tableManager) {
+        window.tableManager.init();
+        // Initialize pagination for payment-management
+        if (window.tableManager.paginationManager) {
+          window.tableManager.paginationManager.initializeSection("payment-management");
+        }
+      }
     }, 100);
   }
 
-  generateTableRows() {
-    return this.filteredAppointments
+  generateTableRows(appointments = null) {
+    const appointmentsList = appointments || this.filteredAppointments;
+    return appointmentsList
       .map((appointment) => {
         const date = new Date(appointment.DateTime);
         let paymentStatus = appointment.PaymentStatus || "No Payment";
@@ -239,11 +451,16 @@ class PaymentManagement {
           }
         }
 
+        // Check if appointment is cancelled to restrict actions
+        const isCancelled = appointment.AppointmentStatus === 'Cancelled';
+        const appointmentStatusClass = this.getAppointmentStatusClass(appointment.AppointmentStatus);
+
         return `
           <tr class="hover:bg-gray-50 transition-colors table-row" 
               data-patient-name="${appointment.PatientName || ""}"
               data-doctor-name="${appointment.DoctorName || ""}"
               data-payment-status="${paymentStatus}"
+              data-appointment-status="${appointment.AppointmentStatus || ""}"
               data-total-amount="${appointment.TotalAmount || 0}"
               data-date-time="${appointment.DateTime}">
             <td class="px-6 py-4 whitespace-nowrap">
@@ -263,6 +480,9 @@ class PaymentManagement {
               <div class="text-sm text-gray-500">${appointment.Specialization || ""}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm status-badge ${appointmentStatusClass}">${appointment.AppointmentStatus || "Unknown"}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-sm font-medium text-gray-900">${amountDisplay}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
@@ -271,29 +491,35 @@ class PaymentManagement {
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <div class="flex space-x-1">
                 ${
-                  appointment.PaymentID
-                    ? `
-                    <button onclick="paymentManager.openEditPaymentModal(${appointment.AppointmentID}, ${appointment.PaymentID})" 
-                            class="glass-card shadow-sm px-4 py-2 text-sm bg-green-600/80 text-white transition-colors rounded-2xl hover:bg-green-600">
-                        Edit
-                    </button>
-                `
-                    : `
-                    <button onclick="paymentManager.openAddPaymentModal(${appointment.AppointmentID})" 
-                            class="glass-card px-4 py-2 text-sm shadow-sm bg-nhd-blue/80 text-white transition-colors rounded-xl hover:bg-nhd-blue/90">
-                        Add Payment
-                    </button>
-                `
-                }
-                ${
-                  appointment.PaymentID
-                    ? `
-                    <button onclick="paymentManager.confirmDeletePayment(${appointment.PaymentID})" 
-                            class="glass-card shadow-sm px-4 py-2 text-sm bg-red-700/80 text-white transition-colors rounded-2xl hover:bg-red-800/90">
-                        Remove
-                    </button>
-                `
-                    : ""
+                  isCancelled ? `
+                    <span class="text-xs text-gray-500 italic">No actions available for cancelled appointments</span>
+                  ` : `
+                    ${
+                      appointment.PaymentID
+                        ? `
+                        <button onclick="paymentManager.openEditPaymentModal(${appointment.AppointmentID}, ${appointment.PaymentID})" 
+                                class="glass-card shadow-sm px-4 py-2 text-sm bg-green-600/80 text-white transition-colors rounded-2xl hover:bg-green-600">
+                            Edit
+                        </button>
+                    `
+                        : `
+                        <button onclick="paymentManager.openAddPaymentModal(${appointment.AppointmentID})" 
+                                class="glass-card px-4 py-2 text-sm shadow-sm bg-nhd-blue/80 text-white transition-colors rounded-xl hover:bg-nhd-blue/90">
+                            Add Payment
+                        </button>
+                    `
+                    }
+                    ${
+                      appointment.PaymentID
+                        ? `
+                        <button onclick="paymentManager.confirmDeletePayment(${appointment.PaymentID})" 
+                                class="glass-card shadow-sm px-4 py-2 text-sm bg-red-700/80 text-white transition-colors rounded-2xl hover:bg-red-800/90">
+                            Remove
+                        </button>
+                    `
+                        : ""
+                    }
+                  `
                 }
               </div>
             </td>
@@ -301,6 +527,23 @@ class PaymentManagement {
         `;
       })
       .join("");
+  }
+
+  getAppointmentStatusClass(status) {
+    switch (status?.toLowerCase()) {
+      case 'confirmed':
+        return 'status-confirmed bg-green-100 text-green-800';
+      case 'pending':
+        return 'status-pending bg-yellow-100 text-yellow-800';
+      case 'cancelled':
+        return 'status-cancelled bg-red-100 text-red-800';
+      case 'completed':
+        return 'status-completed bg-blue-100 text-blue-800';
+      case 'rescheduled':
+        return 'status-rescheduled bg-purple-100 text-purple-800';
+      default:
+        return 'status-unknown bg-gray-100 text-gray-800';
+    }
   }
 
   updateStats() {
@@ -428,7 +671,7 @@ class PaymentManagement {
       return true;
     });
 
-    this.renderAppointmentsTable();
+    this.renderAppointmentsSections();
     this.updateStats();
 
     // Refresh pagination and sorting after filtering
@@ -1087,7 +1330,6 @@ class PaymentManagement {
     document.getElementById("paymentModal").classList.add("hidden");
     document.body.style.overflow = "auto";
 
-    // Reset modal state
     this.currentPayment = null;
     this.currentAppointment = null;
     this.paymentItems = [];
@@ -1102,270 +1344,85 @@ class PaymentManagement {
     }
   }
 
-  initializeTableFeatures() {
-    // Initialize the global table manager for sorting
-    if (window.tableManager) {
-      window.tableManager.init();
-
-      // Initialize pagination for the payment-management section
-      if (window.tableManager.paginationManager) {
-        window.tableManager.paginationManager.initializeSection(
-          "payment-management",
-        );
-        window.tableManager.paginationManager.refreshPagination(
-          "payment-management",
-        );
-      }
-    }
-
-    // Keep our custom sorting for payment-specific functionality
-    const table = document.getElementById("paymentManagementTable");
-    if (table) {
-      const headers = table.querySelectorAll(".sortable-header");
-
-      headers.forEach((header) => {
-        const sortable = header.dataset.sort;
-        if (sortable) {
-          header.addEventListener("click", () => {
-            this.sortTable(sortable);
-            // Refresh pagination after sorting
-            if (window.tableManager && window.tableManager.paginationManager) {
-              window.tableManager.paginationManager.refreshPagination(
-                "payment-management",
-              );
-            }
-          });
-        }
-      });
-    }
-  }
-
-  sortTable(sortBy) {
-    const table = document.getElementById("paymentManagementTable");
-    const tbody = table.querySelector("#table-body-payment-management");
-    const rows = Array.from(tbody.children);
-
-    // Determine current sort direction
-    const header = table.querySelector(`[data-sort="${sortBy}"]`);
-    const currentDirection = header.getAttribute("data-direction") || "asc";
-    const newDirection = currentDirection === "asc" ? "desc" : "asc";
-    header.setAttribute("data-direction", newDirection);
-
-    rows.sort((rowA, rowB) => {
-      let valueA, valueB;
-
-      switch (sortBy) {
-        case "DateTime":
-          valueA = new Date(rowA.getAttribute("data-date-time"));
-          valueB = new Date(rowB.getAttribute("data-date-time"));
-          break;
-        case "PatientName":
-          valueA = (rowA.getAttribute("data-patient-name") || "").toLowerCase();
-          valueB = (rowB.getAttribute("data-patient-name") || "").toLowerCase();
-          break;
-        case "DoctorName":
-          valueA = (rowA.getAttribute("data-doctor-name") || "").toLowerCase();
-          valueB = (rowB.getAttribute("data-doctor-name") || "").toLowerCase();
-          break;
-        case "TotalAmount":
-          valueA = parseFloat(rowA.getAttribute("data-total-amount")) || 0;
-          valueB = parseFloat(rowB.getAttribute("data-total-amount")) || 0;
-          break;
-        case "PaymentStatus":
-          valueA = (
-            rowA.getAttribute("data-payment-status") || ""
-          ).toLowerCase();
-          valueB = (
-            rowB.getAttribute("data-payment-status") || ""
-          ).toLowerCase();
-          break;
-        default:
-          return 0;
-      }
-
-      let comparison = 0;
-      if (valueA < valueB) comparison = -1;
-      if (valueA > valueB) comparison = 1;
-
-      return newDirection === "asc" ? comparison : -comparison;
-    });
-
-    // Re-append sorted rows to the table body
-    tbody.innerHTML = "";
-    rows.forEach((row) => tbody.appendChild(row));
-
-    // Update sort indicators
-    this.updateSortIndicators(header, newDirection);
-  }
-
-  updateSortIndicators(activeHeader, direction) {
-    const table = document.getElementById("paymentManagementTable");
-    const headers = table.querySelectorAll(".sortable-header");
-
-    // Reset only non-active headers
-    headers.forEach((header) => {
-      if (header !== activeHeader) {
-        header.removeAttribute("data-direction");
-      }
-      const defaultIcon = header.querySelector(".sort-icon-default");
-      const activeIcon = header.querySelector(".sort-icon-active");
-
-      if (header === activeHeader) {
-        // Show active indicator for current header
-        if (defaultIcon) defaultIcon.style.display = "none";
-        if (activeIcon) {
-          activeIcon.style.display = "inline-block";
-          activeIcon.innerHTML = direction === "asc" ? "↑" : "↓";
-        }
-      } else {
-        // Show default indicator for other headers
-        if (defaultIcon) defaultIcon.style.display = "inline-block";
-        if (activeIcon) activeIcon.style.display = "none";
-      }
-    });
-  }
-
-  async loadOverdueConfig() {
-    try {
-      const response = await fetch(
-        `${window.BASE_URL}/dentalassistant/get-overdue-config`,
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        this.currentConfig = data.config;
-        this.updateConfigDisplay(data.config);
-      } else {
-        console.error("Error loading overdue config:", data.message);
-      }
-    } catch (error) {
-      console.error("Error loading overdue config:", error);
-    }
-  }
-
-  updateConfigDisplay(config) {
-    document.getElementById("currentPercentage").textContent =
-      `${parseFloat(config.OverduePercentage).toFixed(2)}%`;
-    document.getElementById("currentGracePeriod").textContent =
-      `${config.GracePeriodDays} days`;
-
-    if (config.UpdatedAt) {
-      const updatedDate = new Date(config.UpdatedAt);
-      document.getElementById("lastUpdated").textContent =
-        updatedDate.toLocaleDateString() +
-        " " +
-        updatedDate.toLocaleTimeString();
-    } else {
-      document.getElementById("lastUpdated").textContent = "Never";
-    }
-  }
-
-  showConfigForm() {
-    const configDisplay = document.getElementById("configDisplay");
-    const configForm = document.getElementById("configForm");
-
-    // Populate form with current values
-    if (this.currentConfig) {
-      document.getElementById("overduePercentage").value =
-        this.currentConfig.OverduePercentage;
-      document.getElementById("gracePeriodDays").value =
-        this.currentConfig.GracePeriodDays;
-      document.getElementById("configName").value =
-        this.currentConfig.ConfigName || "Updated Configuration";
-    }
-
-    configDisplay.classList.add("hidden");
-    configForm.classList.remove("hidden");
-  }
-
-  hideConfigForm() {
-    const configDisplay = document.getElementById("configDisplay");
-    const configForm = document.getElementById("configForm");
-
-    configDisplay.classList.remove("hidden");
-    configForm.classList.add("hidden");
-  }
-
-  async saveOverdueConfig() {
-    if (
-      !confirm(
-        "Are you sure you want to save the overdue configuration changes? This will affect all future overdue calculations.",
-      )
-    ) {
+  initializeSortableTable(section) {
+    const tableId = `${section}PaymentManagementTable`;
+    const table = document.getElementById(tableId);
+    
+    if (!table) {
+      console.error(`Table not found: ${tableId}`);
       return;
     }
 
-    try {
-      const overduePercentage = parseFloat(
-        document.getElementById("overduePercentage").value,
-      );
-      const gracePeriodDays = parseInt(
-        document.getElementById("gracePeriodDays").value,
-      );
-      const configName = document.getElementById("configName").value;
+    console.log(`Initializing sortable table for section: ${section}`);
+    console.log(`Table manager available:`, !!window.tableManager);
+    
+    // Initialize the global SortableTable manager if it exists
+    if (window.tableManager) {
+      console.log('Initializing table manager...');
+      window.tableManager.init();
+    } else {
+      console.warn('SortableTable manager not found. Retrying in 500ms...');
+      setTimeout(() => this.initializeSortableTable(section), 500);
+      return;
+    }
 
-      // Validate input
-      if (
-        isNaN(overduePercentage) ||
-        overduePercentage < 0 ||
-        overduePercentage > 100
-      ) {
-        this.showToast("Overdue percentage must be between 0 and 100", "error");
-        return;
-      }
+    const paginationContainer = document.getElementById(`${section}-pagination-controls-container`);
+    if (paginationContainer) {
+      paginationContainer.classList.remove("hidden");
+      console.log(`Pagination container shown for ${section}`);
+    } else {
+      console.warn(`Pagination container not found: ${section}-pagination-controls-container`);
+    }
 
-      if (
-        isNaN(gracePeriodDays) ||
-        gracePeriodDays < 0 ||
-        gracePeriodDays > 365
-      ) {
-        this.showToast("Grace period must be between 0 and 365 days", "error");
-        return;
-      }
+    if (window.tableManager && window.tableManager.paginationManager) {
+      const sectionId = `${section}-appointments`;
+      console.log(`Initializing pagination for section: ${sectionId}`);
+      window.tableManager.paginationManager.initializeSection(sectionId);
+    }
 
-      if (!configName.trim()) {
-        this.showToast("Configuration name is required", "error");
-        return;
-      }
+    console.log(`Initialized SortableTable for section: ${section}`);
+  }
 
-      const response = await fetch(
-        `${window.BASE_URL}/dentalassistant/update-overdue-config`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            configName: configName.trim(),
-            overduePercentage: overduePercentage,
-            gracePeriodDays: gracePeriodDays,
-          }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        this.showToast("Overdue configuration updated successfully", "success");
-        this.hideConfigForm();
-        this.loadOverdueConfig(); // Reload to get updated data
-        this.loadAppointments(); // Reload appointments to recalculate overdue amounts
-      } else {
-        this.showToast(
-          "Error updating configuration: " + data.message,
-          "error",
-        );
-      }
-    } catch (error) {
-      console.error("Error saving overdue config:", error);
-      this.showToast("Failed to save configuration", "error");
+  getSectionAppointments(section) {
+    switch(section) {
+      case 'all':
+        return this.filteredAppointments;
+      case 'overdue':
+        return this.filteredAppointments.filter(app => app.PaymentStatus === 'Overdue');
+      case 'pending':
+        return this.filteredAppointments.filter(app => app.PaymentStatus === 'Pending');
+      case 'paid':
+        return this.filteredAppointments.filter(app => app.PaymentStatus === 'Paid');
+      case 'cancelled':
+        return this.filteredAppointments.filter(app => app.AppointmentStatus === 'Cancelled');
+      default:
+        return this.filteredAppointments;
     }
   }
+
+}
+
+// Make the class available globally
+window.PaymentManagement = window.PaymentManagement || PaymentManagement;
 }
 
 // Initialize payment manager when DOM is ready
 let paymentManager;
 
 document.addEventListener("DOMContentLoaded", function () {
-  paymentManager = new PaymentManagement();
+  // Add a small delay to ensure all elements are properly loaded
+  setTimeout(() => {
+    console.log("Initializing PaymentManagement...");
+    console.log("SortableTable manager available:", !!window.tableManager);
+    
+    paymentManager = new window.PaymentManagement();
+    
+    // Initialize SortableTable system after PaymentManagement is loaded
+    if (window.tableManager) {
+      console.log("Initializing SortableTable system...");
+      window.tableManager.init();
+    } else {
+      console.warn("SortableTable system not available");
+    }
+  }, 200);
 });
