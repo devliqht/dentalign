@@ -74,8 +74,15 @@ let allAppointments = <?php echo json_encode($upcomingAppointments); ?>;
 
 </script>
 <script>
+// Add this function to handle timezone-safe date formatting
+function getLocalDateString(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
-    // ===== START: NEW CODE FOR BLOCK SCHEDULE FEATURE =====
+// ===== START: NEW CODE FOR BLOCK SCHEDULE FEATURE =====
 
 // A constant array of your clinic's operating hours in a format the database expects.
 const clinicHours = [
@@ -117,6 +124,45 @@ function closeBlockScheduleModal() {
 }
 
 /**
+ * Handles the submission of the "Block Schedule" form.
+ */
+async function submitBlockedSlots(event) {
+    event.preventDefault();
+    
+    // FIX: Use getLocalDateString instead of toISOString
+    const dateString = getLocalDateString(selectedDate);
+    const checkedBoxes = document.querySelectorAll('#blockScheduleForm input[type="checkbox"]:checked');
+    
+    const timesToBlock = Array.from(checkedBoxes).map(cb => cb.value);
+
+    const apiUrl = `${window.BASE_URL}/doctor/update-blocked-slots`;
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: dateString, times: timesToBlock })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            closeBlockScheduleModal();
+            
+            // Refresh the view
+            loadAppointmentsForDate(selectedDate);
+            renderCalendar();
+            
+            alert('Availability updated successfully!');
+        } else {
+            alert(result.message || 'Failed to update availability.');
+        }
+    } catch (error) {
+        console.error("Error submitting blocked slots:", error);
+        alert('A network error occurred.');
+    }
+}
+
+/**
  * Fetches availability for the selected date and populates the modal's checkboxes.
  * It will disable slots that are already booked and check slots that are already blocked.
  * @param {Date} date - The date object for which to load slots.
@@ -125,9 +171,9 @@ async function loadSlotsForModal(date) {
     const container = document.getElementById('time-slot-checkboxes');
     container.innerHTML = `<div class="text-center col-span-full py-4">Loading slots...</div>`;
 
-    const dateString = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    // FIX: Use getLocalDateString instead of toISOString
+    const dateString = getLocalDateString(date);
     
-    // Assumes BASE_URL is a global variable, which is consistent with your other JS files.
     const apiUrl = `${window.BASE_URL}/doctor/get-availability?date=${dateString}`;
 
     try {
@@ -141,7 +187,6 @@ async function loadSlotsForModal(date) {
                 const isBlocked = data.blocked_times.includes(time);
                 const isBooked = data.booked_times.includes(time);
                 
-                // Format the time for user-friendly display (e.g., "8:00 AM")
                 const timeFormatted = new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
                 const slotHtml = `
@@ -166,47 +211,5 @@ async function loadSlotsForModal(date) {
         container.innerHTML = `<div class="text-center col-span-full py-4 text-red-500">A network error occurred.</div>`;
     }
 }
-
-/**
- * Handles the submission of the "Block Schedule" form.
- * It sends the list of checked time slots to the backend.
- * @param {Event} event - The form submission event.
- */
-async function submitBlockedSlots(event) {
-    event.preventDefault();
-    
-    const dateString = selectedDate.toISOString().split('T')[0];
-    const checkedBoxes = document.querySelectorAll('#blockScheduleForm input[type="checkbox"]:checked');
-    
-    const timesToBlock = Array.from(checkedBoxes).map(cb => cb.value);
-
-    const apiUrl = `${window.BASE_URL}/doctor/update-blocked-slots`;
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateString, times: timesToBlock })
-        });
-        const result = await response.json();
-
-        if (result.success) {
-            closeBlockScheduleModal();
-            
-            // This is the key integration point!
-            // We re-run your existing functions to refresh the view with the new data.
-            loadAppointmentsForDate(selectedDate); // Refreshes the right-side appointment list.
-            renderCalendar(); // Redraws the calendar (useful if you add a "blocked" indicator later).
-            
-            alert('Availability updated successfully!');
-        } else {
-            alert(result.message || 'Failed to update availability.');
-        }
-    } catch (error) {
-        console.error("Error submitting blocked slots:", error);
-        alert('A network error occurred.');
-    }
-}
-// ===== END: NEW CODE FOR BLOCK SCHEDULE FEATURE =====
 </script>
 
