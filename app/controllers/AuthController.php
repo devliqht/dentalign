@@ -16,7 +16,7 @@ class AuthController extends Controller
     public function DisplayLoginPage()
     {
         if ($this->isAuthenticated()) {
-            $this->redirect(BASE_URL . "/home");
+            $this->redirectToUserDashboard();
         }
 
         $data = [
@@ -38,6 +38,49 @@ class AuthController extends Controller
         unset($_SESSION["error"]);
 
         $this->view("pages/Login", $data, $layoutConfig);
+    }
+
+    private function redirectToUserDashboard()
+    {
+        if (!$this->isAuthenticated()) {
+            $this->redirect(BASE_URL . "/login");
+            return;
+        }
+
+        if ($this->hasRole("ClinicStaff")) {
+            if (isset($_SESSION["staff_type"])) {
+                if ($this->hasStaffType("Doctor")) {
+                    $this->redirect(BASE_URL . "/doctor/dashboard");
+                } elseif ($this->hasStaffType("DentalAssistant")) {
+                    $this->redirect(BASE_URL . "/dentalassistant/report");
+                } else {
+                    $this->redirect(BASE_URL . "/doctor/dashboard");
+                }
+            } else {
+                $staffQuery = "SELECT StaffType FROM CLINIC_STAFF WHERE ClinicStaffID = ?";
+                $stmt = $this->conn->prepare($staffQuery);
+                $stmt->bind_param("i", $_SESSION["user_id"]);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $row = $result->fetch_assoc();
+                    $_SESSION["staff_type"] = $row["StaffType"];
+                    
+                    if ($_SESSION["staff_type"] === "Doctor") {
+                        $this->redirect(BASE_URL . "/doctor/dashboard");
+                    } elseif ($_SESSION["staff_type"] === "DentalAssistant") {
+                        $this->redirect(BASE_URL . "/dentalassistant/report");
+                    } else {
+                        $this->redirect(BASE_URL . "/doctor/dashboard");
+                    }
+                } else {
+                    $this->redirect(BASE_URL . "/home");
+                }
+            }
+        } else {
+            $this->redirect(BASE_URL . "/patient/dashboard");
+        }
     }
 
     public function LoginUser()
@@ -108,7 +151,7 @@ class AuthController extends Controller
     public function DisplaySignupPage()
     {
         if ($this->isAuthenticated()) {
-            $this->redirect(BASE_URL . "/home");
+            $this->redirectToUserDashboard();
         }
 
         $data = [
