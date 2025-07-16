@@ -1,6 +1,7 @@
 <?php
 
 require_once "OverdueConfig.php";
+require_once "ServicePrice.php";
 
 class Payment
 {
@@ -447,7 +448,6 @@ class Payment
         $result = $stmt->get_result()->fetch_assoc();
 
         if ($result["count"] == 0) {
-            // Get appointment type to create default payment item
             $appointmentQuery = "SELECT a.AppointmentType FROM Payments p 
                                JOIN Appointment a ON p.AppointmentID = a.AppointmentID 
                                WHERE p.PaymentID = ?";
@@ -459,18 +459,47 @@ class Payment
             if ($appointmentResult) {
                 $appointmentType = $appointmentResult["AppointmentType"];
 
-                // Determine price based on appointment type
-                $prices = [
-                    "Consultation" => 75.0,
-                    "Cleaning" => 120.0,
-                    "Checkup" => 95.0,
-                    "Filling" => 180.0,
-                    "Root Canal" => 850.0,
-                    "Extraction" => 150.0,
-                    "Orthodontics" => 2500.0,
-                ];
+                // Try to get service prices from the database, fall back to hard-coded prices
+                $amount = 100.0; // Default fallback amount
+                try {
+                    // Check if ServicePrices table exists
+                    $tableCheck = $this->conn->query("SHOW TABLES LIKE 'ServicePrices'");
+                    if ($tableCheck && $tableCheck->num_rows > 0) {
+                        $servicePriceModel = new ServicePrice($this->conn);
+                        $servicePrices = $servicePriceModel->getServicePricesArray();
+                        $amount = $servicePrices[$appointmentType] ?? 100.0;
+                    } else {
+                        // Fallback to hard-coded prices if ServicePrices table doesn't exist
+                        $fallbackPrices = [
+                            "Consultation" => 75.0,
+                            "Cleaning" => 120.0,
+                            "Checkup" => 95.0,
+                            "Filling" => 180.0,
+                            "Root Canal" => 850.0,
+                            "Extraction" => 150.0,
+                            "Orthodontics" => 2500.0,
+                            "Emergency" => 200.0,
+                            "Follow up" => 50.0,
+                        ];
+                        $amount = $fallbackPrices[$appointmentType] ?? 100.0;
+                    }
+                } catch (Exception $e) {
+                    // If there's any error with ServicePrice, use fallback prices
+                    error_log("Error loading service prices, using fallback: " . $e->getMessage());
+                    $fallbackPrices = [
+                        "Consultation" => 75.0,
+                        "Cleaning" => 120.0,
+                        "Checkup" => 95.0,
+                        "Filling" => 180.0,
+                        "Root Canal" => 850.0,
+                        "Extraction" => 150.0,
+                        "Orthodontics" => 2500.0,
+                        "Emergency" => 200.0,
+                        "Follow up" => 50.0,
+                    ];
+                    $amount = $fallbackPrices[$appointmentType] ?? 100.0;
+                }
 
-                $amount = $prices[$appointmentType] ?? 100.0;
                 $description =
                     $appointmentType === "Consultation"
                         ? "General Consultation"
@@ -478,7 +507,11 @@ class Payment
                             ? "Dental Cleaning"
                             : ($appointmentType === "Checkup"
                                 ? "Routine Checkup"
-                                : $appointmentType . " Service"));
+                                : ($appointmentType === "Emergency"
+                                    ? "Emergency Service"
+                                    : ($appointmentType === "Follow up"
+                                        ? "Follow-up Visit"
+                                        : $appointmentType . " Service"))));
 
                 // Insert default payment item
                 $insertQuery = "INSERT INTO PaymentItems (PaymentID, Description, Amount, Quantity, Total) 

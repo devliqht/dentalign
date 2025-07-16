@@ -347,6 +347,11 @@ class PatientController extends Controller
         $doctor = new Doctor($this->conn);
         $doctors = $doctor->getAllDoctors();
 
+        // Get active service types for appointment types
+        require_once "app/models/ServicePrice.php";
+        $servicePrice = new ServicePrice($this->conn);
+        $serviceTypes = $servicePrice->getActiveServices();
+
         // get doctor time slots if doctor and time selected
         $timeSlots = [];
         if (isset($_GET["doctor_id"]) && isset($_GET["date"])) {
@@ -360,6 +365,7 @@ class PatientController extends Controller
         $data = [
             "user" => $user,
             "doctors" => $doctors,
+            "serviceTypes" => $serviceTypes,
             "timeSlots" => $timeSlots,
             "selectedDoctorId" => $_GET["doctor_id"] ?? "",
             "selectedDate" => $_GET["date"] ?? "",
@@ -969,8 +975,12 @@ class PatientController extends Controller
         }
 
         // Create appointment datetime
-        $appointmentDateTime =
-            $data["appointment_date"] . " " . $data["appointment_time"] . ":00";
+        $appointmentTime = $data["appointment_time"];
+        // Check if time already includes seconds, if not add them
+        if (substr_count($appointmentTime, ':') === 1) {
+            $appointmentTime .= ':00';
+        }
+        $appointmentDateTime = $data["appointment_date"] . " " . $appointmentTime;
 
         error_log("Appointment DateTime: " . $appointmentDateTime);
 
@@ -1071,11 +1081,12 @@ class PatientController extends Controller
             $this->redirectBack("Invalid appointment or unauthorized access");
         }
 
-        $newDateTime =
-            $data["new_appointment_date"] .
-            " " .
-            $data["new_appointment_time"] .
-            ":00";
+        $newAppointmentTime = $data["new_appointment_time"];
+        // Check if time already includes seconds, if not add them
+        if (substr_count($newAppointmentTime, ':') === 1) {
+            $newAppointmentTime .= ':00';
+        }
+        $newDateTime = $data["new_appointment_date"] . " " . $newAppointmentTime;
 
         $success = $appointment->rescheduleAppointment(
             $data["appointment_id"],

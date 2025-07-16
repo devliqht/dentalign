@@ -145,93 +145,40 @@
                             <input type="hidden" id="appointment_type" name="appointment_type" value="">
                             
                             <div id="appointment-types-container" class="flex flex-wrap gap-3 w-full">
-                                <!-- Consultation -->
+                                <?php 
+                                // Icon mapping for service types
+                                $serviceIcons = [
+                                    'Consultation' => 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z',
+                                    'Cleaning' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                                    'Filling' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+                                    'Root Canal' => 'M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z',
+                                    'Extraction' => 'M6 18L18 6M6 6l12 12',
+                                    'Orthodontics' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+                                    'Emergency' => 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+                                    'Follow-up' => 'M9 5l7 7-7 7',
+                                    'Follow up' => 'M9 5l7 7-7 7',
+                                    'Checkup' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                                    'Treatment' => 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z',
+                                    'Surgery' => 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v-4a6 6 0 112 0v4a2 2 0 100 4'
+                                ];
+                                
+                                // Default icon for unknown service types
+                                $defaultIcon = 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+                                
+                                foreach ($serviceTypes as $service): 
+                                    $serviceName = $service['ServiceName'];
+                                    $icon = $serviceIcons[$serviceName] ?? $defaultIcon;
+                                ?>
                                 <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-200 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Consultation">
+                                     data-type="<?php echo htmlspecialchars($serviceName); ?>">
                                     <div class="flex items-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo $icon; ?>"></path>
                                         </svg>
-                                        <span>Consultation</span>
+                                        <span><?php echo htmlspecialchars($serviceName); ?></span>
                                     </div>
                                 </div>
-                                
-                                <!-- Cleaning -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Cleaning">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        <span>Cleaning</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Filling -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Filling">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                        <span>Filling</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Root Canal -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Root Canal">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        <span>Root Canal</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Extraction -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Extraction">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                        <span>Extraction</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Orthodontics -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Orthodontics">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                        </svg>
-                                        <span>Orthodontics</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Emergency -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Emergency">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                        </svg>
-                                        <span>Emergency</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Follow-up -->
-                                <div class="glass-card shadow-sm px-4 py-3 text-sm font-medium text-gray-700 border border-gray-75 rounded-2xl hover:bg-nhd-brown/85 hover:text-white hover:border-nhd-brown transition-all duration-75 focus:outline-none cursor-pointer" 
-                                     data-type="Follow-up">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                        </svg>
-                                        <span>Follow-up</span>
-                                    </div>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                             
                             <!-- Selected Appointment Type Display -->
@@ -315,3 +262,9 @@ window.serverMessages = {
 };
 </script>
 
+<script src="<?php echo BASE_URL; ?>/app/views/scripts/AppointmentPages/BookAppointments.js"></script>
+
+<?php
+// Set additional scripts for the layout
+$additionalScripts = '';
+?>

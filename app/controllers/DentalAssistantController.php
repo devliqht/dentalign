@@ -124,6 +124,36 @@ class DentalAssistantController extends Controller
         );
     }
 
+    public function configuration()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        $data = [
+            "user" => $this->getAuthUser(),
+        ];
+
+        $layoutConfig = [
+            "title" => "Configuration",
+            "hideHeader" => false,
+            "hideFooter" => false,
+            "additionalScripts" =>
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/Toast.js"></script>' .
+                '<script src="' .
+                BASE_URL .
+                '/app/views/scripts/PaymentManagement/ServicePriceManagement.js"></script>',
+        ];
+
+        $this->view(
+            "pages/staff/dentalassistant/Configuration",
+            $data,
+            $layoutConfig
+        );
+    }
+
     public function getAllAppointmentsPayments()
     {
         $this->requireAuth();
@@ -139,7 +169,7 @@ class DentalAssistantController extends Controller
                     a.DateTime,
                     a.AppointmentType,
                     a.Reason,
-                    'Confirmed' as AppointmentStatus,
+                    a.Status as AppointmentStatus,
                     CONCAT(p_user.FirstName, ' ', p_user.LastName) as PatientName,
                     p_user.Email as PatientEmail,
                     CONCAT(d_user.FirstName, ' ', d_user.LastName) as DoctorName,
@@ -1599,8 +1629,7 @@ class DentalAssistantController extends Controller
                                 $appointmentData["PatientID"]
                             )
                         ) {
-                            $appointmentReport->patientRecordID =
-                                $patientRecord->patientRecordID;
+                            $appointmentReport->patientRecordID = $patientRecord->recordID;
                             $appointmentReport->appointmentID = $appointmentId;
                             $appointmentReport->oralNotes = $oralNotes;
                             $appointmentReport->diagnosis = "";
@@ -1637,5 +1666,289 @@ class DentalAssistantController extends Controller
                     "An error occurred while updating the appointment doctor",
             ]);
         }
+    }
+
+    // Service Price Management Methods
+    public function getServicePrices()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        header("Content-Type: application/json");
+
+        try {
+            require_once "app/models/ServicePrice.php";
+            $servicePriceModel = new ServicePrice($this->conn);
+            $servicePrices = $servicePriceModel->getAllServices();
+
+            echo json_encode([
+                "success" => true,
+                "services" => $servicePrices,
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Error fetching service prices: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function createServicePrice()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $serviceName = $data["serviceName"] ?? "";
+            $servicePrice = $data["servicePrice"] ?? 0;
+            $isActive = $data["isActive"] ?? 1;
+
+            if (empty($serviceName) || $servicePrice <= 0) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Service name and valid price are required",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/ServicePrice.php";
+            $servicePriceModel = new ServicePrice($this->conn);
+            $servicePriceModel->serviceName = $serviceName;
+            $servicePriceModel->servicePrice = $servicePrice;
+            $servicePriceModel->isActive = $isActive;
+
+            if ($servicePriceModel->create()) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Service price created successfully",
+                    "serviceId" => $servicePriceModel->servicePriceID,
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to create service price",
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Error creating service price: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function updateServicePrice()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $servicePriceID = $data["servicePriceID"] ?? null;
+            $serviceName = $data["serviceName"] ?? "";
+            $servicePrice = $data["servicePrice"] ?? 0;
+            $isActive = $data["isActive"] ?? 1;
+
+            if (!$servicePriceID || empty($serviceName) || $servicePrice <= 0) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Service ID, name, and valid price are required",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/ServicePrice.php";
+            $servicePriceModel = new ServicePrice($this->conn);
+
+            if ($servicePriceModel->updateService($servicePriceID, $serviceName, $servicePrice, $isActive)) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Service price updated successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to update service price",
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Error updating service price: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function deleteServicePrice()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $servicePriceID = $data["servicePriceID"] ?? null;
+
+            if (!$servicePriceID) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Service ID is required",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/ServicePrice.php";
+            $servicePriceModel = new ServicePrice($this->conn);
+
+            if ($servicePriceModel->deleteService($servicePriceID)) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Service price deleted successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to delete service price",
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Error deleting service price: " . $e->getMessage(),
+            ]);
+        }
+        exit();
+    }
+
+    public function toggleServicePriceStatus()
+    {
+        $this->requireAuth();
+        $this->requireRole("ClinicStaff");
+        $this->requireStaffType("DentalAssistant");
+
+        if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+            header("HTTP/1.1 405 Method Not Allowed");
+            echo json_encode([
+                "success" => false,
+                "message" => "Method not allowed",
+            ]);
+            exit();
+        }
+
+        header("Content-Type: application/json");
+
+        $rawInput = file_get_contents("php://input");
+        $data = json_decode($rawInput, true);
+
+        if (!$data) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Invalid JSON data: " . json_last_error_msg(),
+            ]);
+            exit();
+        }
+
+        try {
+            $servicePriceID = $data["servicePriceID"] ?? null;
+
+            if (!$servicePriceID) {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Service ID is required",
+                ]);
+                exit();
+            }
+
+            require_once "app/models/ServicePrice.php";
+            $servicePriceModel = new ServicePrice($this->conn);
+
+            if ($servicePriceModel->toggleServiceStatus($servicePriceID)) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Service status toggled successfully",
+                ]);
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "message" => "Failed to toggle service status",
+                ]);
+            }
+        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "message" => "Error toggling service status: " . $e->getMessage(),
+            ]);
+        }
+        exit();
     }
 }

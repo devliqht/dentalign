@@ -45,7 +45,7 @@ class AuthController extends Controller
         if (!$this->isAuthenticated()) {
             $this->redirect(BASE_URL . "/login");
             return;
-        }
+        }   
 
         if ($this->hasRole("ClinicStaff")) {
             if (isset($_SESSION["staff_type"])) {

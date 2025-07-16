@@ -89,6 +89,11 @@
                             "label" => "Payment Management",
                         ],
                         [
+                            "url" => "/dentalassistant/configuration",
+                            "icon" => "settings",
+                            "label" => "Configuration",
+                        ],
+                        [
                             "url" => "/dentalassistant/appointment-history",
                             "icon" => "clock",
                             "label" => "Appointment History",
