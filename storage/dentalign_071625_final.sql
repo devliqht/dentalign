@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 16, 2025 at 04:04 PM
+-- Generation Time: Jul 16, 2025 at 04:44 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -76,7 +76,10 @@ INSERT INTO `appointment` (`AppointmentID`, `PatientID`, `DoctorID`, `DateTime`,
 (53, 1, 3, '2025-07-18 11:00:00', 'Root Canal', 'tqetqtgetgfsgs', '2025-07-16 11:26:06', 'Pending'),
 (54, 1, 3, '2025-07-18 08:00:00', 'Root Canal', 'asfagyagafgasga', '2025-07-16 11:26:35', 'Pending'),
 (55, 1, 2, '2025-07-18 08:00:00', 'Emergency', 'asfagaegaegag', '2025-07-16 11:26:50', 'Approved'),
-(56, 1, 3, '2025-07-18 13:00:00', 'Hello', 'sdgbsgsgsgg', '2025-07-16 11:36:31', 'Pending');
+(56, 1, 3, '2025-07-18 13:00:00', 'Hello', 'sdgbsgsgsgg', '2025-07-16 11:36:31', 'Pending'),
+(57, 1, 3, '2025-07-22 10:00:00', 'Hello', 'asfdasgvsafsa', '2025-07-16 14:13:06', 'Pending'),
+(58, 16, 3, '2025-07-18 12:00:00', 'Checkup', 'I need checkupp', '2025-07-16 14:40:08', 'Pending'),
+(59, 16, 2, '2025-07-20 08:00:00', 'Cleaning', 'Dr. Matthewww', '2025-07-16 14:40:27', 'Pending');
 
 --
 -- Triggers `appointment`
@@ -158,7 +161,10 @@ INSERT INTO `appointmentreport` (`AppointmentReportID`, `PatientRecordID`, `Appo
 (59, 1, 53, '2025-07-16 11:26:06', NULL, NULL, NULL),
 (60, 1, 54, '2025-07-16 11:26:35', NULL, NULL, NULL),
 (61, 1, 55, '2025-07-16 11:26:50', '', '', ''),
-(62, 1, 56, '2025-07-16 11:36:31', NULL, NULL, NULL);
+(62, 1, 56, '2025-07-16 11:36:31', NULL, NULL, NULL),
+(63, 1, 57, '2025-07-16 14:13:06', NULL, NULL, NULL),
+(64, 33, 58, '2025-07-16 14:40:08', NULL, NULL, NULL),
+(65, 33, 59, '2025-07-16 14:40:27', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -390,7 +396,103 @@ INSERT INTO `dentalchartitem` (`DentalChartItemID`, `DentalChartID`, `ToothNumbe
 (189, 5, '29', NULL, NULL),
 (190, 5, '30', NULL, NULL),
 (191, 5, '31', NULL, NULL),
-(192, 5, '32', NULL, NULL);
+(192, 5, '32', NULL, NULL),
+(193, 6, '1', NULL, NULL),
+(194, 6, '2', NULL, NULL),
+(195, 6, '3', NULL, NULL),
+(196, 6, '4', NULL, NULL),
+(197, 6, '5', NULL, NULL),
+(198, 6, '6', NULL, NULL),
+(199, 6, '7', NULL, NULL),
+(200, 6, '8', NULL, NULL),
+(201, 6, '9', NULL, NULL),
+(202, 6, '10', NULL, NULL),
+(203, 6, '11', NULL, NULL),
+(204, 6, '12', NULL, NULL),
+(205, 6, '13', NULL, NULL),
+(206, 6, '14', NULL, NULL),
+(207, 6, '15', NULL, NULL),
+(208, 6, '16', NULL, NULL),
+(209, 6, '17', NULL, NULL),
+(210, 6, '18', NULL, NULL),
+(211, 6, '19', NULL, NULL),
+(212, 6, '20', NULL, NULL),
+(213, 6, '21', NULL, NULL),
+(214, 6, '22', NULL, NULL),
+(215, 6, '23', NULL, NULL),
+(216, 6, '24', NULL, NULL),
+(217, 6, '25', NULL, NULL),
+(218, 6, '26', NULL, NULL),
+(219, 6, '27', NULL, NULL),
+(220, 6, '28', NULL, NULL),
+(221, 6, '29', NULL, NULL),
+(222, 6, '30', NULL, NULL),
+(223, 6, '31', NULL, NULL),
+(224, 6, '32', NULL, NULL),
+(225, 7, '1', NULL, NULL),
+(226, 7, '2', NULL, NULL),
+(227, 7, '3', NULL, NULL),
+(228, 7, '4', NULL, NULL),
+(229, 7, '5', NULL, NULL),
+(230, 7, '6', NULL, NULL),
+(231, 7, '7', NULL, NULL),
+(232, 7, '8', NULL, NULL),
+(233, 7, '9', NULL, NULL),
+(234, 7, '10', NULL, NULL),
+(235, 7, '11', NULL, NULL),
+(236, 7, '12', NULL, NULL),
+(237, 7, '13', NULL, NULL),
+(238, 7, '14', NULL, NULL),
+(239, 7, '15', NULL, NULL),
+(240, 7, '16', NULL, NULL),
+(241, 7, '17', NULL, NULL),
+(242, 7, '18', NULL, NULL),
+(243, 7, '19', NULL, NULL),
+(244, 7, '20', NULL, NULL),
+(245, 7, '21', NULL, NULL),
+(246, 7, '22', NULL, NULL),
+(247, 7, '23', NULL, NULL),
+(248, 7, '24', NULL, NULL),
+(249, 7, '25', NULL, NULL),
+(250, 7, '26', NULL, NULL),
+(251, 7, '27', NULL, NULL),
+(252, 7, '28', NULL, NULL),
+(253, 7, '29', NULL, NULL),
+(254, 7, '30', NULL, NULL),
+(255, 7, '31', NULL, NULL),
+(256, 7, '32', NULL, NULL),
+(257, 8, '1', 'Healthy', ''),
+(258, 8, '2', 'Healthy', ''),
+(259, 8, '3', 'Healthy', ''),
+(260, 8, '4', 'Healthy', ''),
+(261, 8, '5', 'Healthy', ''),
+(262, 8, '6', 'Healthy', ''),
+(263, 8, '7', 'Healthy', ''),
+(264, 8, '8', 'Treatment Needed', 'Fillingas'),
+(265, 8, '9', 'Healthy', ''),
+(266, 8, '10', 'Healthy', ''),
+(267, 8, '11', 'Healthy', ''),
+(268, 8, '12', 'Healthy', ''),
+(269, 8, '13', 'Healthy', ''),
+(270, 8, '14', 'Healthy', ''),
+(271, 8, '15', 'Healthy', ''),
+(272, 8, '16', 'Healthy', ''),
+(273, 8, '17', 'Healthy', ''),
+(274, 8, '18', 'Healthy', ''),
+(275, 8, '19', 'Healthy', ''),
+(276, 8, '20', 'Healthy', ''),
+(277, 8, '21', 'Healthy', ''),
+(278, 8, '22', 'Healthy', ''),
+(279, 8, '23', 'Healthy', ''),
+(280, 8, '24', 'Healthy', ''),
+(281, 8, '25', 'Healthy', ''),
+(282, 8, '26', 'Healthy', ''),
+(283, 8, '27', 'Healthy', ''),
+(284, 8, '28', 'Healthy', ''),
+(285, 8, '29', 'Healthy', ''),
+(286, 8, '30', 'Healthy', ''),
+(287, 8, '31', 'Healthy', ''),
+(288, 8, '32', 'Healthy', '');
 
 -- --------------------------------------------------------
 
@@ -414,7 +516,10 @@ INSERT INTO `dentalcharts` (`DentalChartID`, `PatientID`, `DentistID`, `CreatedA
 (2, 5, NULL, '2025-07-02 22:56:48'),
 (3, 11, NULL, '2025-07-10 01:00:06'),
 (4, 12, NULL, '2025-07-10 12:46:18'),
-(5, 15, NULL, '2025-07-16 16:34:28');
+(5, 15, NULL, '2025-07-16 16:34:28'),
+(6, 21, NULL, '2025-07-16 22:38:46'),
+(7, 13, NULL, '2025-07-16 22:38:54'),
+(8, 16, NULL, '2025-07-16 22:39:29');
 
 -- --------------------------------------------------------
 
@@ -513,7 +618,21 @@ INSERT INTO `patient` (`PatientID`, `InsuranceProvider`) VALUES
 (12, NULL),
 (13, NULL),
 (14, NULL),
-(15, NULL);
+(15, NULL),
+(16, NULL),
+(17, NULL),
+(18, NULL),
+(19, NULL),
+(20, NULL),
+(21, NULL),
+(22, NULL),
+(23, NULL),
+(24, NULL),
+(25, NULL),
+(26, NULL),
+(27, NULL),
+(28, NULL),
+(29, NULL);
 
 --
 -- Triggers `patient`
@@ -553,7 +672,21 @@ INSERT INTO `patientrecord` (`RecordID`, `PatientID`, `Height`, `Weight`, `Aller
 (29, 12, NULL, NULL, NULL, '2025-07-10 04:45:48', NULL),
 (30, 13, NULL, NULL, NULL, '2025-07-11 14:33:45', NULL),
 (31, 14, NULL, NULL, NULL, '2025-07-16 01:59:46', NULL),
-(32, 15, NULL, NULL, NULL, '2025-07-16 08:33:01', NULL);
+(32, 15, NULL, NULL, NULL, '2025-07-16 08:33:01', NULL),
+(33, 16, 160.00, 48.00, 'Hellooo', '2025-07-16 14:15:44', NULL),
+(34, 17, NULL, NULL, NULL, '2025-07-16 14:33:15', NULL),
+(35, 18, NULL, NULL, NULL, '2025-07-16 14:33:42', NULL),
+(36, 19, NULL, NULL, NULL, '2025-07-16 14:34:10', NULL),
+(37, 20, NULL, NULL, NULL, '2025-07-16 14:35:35', NULL),
+(38, 21, NULL, NULL, NULL, '2025-07-16 14:35:55', NULL),
+(39, 22, NULL, NULL, NULL, '2025-07-16 14:36:25', NULL),
+(40, 23, NULL, NULL, NULL, '2025-07-16 14:36:45', NULL),
+(41, 24, NULL, NULL, NULL, '2025-07-16 14:37:14', NULL),
+(42, 25, NULL, NULL, NULL, '2025-07-16 14:37:32', NULL),
+(43, 26, NULL, NULL, NULL, '2025-07-16 14:38:06', NULL),
+(44, 27, NULL, NULL, NULL, '2025-07-16 14:38:20', NULL),
+(45, 28, NULL, NULL, NULL, '2025-07-16 14:43:09', NULL),
+(46, 29, NULL, NULL, NULL, '2025-07-16 14:43:33', NULL);
 
 -- --------------------------------------------------------
 
@@ -613,7 +746,11 @@ INSERT INTO `paymentitems` (`PaymentItemID`, `PaymentID`, `Description`, `Amount
 (48, 54, 'Root Canal Service', 850.00, 1, 850.00, '2025-07-16 11:26:06', '2025-07-16 11:26:06', NULL),
 (49, 55, 'Root Canal Service', 10000.00, 1, 10000.00, '2025-07-16 11:26:35', '2025-07-16 11:26:35', NULL),
 (50, 56, 'Emergency Service', 200.00, 1, 200.00, '2025-07-16 11:26:50', '2025-07-16 11:26:50', NULL),
-(51, 57, 'Hello Service', 255.00, 1, 255.00, '2025-07-16 11:36:31', '2025-07-16 11:36:31', NULL);
+(51, 57, 'Hello Service', 255.00, 1, 255.00, '2025-07-16 11:36:31', '2025-07-16 11:36:31', NULL),
+(52, 53, 'Wowowow', 1200.00, 2, 2400.00, '2025-07-16 14:11:17', '2025-07-16 14:11:17', NULL),
+(53, 58, 'Hello Service', 255.00, 1, 255.00, '2025-07-16 14:13:06', '2025-07-16 14:13:06', NULL),
+(54, 59, 'Routine Checkup', 125.00, 1, 125.00, '2025-07-16 14:40:08', '2025-07-16 14:40:08', NULL),
+(55, 60, 'Dental Cleaning', 1200.00, 1, 1200.00, '2025-07-16 14:40:27', '2025-07-16 14:40:27', NULL);
 
 -- --------------------------------------------------------
 
@@ -668,11 +805,14 @@ INSERT INTO `payments` (`PaymentID`, `AppointmentID`, `PatientID`, `Status`, `Up
 (50, 49, 1, 'Pending', NULL, '2025-07-16 11:05:05', 'Auto-created for new appointment', '2025-08-19', 'Cash', ''),
 (51, 50, 1, 'Pending', NULL, '2025-07-16 11:05:05', 'Auto-created for new appointment', '2025-08-19', 'Cash', ''),
 (52, 51, 1, 'Pending', NULL, '2025-07-16 11:05:05', 'Auto-created for new appointment', '2025-08-20', 'Cash', ''),
-(53, 52, 1, 'Pending', 4, '2025-07-16 13:15:44', 'Auto-created for new appointment', '2025-07-15', 'Cash', NULL),
+(53, 52, 1, 'Pending', 4, '2025-07-16 14:11:17', 'Auto-created for new appointment', '2025-07-15', 'Cash', NULL),
 (54, 53, 1, 'Pending', NULL, '2025-07-16 11:26:06', 'Auto-created for new appointment', '2025-08-17', 'Cash', ''),
 (55, 54, 1, 'Paid', 4, '2025-07-16 11:42:50', 'Auto-created for new appointment', '2025-08-17', 'Cash', NULL),
 (56, 55, 1, 'Pending', NULL, '2025-07-16 11:26:50', 'Auto-created for new appointment', '2025-08-17', 'Cash', ''),
-(57, 56, 1, 'Pending', NULL, '2025-07-16 11:36:31', 'Auto-created for new appointment', '2025-08-17', 'Cash', '');
+(57, 56, 1, 'Pending', NULL, '2025-07-16 11:36:31', 'Auto-created for new appointment', '2025-08-17', 'Cash', ''),
+(58, 57, 1, 'Pending', NULL, '2025-07-16 14:13:06', 'Auto-created for new appointment', '2025-08-21', 'Cash', ''),
+(59, 58, 16, 'Pending', NULL, '2025-07-16 14:40:08', 'Auto-created for new appointment', '2025-08-17', 'Cash', ''),
+(60, 59, 16, 'Pending', NULL, '2025-07-16 14:40:27', 'Auto-created for new appointment', '2025-08-18', 'Cash', '');
 
 -- --------------------------------------------------------
 
@@ -784,7 +924,21 @@ INSERT INTO `user` (`UserID`, `FirstName`, `LastName`, `Email`, `CreatedAt`, `Us
 (12, 'Charles Jade', 'Argawanon', 'charles.jade@gmail.com', '2025-07-10 04:45:48', 'Patient', '$2y$10$0Og30QyqhFXG1sHOX1ld8.HGRqCSNJvc6sEV5nowurqKVGOtgFDBO'),
 (13, 'Khen Andrei', 'Lim', 'khenlim@gmail.com', '2025-07-11 14:33:45', 'Patient', '$2y$10$.5nECVEZHqfIt2KGjQ1IJOPOIlVHlOqOUUcF02hTvRZb0g7uVjK1C'),
 (14, 'test', 'user', 'test@gmail.com', '2025-07-16 01:59:46', 'Patient', '$2y$10$03C4yjUzvZOQsLCzZss14.AIG0izsJRQlQknTDKvTxg510GrP/xR2'),
-(15, 'Sir', 'Opone', 'siropone@gmail.com', '2025-07-16 08:33:01', 'Patient', '$2y$10$sRtNdSoy0JnxT.g0Lc8P3OV35QK4JSVezjevAaG3uAvabOsemvr1K');
+(15, 'Sir', 'Opone', 'siropone@gmail.com', '2025-07-16 08:33:01', 'Patient', '$2y$10$sRtNdSoy0JnxT.g0Lc8P3OV35QK4JSVezjevAaG3uAvabOsemvr1K'),
+(16, 'Elisa Pamela', 'Magno', 'elisapamelamagno@gmail.com', '2025-07-16 14:15:44', 'Patient', '$2y$10$16qNTzxd9bhci22cGUO8OuuuyI8rshFugzfstUL.zPG7vk6jl.iqW'),
+(17, 'Ethan Job', 'Leones', 'ethanleones@gmail.com', '2025-07-16 14:33:15', 'Patient', '$2y$10$l5uMN4djJLq98hK1E4gbUuhk5XjRezP1ZhK3IqAN.ezZbjVE5usca'),
+(18, 'Jhanell', 'Mingo', 'jhanellmingo@gmail.com', '2025-07-16 14:33:42', 'Patient', '$2y$10$bnSL8c579GUrrEf3n/ZfBuqMwzS1D/9Bj7RRqJMP9MlMD10PP.JVK'),
+(19, 'Derrick Angelo', 'Yu', 'derrickangelo@gmail.com', '2025-07-16 14:34:10', 'Patient', '$2y$10$XODJhuEWWGPKrArqygYGmOReshmsjX/jidLOhpO1iC7FpYx5yRlaq'),
+(20, 'Cris Lawrence', 'Lucero', 'crislawrence@gmail.com', '2025-07-16 14:35:35', 'Patient', '$2y$10$hndPGHa3g1B9BawaPoawiuQByAK7LLO3br1gdiKYqy1DOSXQgiSzO'),
+(21, 'Yza Hilary', 'Alagon', 'yzaalagon@gmail.com', '2025-07-16 14:35:55', 'Patient', '$2y$10$HBEBgADHwlStRUkXemCSIe745UvxsyfelB9FZl84d13j.0C7AmbD2'),
+(22, 'Charlz', 'Despues', 'charlzdespues@gmail.com', '2025-07-16 14:36:25', 'Patient', '$2y$10$.J4lYF7cuhNZ1.kNwXKwUOkprL8vBBeyZlyN3E4odVHK2lAthjuiu'),
+(23, 'Draco', 'Diaz', 'dracodiaz@gmail.com', '2025-07-16 14:36:45', 'Patient', '$2y$10$rL1jGpHMlLbvtYyn6YnwqOonn4XhiQTFR8FOLgV71nZIy6jb9wbv6'),
+(24, 'Cassandra Jeane', 'Encabo', 'cassandraencabo@gmail.com', '2025-07-16 14:37:14', 'Patient', '$2y$10$ILIHobowghjrMYJuuqXN1eZXC18ISkMASDdlC3zl21vN8IjB4HBHK'),
+(25, 'Nyla Kate', 'Caparoso', 'nylakate@gmail.com', '2025-07-16 14:37:32', 'Patient', '$2y$10$.henYuf17SNfNMDqV2CMze1TALEnZc5y6J/DptVUEd4OtX/ngZaC.'),
+(26, 'Samantha Cassandra', 'Camus', 'samanthacamus@gmail.com', '2025-07-16 14:38:06', 'Patient', '$2y$10$KvBkK1C2Xb56Y9h7t5EBaOPW9oC7j7IdU3j8f7/v.SjgpcY6UwkRK'),
+(27, 'Judie Marie', 'Sarting', 'judiemarie@gmail.com', '2025-07-16 14:38:20', 'Patient', '$2y$10$5T4ctGQHU7eK/VrRXR/zaeL8xQ07Hns4k9HOvuHKxi/qTcOdKFa46'),
+(28, 'Martin Shawn', 'Manabat', 'martinshawn@gmail.com', '2025-07-16 14:43:09', 'Patient', '$2y$10$poE2208sT4CIPMvgzA0sA.TgaGgnWe490nF.XkDhfQo1K/DMDuG8m'),
+(29, 'Jian Bryce', 'Machacon', 'jianbryce@gmail.com', '2025-07-16 14:43:33', 'Patient', '$2y$10$Asjo7r9WaZtkIhKbU4iQC.34fytInSNVEu07iYv1vpxQbFY6MN0Cu');
 
 --
 -- Indexes for dumped tables
@@ -925,13 +1079,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `appointment`
 --
 ALTER TABLE `appointment`
-  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `AppointmentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `appointmentreport`
 --
 ALTER TABLE `appointmentreport`
-  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `AppointmentReportID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT for table `blocked_slots`
@@ -943,13 +1097,13 @@ ALTER TABLE `blocked_slots`
 -- AUTO_INCREMENT for table `dentalchartitem`
 --
 ALTER TABLE `dentalchartitem`
-  MODIFY `DentalChartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=193;
+  MODIFY `DentalChartItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=289;
 
 --
 -- AUTO_INCREMENT for table `dentalcharts`
 --
 ALTER TABLE `dentalcharts`
-  MODIFY `DentalChartID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `DentalChartID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `overdueconfig`
@@ -967,19 +1121,19 @@ ALTER TABLE `password_reset_tokens`
 -- AUTO_INCREMENT for table `patientrecord`
 --
 ALTER TABLE `patientrecord`
-  MODIFY `RecordID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `RecordID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `paymentitems`
 --
 ALTER TABLE `paymentitems`
-  MODIFY `PaymentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `PaymentItemID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `ServicePrices`
@@ -1003,7 +1157,7 @@ ALTER TABLE `treatmentplanitem`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- Constraints for dumped tables
