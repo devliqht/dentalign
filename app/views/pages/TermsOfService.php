@@ -425,7 +425,7 @@
                     Contact Support
                 </button>
                 <button class="glass-card border from-nhd-blue/80 text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/20 hover:text-white transition-colors shadow-sm">
-                    Call Us: (555) 123-4567
+                    Call Us: 0927 508 6540
                 </button>
             </div>
         </div>
