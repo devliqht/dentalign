@@ -232,16 +232,16 @@
         
         <!-- Filter Tabs -->
         <div class="flex space-x-1 p-1 rounded-lg mb-6 w-fit">
-            <button id="tab-total" class="revenue-tab glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-sm font-medium transition-colors active" onclick="showRevenueBreakdown('total')">
+            <button id="tab-total" class="revenue-tab glass-card bg-nhd-green/80 text-white px-4 py-2 rounded-2xl text-sm font-medium transition-colors active" onclick="showRevenueBreakdown('total')">
                 All Time
             </button>
-            <button id="tab-monthly" class="revenue-tab glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-sm font-medium transition-colors" onclick="showRevenueBreakdown('monthly')">
+            <button id="tab-monthly" class="revenue-tab glass-card bg-nhd-blue/80 text-white  px-4 py-2 rounded-2xl text-sm font-medium transition-colors" onclick="showRevenueBreakdown('monthly')">
                 This Month
             </button>
-            <button id="tab-weekly" class="revenue-tab glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-sm font-medium transition-colors" onclick="showRevenueBreakdown('weekly')">
+            <button id="tab-weekly" class="revenue-tab glass-card bg-nhd-blue/80 text-white  px-4 py-2 rounded-2xl text-sm font-medium transition-colors" onclick="showRevenueBreakdown('weekly')">
                 This Week
             </button>
-            <button id="tab-today" class="revenue-tab glass-card bg-nhd-blue/80 px-4 py-2 rounded-2xl text-sm font-medium transition-colors" onclick="showRevenueBreakdown('today')">
+            <button id="tab-today" class="revenue-tab glass-card bg-nhd-blue/80 text-white  px-4 py-2 rounded-2xl text-sm font-medium transition-colors" onclick="showRevenueBreakdown('today')">
                 Today
             </button>
         </div>
@@ -877,14 +877,14 @@ function scrollToRevenueBreakdown(type) {
 function showRevenueBreakdown(type) {
     const tabs = document.querySelectorAll('.revenue-tab');
     tabs.forEach(tab => {
-        tab.classList.remove('active', 'bg-nhd-green/80', 'text-white');
-        tab.classList.add('text-gray-600', 'bg-nhd-blue/80');
+        tab.classList.remove('active', 'bg-nhd-green/80');
+        tab.classList.add('bg-nhd-blue/80');
     });
     
     const activeTab = document.getElementById(`tab-${type}`);
     if (activeTab) {
         activeTab.classList.add('active', 'bg-nhd-green/80', 'text-white');
-        activeTab.classList.remove('text-gray-600');
+        // activeTab.classList.remove('text-gray-600');
     }
 
     const tableSections = document.querySelectorAll('.revenue-table-section');
@@ -921,8 +921,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const otherTabs = document.querySelectorAll('.revenue-tab:not(#tab-total)');
     otherTabs.forEach(tab => {
-        tab.classList.add('text-gray-600');
-        tab.classList.remove('bg-nhd-blue', 'text-white');
+        //tab.classList.add('text-gray-600');
+        //tab.classList.remove('bg-nhd-blue', 'text-white');
     });
 });
 </script>
