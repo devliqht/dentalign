@@ -48,7 +48,7 @@ function renderPendingCancellationTableForStaff(
     if (empty($pendingCancellations)) {
         return;
     } ?>
-    
+
     <div class="bg-red-50/60 mb-8" id="pending-cancellation-requests-section">
         <div class="p-4 border-b border-red-200/50">
             <h3 class="text-2xl font-semibold text-red-700 flex items-center">
@@ -61,7 +61,7 @@ function renderPendingCancellationTableForStaff(
             </h3>
             <p class="text-red-600 text-sm mt-1">Appointment cancellation requests requiring doctor approval</p>
         </div>
-        
+
         <div id="table-container-pending-cancellation-requests" class="table-container">
             <!-- Mobile View for Pending Cancellations -->
             <div class="block lg:hidden">
@@ -273,19 +273,19 @@ function renderPendingCancellationTableForStaff(
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Pagination Controls Bottom -->
             <?php echo renderPaginationControls(
                 "pending-cancellation-requests",
                 "bottom"
             ); ?>
         </div>
-        
+
         <!-- Collapse Button -->
         <div class="text-center mt-4">
-            <button 
-                onclick="toggleTableCollapse('pending-cancellation-requests')" 
-                id="collapse-btn-pending-cancellation-requests" 
+            <button
+                onclick="toggleTableCollapse('pending-cancellation-requests')"
+                id="collapse-btn-pending-cancellation-requests"
                 class="text-black bg-transparent shadow-none transition-colors duration-200 text-sm font-medium cursor-pointer">
                 <span class="collapse-text">Collapse Table</span>
                 <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +295,7 @@ function renderPendingCancellationTableForStaff(
         </div>
         </div>
     </div>
-    
+
     <?php
 }
 
@@ -308,12 +308,12 @@ function renderStaffAppointmentTable(
     $user
 ) {
     ?>
-    
+
     <div id="<?php echo $sectionId; ?>-section" class="appointment-section">
         <div class="px-3 mb-3 mt-8">
             <h3 class="text-2xl font-semibold text-nhd-brown"><?php echo $sectionTitle; ?></h3>
         </div>
-        
+
         <div id="table-container-<?php echo $sectionId; ?>" class="table-container">
             <?php if (!empty($appointments)): ?>
                 <!-- Mobile View -->
@@ -343,7 +343,7 @@ function renderStaffAppointmentTable(
                                     <?php echo $appointment["Status"]; ?>
                                 </span>
                             </div>
-                            
+
                             <h4 class="font-semibold text-gray-900 mb-1">
                                 <?php echo htmlspecialchars(
                                     $appointment["PatientFirstName"] .
@@ -351,13 +351,13 @@ function renderStaffAppointmentTable(
                                         $appointment["PatientLastName"]
                                 ); ?>
                             </h4>
-                            
+
                             <div class="text-sm text-gray-600 mb-2">
                                 <?php echo htmlspecialchars(
                                     $appointment["PatientEmail"]
                                 ); ?>
                             </div>
-                            
+
                             <div class="text-sm text-gray-600 mb-2">
                                 <span class="font-medium">Doctor:</span> Dr. <?php echo htmlspecialchars(
                                     $appointment["DoctorFirstName"] .
@@ -365,7 +365,7 @@ function renderStaffAppointmentTable(
                                         $appointment["DoctorLastName"]
                                 ); ?>
                             </div>
-                            
+
                             <div class="flex justify-between items-center mb-2">
                                 <div class="text-sm">
                                     <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
@@ -377,13 +377,13 @@ function renderStaffAppointmentTable(
                                 <div class="flex space-x-1">
                                     <button onclick="showAppointmentDetails('<?php echo $appointment[
                                         "AppointmentID"
-                                    ]; ?>')" 
+                                    ]; ?>')"
                                             class="bg-nhd-blue/80 text-white px-3 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                                         View Details
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <?php if (!empty($appointment["Reason"])): ?>
                                 <div class="mt-2 text-sm text-gray-600">
                                     <span class="font-medium">Reason:</span> <?php echo htmlspecialchars(
@@ -402,7 +402,7 @@ function renderStaffAppointmentTable(
                             <tr class="border-b border-gray-300 bg-gray-50/50">
                                 <th class="text-left py-2 px-2 font-medium text-gray-700 text-xs w-24">Appointment ID</th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DateTime">
-                                    Date & Time 
+                                    Date & Time
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -412,7 +412,7 @@ function renderStaffAppointmentTable(
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientFirstName">
-                                    Patient 
+                                    Patient
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -422,7 +422,7 @@ function renderStaffAppointmentTable(
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorFirstName">
-                                    Doctor 
+                                    Doctor
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -433,7 +433,7 @@ function renderStaffAppointmentTable(
                                 </th>
 
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="AppointmentType">
-                                    Type 
+                                    Type
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -443,7 +443,7 @@ function renderStaffAppointmentTable(
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
-                                    Status 
+                                    Status
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -545,7 +545,7 @@ function renderStaffAppointmentTable(
                                     <td class="py-2 px-3">
                                         <button onclick="showAppointmentDetails('<?php echo $appointment[
                                             "AppointmentID"
-                                        ]; ?>')" 
+                                        ]; ?>')"
                                                 class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                                             View Details
                                         </button>
@@ -555,7 +555,7 @@ function renderStaffAppointmentTable(
                         </tbody>
                     </table>
                 </div>
-                
+
                 <?php echo renderPaginationControls($sectionId, "bottom"); ?>
             <?php else: ?>
                 <div class="glass-card bg-gray-50/50 rounded-2xl p-8 text-center m-4 shadow-none border-1 border-gray-200">
@@ -564,12 +564,12 @@ function renderStaffAppointmentTable(
                 </div>
             <?php endif; ?>
         </div>
-        
+
         <!-- Collapse Button -->
         <div class="text-center mt-4">
-            <button 
-                onclick="toggleTableCollapse('<?php echo $sectionId; ?>')" 
-                id="collapse-btn-<?php echo $sectionId; ?>" 
+            <button
+                onclick="toggleTableCollapse('<?php echo $sectionId; ?>')"
+                id="collapse-btn-<?php echo $sectionId; ?>"
                 class="text-black bg-transparent shadow-none transition-colors duration-200 text-sm font-medium cursor-pointer">
                 <span class="collapse-text">Collapse Table</span>
                 <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -578,7 +578,7 @@ function renderStaffAppointmentTable(
             </button>
         </div>
     </div>
-    
+
     <?php
 }
 ?>
@@ -650,7 +650,7 @@ echo $totalAppointments;
             <div class="text-2xl font-bold text-nhd-brown"><?php echo $totalAppointments; ?></div>
             <div class="text-sm text-gray-600">Total</div>
         </div>
-        
+
         <?php foreach (
             [
                 "Pending",
@@ -835,3 +835,25 @@ window.serverMessages = {
 <script src="<?php echo BASE_URL; ?>/app/views/scripts/SortableTable.js"></script>
 <script src="<?php echo BASE_URL; ?>/app/views/scripts/SchedulePage/AppointmentDetailsModal.js"></script>
 <script src="<?php echo BASE_URL; ?>/app/views/scripts/SchedulePage/AppointmentDetailsModalAssistant.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Ensure table manager is initialized for appointment history tables
+    setTimeout(() => {
+        if (window.tableManager) {
+            console.log("Reinitializing SortableTable for appointment history tables");
+            window.tableManager.init();
+
+            // Initialize pagination for all appointment table sections
+            const sections = ['pending-cancellation-requests', 'pending', 'approved', 'completed', 'cancelled'];
+            sections.forEach(section => {
+                if (document.getElementById(`table-container-${section}`) && window.tableManager.paginationManager) {
+                    window.tableManager.paginationManager.initializeSection(section);
+                }
+            });
+        } else {
+            console.warn("SortableTable manager not available for appointment history");
+        }
+    }, 200);
+});
+</script>
