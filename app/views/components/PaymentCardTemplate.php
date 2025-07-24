@@ -39,7 +39,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
                 );
                 else: ?>-<?php endif; ?></span>
             </div>
-            
+
             <!-- Appointment ID -->
             <div class="glass-card bg-white text-nhd-blue border-1 border-nhd-blue/20 px-3 py-2 rounded-lg shadow-sm">
                 <span class="text-xs font-medium uppercase tracking-wider block">Appointment ID</span>
@@ -50,7 +50,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
                     STR_PAD_LEFT
                 ); ?></span>
             </div>
-            
+
             <!-- Status -->
             <div>
                 <span class="inline-block glass-card px-3 py-1 text-sm font-medium shadow-sm border-gray-200 rounded-full <?php echo explode(
@@ -63,7 +63,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
                 </span>
             </div>
         </div>
-        
+
         <div class="flex items-center space-x-4">
             <!-- Price and Date -->
             <div class="text-right">
@@ -77,7 +77,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
                     ); ?>
                 </div>
             </div>
-            
+
             <!-- Expand/Collapse Button -->
             <div class="glass-card bg-gray-100/60 hover:bg-gray-200/60 rounded-full p-2 transition-colors">
                 <svg id="expand-icon-<?php echo $uniqueId; ?>" class="w-5 h-5 text-gray-600 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
                             </div>
                         </div>
                     <?php endforeach; ?>
-                    
+
                     <!-- Total Line -->
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         <div class="flex justify-between items-center">
@@ -200,13 +200,13 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
             <?php if ($payment["PaymentID"]): ?>
                 <button onclick="viewPaymentDetails(<?php echo $payment[
                     "PaymentID"
-                ]; ?>)" 
+                ]; ?>)"
                         class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
                     View Details
                 </button>
                 <button onclick="printInvoice(<?php echo $payment[
                     "PaymentID"
-                ]; ?>)" 
+                ]; ?>)"
                         class="flex-1 px-6 py-3 glass-card bg-nhd-brown/85 text-white rounded-2xl hover:bg-nhd-brown transition-colors font-medium">
                     Print Invoice
                 </button>
@@ -220,7 +220,7 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
             <?php endif; ?>
             <a href="<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-] ?? 1; ?>/<?php echo $payment["AppointmentID"]; ?>" 
+] ?? 1; ?>/<?php echo $payment["AppointmentID"]; ?>"
                class="flex-1 px-6 py-3 glass-card bg-nhd-blue/80 text-white hover:bg-nhd-blue/90 rounded-2xl transition-colors font-medium text-center">
                 View Appointment
             </a>
@@ -228,4 +228,4 @@ $uniqueId = $sectionPrefix . "-" . $paymentId;
     </div>
 </div>
 
-<!-- Script moved to main page to avoid duplication --> 
+<!-- Script moved to main page to avoid duplication -->
