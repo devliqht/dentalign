@@ -312,7 +312,7 @@ function renderPaymentManagementTable(
         <div class="p-5 pt-6">
             <!-- Appointment Info -->
             <div id="appointmentInfo" class="glass-card border-gray-200 border-1 p-4 shadow-sm rounded-xl mb-6">
-                <h4 class="font-semibold text-nhd-blue mb-2">Appointment Dates</h4>
+                <h4 class="font-semibold text-nhd-blue mb-2">Appointment Details</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                         <span class="text-gray-600">Patient:</span>
