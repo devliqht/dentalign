@@ -39,7 +39,7 @@
 
     <!-- FAQ Items -->
     <div class="space-y-4" id="faqContainer">
-        
+
         <!-- Appointments Category -->
         <div class="faq-item glass-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6" data-category="appointments">
             <button class="faq-question w-full text-left focus:outline-none" onclick="toggleFAQ(this)">
@@ -65,7 +65,7 @@
                 </div>
             </button>
             <div class="faq-answer mt-4 text-gray-600 hidden">
-                <p>Yes, you can reschedule your appointment up to 24 hours before the scheduled time. Go to your dashboard, find your appointment, and click "Reschedule" to select a new date and time.</p>
+                <p>Yes, you can reschedule your appointment up to 24 hours before the scheduled time. Go to your dashboard, find your appointment, and click "Reschedule" to select a new date and time. Appointments within 24 hours of the scheduled time cannot be rescheduled online - please contact the clinic directly for assistance.</p>
             </div>
         </div>
 
@@ -264,7 +264,7 @@
 function toggleFAQ(button) {
     const answer = button.nextElementSibling;
     const icon = button.querySelector('.faq-icon');
-    
+
     if (answer.classList.contains('hidden')) {
         answer.classList.remove('hidden');
         icon.style.transform = 'rotate(180deg)';
@@ -278,18 +278,18 @@ function toggleFAQ(button) {
 document.querySelectorAll('.faq-category-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const category = this.getAttribute('data-category');
-        
+
         // Update active button
         document.querySelectorAll('.faq-category-btn').forEach(b => {
             b.classList.remove('active');
             b.classList.remove('bg-nhd-blue/80', 'text-white');
             b.classList.add('bg-gray-100/80', 'text-gray-700');
         });
-        
+
         this.classList.add('active');
         this.classList.add('bg-nhd-blue/80', 'text-white');
         this.classList.remove('bg-gray-100/80', 'text-gray-700');
-        
+
         // Filter FAQ items
         document.querySelectorAll('.faq-item').forEach(item => {
             if (category === 'all' || item.getAttribute('data-category') === category) {
@@ -304,11 +304,11 @@ document.querySelectorAll('.faq-category-btn').forEach(btn => {
 // Search Functionality
 document.getElementById('faqSearch').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
-    
+
     document.querySelectorAll('.faq-item').forEach(item => {
         const question = item.querySelector('.faq-question h3').textContent.toLowerCase();
         const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
-        
+
         if (question.includes(searchTerm) || answer.includes(searchTerm)) {
             item.style.display = 'block';
         } else {

@@ -60,7 +60,7 @@
                             }
                         }
                         ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -105,7 +105,7 @@
                             }
                         }
                         ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -165,7 +165,7 @@
                             }
                         }
                         ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -210,7 +210,7 @@
                             }
                         }
                         ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -280,7 +280,7 @@
                              "TreatmentPlanID"
                          ]; ?>)">
                         <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-medium px-2 py-1 rounded-full 
+                            <span class="text-xs font-medium px-2 py-1 rounded-full
                                 <?php switch ($plan["Status"]) {
                                     case "completed":
                                         echo "bg-green-100 text-green-800";
@@ -308,33 +308,33 @@
                                 ); ?>
                             </span>
                         </div>
-                        
+
                         <h4 class="font-semibold text-gray-900 mb-2">
                             Dr. <?php echo htmlspecialchars(
                                 $plan["DoctorName"]
                             ); ?>
                         </h4>
-                        
+
                         <div class="text-sm text-gray-600 mb-3">
                             <?php echo date(
                                 "M j, Y",
                                 strtotime($plan["AssignedAt"])
                             ); ?>
                         </div>
-                        
+
                         <div class="mb-4">
                             <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
                                 <span>Progress</span>
                                 <span><?php echo $plan["progress"]; ?>%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-nhd-blue h-2 rounded-full transition-all duration-300" 
+                                <div class="bg-nhd-blue h-2 rounded-full transition-all duration-300"
                                      style="width: <?php echo $plan[
                                          "progress"
                                      ]; ?>%"></div>
                             </div>
                         </div>
-                        
+
                         <div class="text-xs text-gray-500">
                             <?php echo $plan[
                                 "completedItems"
@@ -359,18 +359,18 @@
 
 <!-- Treatment Plan Details Modal -->
 <div id="treatmentPlanModal" class="fixed inset-0 bg-black/30 backdrop-blur-[1px] hidden items-center justify-center z-50 p-4">
-    <div class="glass-card bg-white/90 backdrop-blur-sm rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+    <div class="glass-card bg-white/90 backdrop-blur-sm rounded-2xl max-w-6xl w-full max-h-[90vh] flex flex-col">
         <div class="flex items-center justify-between p-6 border-b border-gray-200">
             <h3 class="text-2xl font-semibold text-nhd-brown font-family-bodoni">Treatment Plan Details</h3>
-            <button type="button" onclick="closeTreatmentPlanModal()" 
+            <button type="button" onclick="closeTreatmentPlanModal()"
                     class="glass-card bg-gray-100/80 hover:bg-gray-200/80 rounded-full p-2 transition-colors">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
-        
-        <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
+
+        <div class="flex-1 overflow-y-auto">
             <div id="treatmentPlanContent" class="p-6">
                 <div class="text-center py-8">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-nhd-blue mx-auto"></div>
@@ -409,12 +409,12 @@ function initializeToothInteractions() {
             document.getElementById('tooth-number').textContent = toothNumber;
             document.getElementById('tooth-name').textContent = toothName;
             document.getElementById('tooth-notes').textContent = notes || 'No notes available';
-            
+
             // Update status badge
             const statusElement = document.getElementById('tooth-status');
             statusElement.textContent = status || 'No data';
             statusElement.className = 'ml-2 px-2 py-1 rounded-full text-xs font-medium';
-            
+
             if (status) {
                 switch (status.toLowerCase()) {
                     case 'healthy':
@@ -436,7 +436,7 @@ function initializeToothInteractions() {
             } else {
                 statusElement.className += ' bg-gray-100 text-gray-800';
             }
-            
+
             // Show panel
             toothInfoPanel.classList.remove('hidden');
             toothInfoPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -447,13 +447,13 @@ function initializeToothInteractions() {
             const toothNumber = this.dataset.tooth;
             const toothName = this.dataset.name;
             const status = this.dataset.status || 'No data';
-            
+
             document.getElementById('tooltip-content').innerHTML = `
                 <div class="font-medium">Tooth #${toothNumber}</div>
                 <div class="text-xs">${toothName}</div>
                 <div class="text-xs">Status: ${status}</div>
             `;
-            
+
             tooltip.classList.remove('hidden');
             updateTooltipPosition(e, tooltip);
         });
@@ -471,7 +471,7 @@ function initializeToothInteractions() {
 function updateTooltipPosition(e, tooltip) {
     const x = e.clientX + 10;
     const y = e.clientY - 10;
-    
+
     tooltip.style.left = x + 'px';
     tooltip.style.top = y + 'px';
 }
@@ -481,7 +481,7 @@ function viewTreatmentPlan(treatmentPlanId) {
     const modal = document.getElementById('treatmentPlanModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    
+
     // Load treatment plan details
     fetch(`<?php echo BASE_URL; ?>/patient/get-treatment-plan-details?treatment_plan_id=${treatmentPlanId}`)
         .then(response => response.json())
@@ -524,7 +524,7 @@ function closeTreatmentPlanModal() {
 
 function displayTreatmentPlanDetails(plan) {
     const content = document.getElementById('treatmentPlanContent');
-    
+
     content.innerHTML = `
         <div class="space-y-6">
             <!-- Treatment Plan Overview -->
@@ -555,15 +555,15 @@ function displayTreatmentPlanDetails(plan) {
                             <span class="font-medium">${plan.progress}%</span>
                         </div>
                     </div>
-                    
+
                     <div class="mt-4">
                         <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div class="bg-nhd-blue h-3 rounded-full transition-all duration-300" 
+                            <div class="bg-nhd-blue h-3 rounded-full transition-all duration-300"
                                  style="width: ${plan.progress}%"></div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="glass-card bg-white rounded-xl p-6 border border-gray-200">
                     <h4 class="text-lg font-semibold text-nhd-blue mb-4">Appointment Details</h4>
                     <div class="space-y-3">
@@ -586,7 +586,7 @@ function displayTreatmentPlanDetails(plan) {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Doctor's Notes -->
             ${plan.DentistNotes ? `
                 <div class="glass-card bg-white rounded-xl p-6 border border-gray-200">
@@ -596,7 +596,7 @@ function displayTreatmentPlanDetails(plan) {
                     </div>
                 </div>
             ` : ''}
-            
+
             <!-- Treatment Items -->
             <div class="glass-card bg-white rounded-xl p-6 border border-gray-200">
                 <h4 class="text-lg font-semibold text-nhd-blue mb-4">Treatment Items</h4>
@@ -617,7 +617,7 @@ function displayTreatmentPlanDetails(plan) {
                                                 </span>
                                             ` : ''}
                                         </div>
-                                        
+
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                                             <div>
                                                 <span class="font-medium">Procedure Code:</span>
@@ -632,7 +632,7 @@ function displayTreatmentPlanDetails(plan) {
                                                 <div>${item.ScheduledDate ? formatDate(item.ScheduledDate) : 'Not scheduled'}</div>
                                             </div>
                                         </div>
-                                        
+
                                         ${item.CompletedAt ? `
                                             <div class="mt-2 text-sm text-green-600">
                                                 ✓ Completed on ${formatDate(item.CompletedAt)}
@@ -643,7 +643,7 @@ function displayTreatmentPlanDetails(plan) {
                             </div>
                         `).join('')}
                     </div>
-                    
+
                     <div class="mt-6 pt-4 border-t border-gray-200">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-semibold text-gray-700">Total Treatment Cost:</span>
@@ -675,9 +675,9 @@ function getStatusClass(status) {
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'

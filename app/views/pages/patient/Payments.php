@@ -9,14 +9,14 @@ function renderPaymentTable($payments, $user)
         <div class="p-6 border-b border-gray-200">
             <h3 class="text-xl font-semibold text-nhd-blue font-family-sans">Payment Records</h3>
         </div>
-        
+
         <div id="table-container" class="table-container">
             <?php if (!empty($payments)): ?>
                 <!-- Mobile View -->
                 <div class="block lg:hidden" id="mobile-view">
                     <div id="mobile-table-body">
                         <?php foreach ($payments as $index => $payment): ?>
-                            <div class="p-4 border-b border-gray-200/30 hover:bg-white/40 transition-colors rounded-2xl glass-card mb-3 table-row" 
+                            <div class="p-4 border-b border-gray-200/30 hover:bg-white/40 transition-colors rounded-2xl glass-card mb-3 table-row"
                                  data-row-index="<?php echo $index; ?>"
                                  data-status="<?php echo strtolower(
                                      $payment["Status"]
@@ -53,19 +53,19 @@ function renderPaymentTable($payments, $user)
                                         <?php echo $payment["Status"]; ?>
                                     </span>
                                 </div>
-                                
+
                                 <h4 class="font-semibold text-gray-900 mb-1">
                                     Dr. <?php echo htmlspecialchars(
                                         $payment["DoctorName"]
                                     ); ?>
                                 </h4>
-                                
+
                                 <div class="text-sm text-gray-600 mb-2">
                                     <?php echo htmlspecialchars(
                                         $payment["Specialization"]
                                     ); ?>
                                 </div>
-                                
+
                                 <div class="flex justify-between items-center mb-2">
                                     <div class="text-sm">
                                         <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
@@ -90,7 +90,7 @@ function renderPaymentTable($payments, $user)
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                                
+
                                 <?php if (
                                     isset($payment["total_amount"]) &&
                                     $payment["total_amount"] > 0
@@ -117,7 +117,7 @@ function renderPaymentTable($payments, $user)
                                         <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
-                                
+
                                 <div class="flex space-x-1">
                                     <?php echo renderPaymentMobileActions(
                                         $payment,
@@ -135,7 +135,7 @@ function renderPaymentTable($payments, $user)
                         <thead>
                             <tr class="border-b border-gray-300 bg-gray-50/50">
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PaymentID">
-                                    Payment ID 
+                                    Payment ID
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -145,7 +145,7 @@ function renderPaymentTable($payments, $user)
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="AppointmentID">
-                                    Appointment ID 
+                                    Appointment ID
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -155,7 +155,7 @@ function renderPaymentTable($payments, $user)
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorName">
-                                    Doctor 
+                                    Doctor
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -165,7 +165,7 @@ function renderPaymentTable($payments, $user)
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
-                                    Status 
+                                    Status
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -175,7 +175,7 @@ function renderPaymentTable($payments, $user)
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DeadlineDate">
-                                    Deadline 
+                                    Deadline
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -185,7 +185,7 @@ function renderPaymentTable($payments, $user)
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PaymentMethod">
-                                    Payment Method 
+                                    Payment Method
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -195,7 +195,7 @@ function renderPaymentTable($payments, $user)
                                     </span>
                                 </th>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Amount">
-                                    Amount 
+                                    Amount
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -209,7 +209,7 @@ function renderPaymentTable($payments, $user)
                         </thead>
                         <tbody class="divide-y divide-gray-200/30" id="table-body-payments">
                             <?php foreach ($payments as $index => $payment): ?>
-                                <tr class="hover:bg-nhd-blue/10 transition-colors duration-200 border-b-1 border-gray-200 table-row" 
+                                <tr class="hover:bg-nhd-blue/10 transition-colors duration-200 border-b-1 border-gray-200 table-row"
                                     data-row-index="<?php echo $index; ?>"
                                     data-status="<?php echo strtolower(
                                         $payment["Status"]
@@ -359,7 +359,7 @@ function renderPaymentTable($payments, $user)
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination Controls Bottom -->
                 <?php echo renderPaginationControls("payments", "bottom"); ?>
             <?php else: ?>
@@ -368,7 +368,7 @@ function renderPaymentTable($payments, $user)
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                     <p class="text-gray-500 mb-4">No payment records found</p>
-                    <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
+                    <a href="<?php echo BASE_URL; ?>/patient/book-appointment"
                        class="inline-flex items-center px-4 py-2 glass-card bg-nhd-blue/80 text-white rounded-2xl hover:bg-nhd-blue transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -379,7 +379,7 @@ function renderPaymentTable($payments, $user)
             <?php endif; ?>
         </div>
     </div>
-    
+
     <?php
 }
 
@@ -387,11 +387,11 @@ function renderPaymentMobileActions($payment, $user)
 {
     ob_start(); ?>
     <button onclick="viewPaymentDetails(<?php echo $payment["PaymentID"] ??
-        $payment["AppointmentID"]; ?>)" 
+        $payment["AppointmentID"]; ?>)"
             class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
         Details
     </button>
-    <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $payment["AppointmentID"]; ?>')" 
+    <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $payment["AppointmentID"]; ?>')"
             class="bg-gray-500/80 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors min-w-[120px] truncate">
         View Appointment
     </button>
@@ -403,11 +403,11 @@ function renderPaymentDesktopActions($payment, $user)
     ob_start(); ?>
     <div class="flex space-x-1">
         <button onclick="viewPaymentDetails(<?php echo $payment["PaymentID"] ??
-            $payment["AppointmentID"]; ?>)" 
+            $payment["AppointmentID"]; ?>)"
                 class="bg-nhd-blue/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-nhd-blue transition-colors">
             Details
         </button>
-        <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $payment["AppointmentID"]; ?>')" 
+        <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user["id"]; ?>/<?php echo $payment["AppointmentID"]; ?>')"
             class="bg-gray-500/80 text-white px-2 py-1 rounded-full text-xs hover:bg-gray-600 transition-colors">
             View..
         </button>
@@ -656,7 +656,7 @@ function renderPaymentStatsCards($payments)
                 Clear Filters
             </button>
         </div>
-        
+
         <!-- Payment Table -->
         <?php if (!empty($payments)): ?>
             <?php renderPaymentTable($payments, $user); ?>
@@ -667,7 +667,7 @@ function renderPaymentStatsCards($payments)
                 </svg>
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">No Appointments Yet</h3>
                 <p class="text-gray-500 mb-6">You haven't booked any appointments yet. Start by booking your first appointment.</p>
-                <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
+                <a href="<?php echo BASE_URL; ?>/patient/book-appointment"
                    class="inline-block px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-medium">
                     Book Your First Appointment
                 </a>
@@ -683,14 +683,14 @@ function renderPaymentStatsCards($payments)
     <div class="glass-card bg-white/90 backdrop-blur-sm rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-semibold text-nhd-brown font-family-bodoni">Payment Details</h3>
-            <button type="button" onclick="closePaymentModal()" 
+            <button type="button" onclick="closePaymentModal()"
                     class="glass-card bg-gray-100/80 hover:bg-gray-200/80 rounded-full p-2 transition-colors">
                 <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
-        
+
         <div id="paymentDetailsContent">
             <div class="text-center py-8">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-nhd-blue mx-auto"></div>
@@ -739,7 +739,7 @@ class PaymentFilter {
     populateFilterOptions() {
         const doctorSelect = document.getElementById('filterDoctor');
         const doctors = [...new Set(this.allPayments.map(payment => payment.doctor).filter(Boolean))];
-        
+
         doctors.forEach(doctor => {
             const option = document.createElement('option');
             option.value = doctor;
@@ -855,7 +855,7 @@ function clearAllFilters() {
     document.getElementById('filterDateRange').value = '';
     document.getElementById('filterDoctor').value = '';
     document.getElementById('filterPaymentMethod').value = '';
-    
+
     if (window.paymentFilter) {
         window.paymentFilter.applyFilters();
     }
@@ -865,7 +865,7 @@ function viewPaymentDetails(paymentId) {
     const modal = document.getElementById('paymentDetailsModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    
+
     fetch(`<?php echo BASE_URL; ?>/patient/get-payment-details?payment_id=${paymentId}`)
         .then(response => response.json())
         .then(data => {
@@ -918,11 +918,11 @@ function printInvoice(paymentId) {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize payment filter
     window.paymentFilter = new PaymentFilter();
-    
-    // Initialize sortable table manager
-    const sortableManager = new SortableTableManager();
-    sortableManager.init();
-    
+
+    // Initialize sortable table manager and assign to global variable
+    window.tableManager = new SortableTableManager();
+    window.tableManager.init();
+
     // Initialize pagination manager - only if it exists
     if (typeof PaginationManager !== 'undefined') {
         const paginationManager = new PaginationManager();
@@ -938,19 +938,19 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: none !important;
         border: 1px solid #e5e7eb !important;
     }
-    
+
     button, .hover\:bg-gray-200\/80 {
         display: none !important;
     }
-    
+
     body {
         background: white !important;
     }
-    
+
     #paymentDetailsModal {
         display: none !important;
     }
-    
+
     .filter-section {
         display: none !important;
     }

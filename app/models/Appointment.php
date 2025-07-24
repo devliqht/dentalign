@@ -42,7 +42,7 @@ class Appointment
             $query =
                 "INSERT INTO " .
                 $this->table .
-                " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt, Status) VALUES 
+                " (PatientID, DoctorID, DateTime, AppointmentType, Reason, CreatedAt, Status) VALUES
             (?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), 'Pending')
             ";
             error_log("Preparing SQL query: $query");
@@ -168,15 +168,15 @@ public function isSlotTrulyAvailableForBooking($doctorID, $dateTime)
     // Extract date and time from the full DateTime string
     $date = date('Y-m-d', strtotime($dateTime));
     $time = date('H:i:s', strtotime($dateTime));
-    
+
     // Check 1: Is there an existing, non-cancelled appointment at this time?
     // Using FOR UPDATE to lock the rows to prevent another booking at the same time.
     $appointmentQuery = "
-        SELECT COUNT(*) 
-        FROM Appointment 
-        WHERE DoctorID = ? 
-        AND DateTime = ? 
-        AND Status NOT IN ('Cancelled', 'Declined') 
+        SELECT COUNT(*)
+        FROM Appointment
+        WHERE DoctorID = ?
+        AND DateTime = ?
+        AND Status NOT IN ('Cancelled', 'Declined')
         FOR UPDATE";
 
     $stmtAppt = $this->conn->prepare($appointmentQuery);
@@ -192,13 +192,13 @@ public function isSlotTrulyAvailableForBooking($doctorID, $dateTime)
 
     // Check 2: Is this slot manually blocked by the doctor?
     $blockedSlotQuery = "SELECT COUNT(*) FROM blocked_slots WHERE doctor_id = ? AND blocked_date = ? AND blocked_time = ?";
-    
+
     $stmtBlocked = $this->conn->prepare($blockedSlotQuery);
     $stmtBlocked->bind_param("iss", $doctorID, $date, $time);
     $stmtBlocked->execute();
     $resultBlocked = $stmtBlocked->get_result();
     $countBlocked = $resultBlocked->fetch_row()[0];
-    
+
     if ($countBlocked > 0) {
         // Slot is manually blocked
         return false;
@@ -236,7 +236,7 @@ public function isSlotTrulyAvailableForBooking($doctorID, $dateTime)
         $query =
             "SELECT COUNT(*) as count FROM " .
             $this->table .
-            " 
+            "
                   WHERE DoctorID = ? AND DateTime = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -257,7 +257,7 @@ public function isSlotTrulyAvailableForBooking($doctorID, $dateTime)
         $query =
             "SELECT COUNT(*) as count FROM " .
             $this->table .
-            " 
+            "
                   WHERE DoctorID = ? AND DateTime = ? FOR UPDATE";
 
         $stmt = $this->conn->prepare($query);
@@ -348,7 +348,7 @@ public function isSlotTrulyAvailableForBooking($doctorID, $dateTime)
     //     $query =
     //         "SELECT TIME_FORMAT(TIME(DateTime), '%H:%i') as time FROM " .
     //         $this->table .
-    //         " 
+    //         "
     //               WHERE DoctorID = ? AND DATE(DateTime) = ?";
 
     //     $stmt = $this->conn->prepare($query);
@@ -377,14 +377,14 @@ public function getAvailableTimeSlots($doctorID, $date)
     //    - The first part gets times from booked appointments (that are not cancelled).
     //    - The second part gets times from the new 'blocked_slots' table.
     $query = "
-        (SELECT TIME(DateTime) as unavailable_time 
-         FROM " . $this->table . " 
+        (SELECT TIME(DateTime) as unavailable_time
+         FROM " . $this->table . "
          WHERE DoctorID = ? AND DATE(DateTime) = ? AND Status NOT IN ('Cancelled', 'Declined'))
-        
+
         UNION
-        
-        (SELECT blocked_time as unavailable_time 
-         FROM blocked_slots 
+
+        (SELECT blocked_time as unavailable_time
+         FROM blocked_slots
          WHERE doctor_id = ? AND blocked_date = ?)
     ";
 
@@ -393,7 +393,7 @@ public function getAvailableTimeSlots($doctorID, $date)
         error_log("Prepare failed: (" . $this->conn->errno . ") " . $this->conn->error);
         return []; // Return empty on error to be safe
     }
-    
+
     // 3. Bind the parameters. Note that we need to bind for both parts of the UNION.
     $stmt->bind_param("isis", $doctorID, $date, $doctorID, $date);
 
@@ -427,7 +427,7 @@ public function getAvailableTimeSlots($doctorID, $date)
         $query =
             "SELECT TIME_FORMAT(TIME(DateTime), '%H:%i') as time FROM " .
             $this->table .
-            " 
+            "
                   WHERE DoctorID = ? AND DATE(DateTime) = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -477,7 +477,7 @@ public function getAvailableTimeSlots($doctorID, $date)
         $query =
             "UPDATE " .
             $this->table .
-            " SET DateTime = ? WHERE AppointmentID = ?";
+            " SET DateTime = ?, Status = 'Rescheduled' WHERE AppointmentID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("si", $newDateTime, $appointmentID);
 
@@ -715,10 +715,10 @@ public function getAvailableTimeSlots($doctorID, $date)
     {
         // We update the status as well for a clear audit trail.
         $query = "UPDATE " . $this->table . " SET DateTime = ?, Status = 'Rescheduled' WHERE AppointmentID = ?";
-                
+
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("si", $newDateTime, $appointmentID);
-        
+
         if ($stmt->execute()) {
             return $stmt->affected_rows > 0;
         }
@@ -728,7 +728,7 @@ public function getAvailableTimeSlots($doctorID, $date)
     public function isDoctorAvailableAtDateTime($doctorID, $dateTime)
     {
         // Check against appointments that are not cancelled
-        $query = "SELECT COUNT(*) FROM " . $this->table . " 
+        $query = "SELECT COUNT(*) FROM " . $this->table . "
                 WHERE DoctorID = ? AND DateTime = ? AND Status NOT IN ('Cancelled')";
 
         $stmt = $this->conn->prepare($query);
@@ -747,7 +747,7 @@ public function getAvailableTimeSlots($doctorID, $date)
     public function getAppointmentById($appointmentID)
     {
         $query =
-            "SELECT a.*, 
+            "SELECT a.*,
                     ud.FirstName as DoctorFirstName, ud.LastName as DoctorLastName, d.Specialization,
                     up.FirstName as PatientFirstName, up.LastName as PatientLastName, up.Email as PatientEmail
                   FROM " .
@@ -911,15 +911,15 @@ public function getAvailableTimeSlots($doctorID, $date)
         $searchTerm = "%" . $query . "%";
 
         $sql =
-            "SELECT 
+            "SELECT
                     a.AppointmentID,
                     a.DateTime,
                     a.AppointmentType,
                     a.Reason,
                     DATE(a.DateTime) as AppointmentDate,
                     TIME(a.DateTime) as AppointmentTime,
-                    ud.FirstName as DoctorFirstName, 
-                    ud.LastName as DoctorLastName, 
+                    ud.FirstName as DoctorFirstName,
+                    ud.LastName as DoctorLastName,
                     d.Specialization
                 FROM " .
             $this->table .
@@ -1059,7 +1059,7 @@ public function getAvailableTimeSlots($doctorID, $date)
     {
         $query =
             "
-            SELECT 
+            SELECT
                 a.AppointmentID,
                 a.PatientID,
                 a.DoctorID,
@@ -1094,7 +1094,7 @@ public function getAvailableTimeSlots($doctorID, $date)
     {
         $query =
             "
-            SELECT 
+            SELECT
                 a.AppointmentID,
                 a.PatientID,
                 a.DoctorID,

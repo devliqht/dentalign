@@ -56,13 +56,13 @@ class PatientController extends Controller
 
         $weekAppointments = [];
         if ($patientData) {
-            $weekQuery = "SELECT a.*, 
+            $weekQuery = "SELECT a.*,
                             CONCAT(u.FirstName, ' ', u.LastName) as DoctorName,
                             d.Specialization
                           FROM Appointment a
                           LEFT JOIN Doctor d ON a.DoctorID = d.DoctorID
                           LEFT JOIN USER u ON d.DoctorID = u.UserID
-                          WHERE a.PatientID = ? 
+                          WHERE a.PatientID = ?
                           AND DATE(a.DateTime) BETWEEN ? AND ?
                           ORDER BY a.DateTime ASC";
 
@@ -1081,6 +1081,13 @@ class PatientController extends Controller
             $this->redirectBack("Invalid appointment or unauthorized access");
         }
 
+        // Check if appointment is within 24 hours
+        if ($appointment->isWithin24Hours($data["appointment_id"])) {
+            $this->redirectBack(
+                "Cannot reschedule appointment within 24 hours of the scheduled time. Please contact the clinic for reschedule assistance."
+            );
+        }
+
         $newAppointmentTime = $data["new_appointment_time"];
         // Check if time already includes seconds, if not add them
         if (substr_count($newAppointmentTime, ':') === 1) {
@@ -1513,7 +1520,7 @@ class PatientController extends Controller
                             <div class="text-3xl font-bold font-mono text-nhd-blue">#' .
             str_pad($payment["PaymentID"], 6, "0", STR_PAD_LEFT) .
             '</div>
-                            
+
                             <div class="flex flex-col space-y-2">
                                 <span class="inline-flex items-center w-fit glass-card shadow-none px-4 py-2 text-base font-bold rounded-full border-2 ' .
             $statusClass .
@@ -1575,7 +1582,7 @@ class PatientController extends Controller
                     </div>
                 </div>
             </div>
-            
+
             <!-- Appointment Information -->
             <div class="glass-card bg-gray-50/50 rounded-xl p-6 shadow-sm">
                 <h4 class="text-xl font-semibold text-nhd-brown mb-4 font-family-sans flex items-center">
@@ -1843,17 +1850,17 @@ class PatientController extends Controller
                     </div>
                 </div>
             </div>
-            
+
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 pt-6">
-                <button onclick="window.print()" 
+                <button onclick="window.print()"
                         class="flex-1 px-6 py-3 glass-card bg-nhd-blue/85 text-white rounded-2xl hover:bg-nhd-blue transition-colors font-semibold flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zM5 14H4v-3h1v3zm1 0v2h6v-2H6zm8 0h1v-3h-1v3z" clip-rule="evenodd"></path>
                     </svg>
                     Print Invoice
                 </button>
-                <button onclick="closePaymentModal()" 
+                <button onclick="closePaymentModal()"
                         class="flex-1 px-6 py-3 glass-card bg-gray-500/85 text-white rounded-2xl hover:bg-gray-600 transition-colors font-semibold flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -2018,7 +2025,7 @@ class PatientController extends Controller
 
             // Get appointment details
             $appointmentDetailsQuery = "
-                SELECT 
+                SELECT
                     a.AppointmentID,
                     a.DateTime as AppointmentDate,
                     a.AppointmentType,
@@ -2093,4 +2100,4 @@ class PatientController extends Controller
         return $errors;
     }
 }
-?> 
+?>

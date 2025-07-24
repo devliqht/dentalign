@@ -30,12 +30,12 @@ function renderSortableAppointmentTable(
     $isPatientView = true
 ) {
     $hasPayments = !empty($appointmentPayments) && $isPatientView; ?>
-    
+
     <div id="<?php echo $sectionId; ?>-section" class="appointment-section">
         <div class="px-3 mb-3 mt-8">
             <h3 class="text-2xl font-semibold text-nhd-brown"><?php echo $sectionTitle; ?></h3>
         </div>
-        
+
         <div id="table-container-<?php echo $sectionId; ?>" class="table-container">
             <?php if (!empty($appointments)): ?>
                 <!-- Mobile View -->
@@ -67,7 +67,7 @@ function renderSortableAppointmentTable(
                                     <?php echo $appointment["Status"]; ?>
                                 </span>
                             </div>
-                            
+
                             <?php if ($isPatientView): ?>
                                 <h4 class="font-semibold text-gray-900 mb-1">
                                     Dr. <?php echo htmlspecialchars(
@@ -76,7 +76,7 @@ function renderSortableAppointmentTable(
                                             $appointment["DoctorLastName"]
                                     ); ?>
                                 </h4>
-                                
+
                                 <div class="text-sm text-gray-600 mb-2">
                                     <?php echo htmlspecialchars(
                                         $appointment["Specialization"]
@@ -90,14 +90,14 @@ function renderSortableAppointmentTable(
                                             $appointment["PatientLastName"]
                                     ); ?>
                                 </h4>
-                                
+
                                 <div class="text-sm text-gray-600 mb-2">
                                     <?php echo htmlspecialchars(
                                         $appointment["PatientEmail"]
                                     ); ?>
                                 </div>
                             <?php endif; ?>
-                            
+
                             <div class="flex justify-between items-center mb-2">
                                 <div class="text-sm">
                                     <span class="bg-gray-100/60 text-gray-700 px-2 py-1 rounded text-xs">
@@ -116,11 +116,11 @@ function renderSortableAppointmentTable(
                                     ); ?>
                                 </div>
                             </div>
-                            
+
                             <?php if ($hasPayments): ?>
                                 <div class="flex justify-between items-center text-xs mt-2">
                                     <div>
-                                        <span class="font-medium">Payment:</span> 
+                                        <span class="font-medium">Payment:</span>
                                         <?php echo renderPaymentInfo(
                                             $appointment,
                                             $appointmentPayments,
@@ -151,7 +151,7 @@ function renderSortableAppointmentTable(
                                     <th class="text-left py-2 px-2 font-medium text-gray-700 text-xs w-24">Appointment ID</th>
                                 <?php endif; ?>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DateTime">
-                                    Date & Time 
+                                    Date & Time
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -162,7 +162,7 @@ function renderSortableAppointmentTable(
                                 </th>
                                 <?php if ($isPatientView): ?>
                                     <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="DoctorFirstName">
-                                        Doctor 
+                                        Doctor
                                         <span class="sort-indicator ml-1">
                                             <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                                 <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -173,7 +173,7 @@ function renderSortableAppointmentTable(
                                     </th>
                                 <?php else: ?>
                                     <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientFirstName">
-                                        Patient 
+                                        Patient
                                         <span class="sort-indicator ml-1">
                                             <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                                 <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -183,7 +183,7 @@ function renderSortableAppointmentTable(
                                         </span>
                                     </th>
                                     <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="PatientEmail">
-                                        Contact 
+                                        Contact
                                         <span class="sort-indicator ml-1">
                                             <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                                 <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -194,7 +194,7 @@ function renderSortableAppointmentTable(
                                     </th>
                                 <?php endif; ?>
                                 <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="AppointmentType">
-                                    Type 
+                                    Type
                                     <span class="sort-indicator ml-1">
                                         <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                             <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -205,7 +205,7 @@ function renderSortableAppointmentTable(
                                 </th>
                                 <?php if ($isPatientView): ?>
                                     <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Status">
-                                        Status 
+                                        Status
                                         <span class="sort-indicator ml-1">
                                             <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                                 <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -216,7 +216,7 @@ function renderSortableAppointmentTable(
                                     </th>
                                 <?php else: ?>
                                     <th class="sortable-header text-left py-2 px-3 font-medium text-gray-700 text-sm cursor-pointer hover:bg-gray-100/60 transition-colors" data-sort="Reason">
-                                        Reason 
+                                        Reason
                                         <span class="sort-indicator ml-1">
                                             <svg class="sort-icon-default inline-block w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
                                                 <path d="M6 1L8 4H4L6 1Z" fill="#9CA3AF"/>
@@ -386,7 +386,7 @@ function renderSortableAppointmentTable(
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination Controls Bottom -->
                 <?php echo renderPaginationControls($sectionId, "bottom"); ?>
             <?php else: ?>
@@ -394,7 +394,7 @@ function renderSortableAppointmentTable(
                     <?php echo $emptyIcon; ?>
                     <p class="text-gray-500 mb-4"><?php echo $emptyMessage; ?></p>
                     <?php if ($sectionId === "upcoming" && $isPatientView): ?>
-                        <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
+                        <a href="<?php echo BASE_URL; ?>/patient/book-appointment"
                            class="inline-flex items-center px-4 py-2 glass-card bg-nhd-blue/80 text-white rounded-2xl hover:bg-nhd-blue transition-colors">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -405,12 +405,12 @@ function renderSortableAppointmentTable(
                 </div>
             <?php endif; ?>
         </div>
-        
+
         <!-- Collapse Button -->
         <div class="text-center mt-4">
-            <button 
-                onclick="toggleTableCollapse('<?php echo $sectionId; ?>')" 
-                id="collapse-btn-<?php echo $sectionId; ?>" 
+            <button
+                onclick="toggleTableCollapse('<?php echo $sectionId; ?>')"
+                id="collapse-btn-<?php echo $sectionId; ?>"
                 class="text-black bg-transparent shadow-none transition-colors duration-200 text-sm font-medium cursor-pointer">
                 <span class="collapse-text">Collapse Table</span>
                 <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -419,7 +419,7 @@ function renderSortableAppointmentTable(
             </button>
         </div>
     </div>
-    
+
     <?php
 }
 
@@ -640,23 +640,23 @@ function renderMobileActions(
             if (!$canCancel) { ?>
                 <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                         class="bg-gray-500/80 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 transition-colors">
                     View Details
                 </button>
                 <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">
                     <?php if ($isPaid): ?>
-                        Paid - No Cancel
+                        Paid - No Actions
                     <?php elseif ($isWithin24Hours): ?>
-                        < 24hrs - No Cancel
+                        < 24hrs - No Actions
                     <?php else: ?>
-                        No Cancellation
+                        No Actions
                     <?php endif; ?>
                 </span>
                 <?php } else { ?>
                 <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                         class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                     Manage
                 </button>
@@ -664,21 +664,21 @@ function renderMobileActions(
                 } elseif ($sectionId === "completed") { ?>
             <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                     class="bg-nhd-blue/80 text-white px-2 py-1 text-xs hover:bg-nhd-blue transition-colors rounded-2xl">
                 View Report
             </button>
             <?php } elseif ($sectionId === "cancelled") { ?>
             <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                     class="bg-gray-500/80 text-white px-2 py-1 text-xs hover:bg-gray-600 transition-colors rounded-2xl">
                 View Details
             </button>
             <?php } elseif ($sectionId === "pending-cancellation") { ?>
             <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                     class="bg-purple-500/80 text-white px-2 py-1 text-xs hover:bg-purple-600 transition-colors rounded-2xl">
                 View Status
             </button>
@@ -688,7 +688,7 @@ function renderMobileActions(
                 ?>
         <button onclick="openAppointmentDetailsModal(<?php echo $appointment[
                    "AppointmentID"
-        ]; ?>)" 
+        ]; ?>)"
                 class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
             Details
         </button>
@@ -730,24 +730,24 @@ function renderDesktopActions(
                 <div class="flex items-center space-x-1">
                     <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                             class="bg-gray-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-gray-600 transition-colors">
                         View Details
                     </button>
                     <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-xl text-xs">
                         <?php if ($isPaid): ?>
-                            Paid - No Cancel
+                            Paid - No Actions
                         <?php elseif ($isWithin24Hours): ?>
-                            < 24hrs - No Cancel
+                            < 24hrs - No Actions
                         <?php else: ?>
-                            No Cancellation
+                            No Actions
                         <?php endif; ?>
                     </span>
                 </div>
                 <?php } else { ?>
                 <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                         class="bg-nhd-blue/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-nhd-blue transition-colors">
                     Manage
                 </button>
@@ -755,14 +755,14 @@ function renderDesktopActions(
                 } elseif ($sectionId === "completed") { ?>
             <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                     class="bg-nhd-blue/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-nhd-blue transition-colors">
                 View Report
             </button>
             <?php } elseif ($sectionId === "cancelled") { ?>
             <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                     class="bg-gray-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-gray-600 transition-colors">
                 View Details
             </button>
@@ -770,7 +770,7 @@ function renderDesktopActions(
             <div class="flex items-center space-x-1">
                 <button onclick="navigateToAppointment('<?php echo BASE_URL; ?>/patient/bookings/<?php echo $user[
     "id"
-]; ?>/<?php echo $appointment["AppointmentID"]; ?>')" 
+]; ?>/<?php echo $appointment["AppointmentID"]; ?>')"
                         class="bg-purple-500/80 text-white px-2 py-1 rounded-xl text-xs hover:bg-purple-600 transition-colors">
                     View Status
                 </button>
@@ -782,7 +782,7 @@ function renderDesktopActions(
         <div class="flex space-x-1">
             <button onclick="openAppointmentDetailsModal(<?php echo $appointment[
                        "AppointmentID"
-                   ]; ?>)" 
+                   ]; ?>)"
                     class="bg-nhd-blue/80 text-white px-2 py-1 rounded text-xs hover:bg-nhd-blue transition-colors">
                 Details
             </button>
@@ -801,11 +801,11 @@ function renderPaginationControls($sectionId, $position = "bottom")
         <div class="pagination-info text-sm text-gray-600">
             <span id="pagination-info-<?php echo $sectionId; ?>">Showing 1-10 of 0 entries</span>
         </div>
-        
+
         <!-- Center: Rows per page -->
         <div class="pagination-center flex items-center space-x-2">
             <label for="rowsPerPage-<?php echo $sectionId; ?>" class="text-sm text-gray-600">Rows:</label>
-            <select id="rowsPerPage-<?php echo $sectionId; ?>" 
+            <select id="rowsPerPage-<?php echo $sectionId; ?>"
                     class="text-sm border border-gray-300 rounded px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-nhd-blue/50 focus:border-nhd-blue/50"
                     onchange="handleRowsPerPageChange('<?php echo $sectionId; ?>', this.value)">
                 <option value="5">5</option>
@@ -815,10 +815,10 @@ function renderPaginationControls($sectionId, $position = "bottom")
                 <option value="50">50</option>
             </select>
         </div>
-        
+
         <!-- Right side: Navigation buttons -->
         <div class="pagination-nav flex items-center space-x-1">
-            <button id="prevBtn-<?php echo $sectionId; ?>" 
+            <button id="prevBtn-<?php echo $sectionId; ?>"
                     onclick="navigatePage('<?php echo $sectionId; ?>', 'prev')"
                     class="px-3 py-1 text-sm text-black bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled>
@@ -827,12 +827,12 @@ function renderPaginationControls($sectionId, $position = "bottom")
                 </svg>
                 Previous
             </button>
-            
+
             <span class="pagination-current text-sm text-gray-600 mx-2">
                 Page <span id="currentPage-<?php echo $sectionId; ?>">1</span> of <span id="totalPages-<?php echo $sectionId; ?>">1</span>
             </span>
-            
-            <button id="nextBtn-<?php echo $sectionId; ?>" 
+
+            <button id="nextBtn-<?php echo $sectionId; ?>"
                     onclick="navigatePage('<?php echo $sectionId; ?>', 'next')"
                     class="px-3 py-1 text-sm text-black bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled>
@@ -851,7 +851,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
     if (empty($pendingCancellations)) {
         return;
     } ?>
-    
+
     <div class="bg-red-50/60 mb-8">
         <div class="p-4 border-b border-red-200/50">
             <h3 class="text-2xl font-semibold text-red-700 flex items-center">
@@ -864,7 +864,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
             </h3>
             <p class="text-red-600 text-sm mt-1">Appointment cancellation requests requiring your approval</p>
         </div>
-        
+
         <div id="table-container-pending-cancellation-requests" class="table-container">
             <!-- Mobile View for Pending Cancellations -->
             <div class="block lg:hidden">
@@ -909,7 +909,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                     "AppointmentID"
                                 ]; ?>">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')" 
+                                <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')"
                                         class="bg-green-500/80 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors">
                                     Approve Cancellation
                                 </button>
@@ -920,7 +920,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                 ]; ?>">
                                 <input type="hidden" name="new_status" value="Approved">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')" 
+                                <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')"
                                         class="bg-red-500/80 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors">
                                     Deny Request
                                 </button>
@@ -1064,7 +1064,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                                 "AppointmentID"
                                             ]; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                            <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')" 
+                                            <button type="submit" onclick="return confirm('Are you sure you want to approve this cancellation? This action cannot be undone.')"
                                                     class="bg-green-500/80 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition-colors">
                                                 Approve
                                             </button>
@@ -1075,7 +1075,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                                             ]; ?>">
                                             <input type="hidden" name="new_status" value="Approved">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                            <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')" 
+                                            <button type="submit" onclick="return confirm('Are you sure you want to deny this cancellation? The appointment will remain scheduled.')"
                                                     class="bg-red-500/80 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors">
                                                 Deny
                                             </button>
@@ -1087,18 +1087,18 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Pagination Controls Bottom -->
             <?php echo renderPaginationControls(
                 "pending-cancellation-requests",
                 "bottom"
             ); ?>
         </div>
-        
+
         <div class="text-center mt-4 mb-4">
-            <button 
-                onclick="toggleTableCollapse('pending-cancellation-requests')" 
-                id="collapse-btn-pending-cancellation-requests" 
+            <button
+                onclick="toggleTableCollapse('pending-cancellation-requests')"
+                id="collapse-btn-pending-cancellation-requests"
                 class="bg-transparent! shadow-none! text-black transition-colors duration-200 text-sm font-medium cursor-pointer">
                 <span class="collapse-text">Collapse Table</span>
                 <svg class="inline-block w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1107,7 +1107,7 @@ function renderPendingCancellationTable($pendingCancellations, $csrf_token)
             </button>
         </div>
     </div>
-    
+
     <?php
 }
-?> 
+?>

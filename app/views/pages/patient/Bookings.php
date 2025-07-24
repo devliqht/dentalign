@@ -28,7 +28,7 @@ function getAppointmentStatusClass($status)
     <div class="px-4">
         <h2 class="text-4xl font-bold text-nhd-brown mb-2 font-family-bodoni tracking-tight">My Bookings</h2>
         <p class="text-gray-600">View and manage all your dental appointments.</p>
-    </div> 
+    </div>
     <div class="flex justify-between items-center mb-4 p-4">
         <div class="flex space-x-2">
             <button onclick="showSection('all')" id="all-btn" class="glass-card bg-nhd-blue/80 text-sm shadow-sm px-3 py-2 rounded-2xl text-white">
@@ -47,7 +47,7 @@ function getAppointmentStatusClass($status)
                 Pending Cancellation
             </button>
         </div>
-        <a href="<?php echo BASE_URL; ?>/patient/book-appointment" 
+        <a href="<?php echo BASE_URL; ?>/patient/book-appointment"
            class="inline-flex items-center px-4 py-2 glass-card bg-green-700/85 text-white text-sm rounded-2xl hover:bg-green-700 transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -140,7 +140,28 @@ window.serverMessages = {
 
 function navigateToAppointment(url) {
     window.location.href = url;
-}</script>
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Ensure table manager is initialized for patient booking tables
+    setTimeout(() => {
+        if (window.tableManager) {
+            console.log("Reinitializing SortableTable for patient booking tables");
+            window.tableManager.init();
+
+            // Initialize pagination for all booking table sections
+            const sections = ['upcoming', 'completed', 'cancelled', 'pending-cancellation'];
+            sections.forEach(section => {
+                if (document.getElementById(`table-container-${section}`) && window.tableManager.paginationManager) {
+                    window.tableManager.paginationManager.initializeSection(section);
+                }
+            });
+        } else {
+            console.warn("SortableTable manager not available for patient bookings");
+        }
+    }, 200);
+});
+</script>
 
 <style>
 .sortable-header {
@@ -195,4 +216,3 @@ function navigateToAppointment(url) {
     display: inline-block;
 }
 </style>
-

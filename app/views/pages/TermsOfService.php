@@ -34,7 +34,7 @@
 
     <!-- Terms of Service Sections -->
     <div class="space-y-4" id="termsContainer">
-        
+
         <!-- Introduction Section -->
         <div class="terms-item glass-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6" data-category="introduction">
             <button class="terms-question w-full text-left focus:outline-none" onclick="toggleTermsSection(this)">
@@ -179,8 +179,13 @@
                         </ul>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-white mb-2">Rescheduling</h4>
-                        <p>You may reschedule appointments subject to availability. Multiple rescheduling requests may be subject to restrictions.</p>
+                        <h4 class="font-semibold text-white mb-2">Rescheduling Policy</h4>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Rescheduling must be done at least 24 hours in advance</li>
+                            <li>Appointments within 24 hours cannot be rescheduled online</li>
+                            <li>Contact the clinic directly for assistance with last-minute changes</li>
+                            <li>Multiple rescheduling requests may be subject to restrictions</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -432,7 +437,7 @@
 function toggleTermsSection(button) {
     const answer = button.nextElementSibling;
     const icon = button.querySelector('.terms-icon');
-    
+
     if (answer.classList.contains('hidden')) {
         answer.classList.remove('hidden');
         icon.style.transform = 'rotate(180deg)';
@@ -446,18 +451,18 @@ function toggleTermsSection(button) {
 document.querySelectorAll('.terms-category-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const category = this.getAttribute('data-category');
-        
+
         // Update active button
         document.querySelectorAll('.terms-category-btn').forEach(b => {
             b.classList.remove('active');
             b.classList.remove('bg-nhd-blue/80', 'text-white');
             b.classList.add('bg-gray-100/80', 'text-gray-700');
         });
-        
+
         this.classList.add('active');
         this.classList.add('bg-nhd-blue/80', 'text-white');
         this.classList.remove('bg-gray-100/80', 'text-gray-700');
-        
+
         // Filter terms items
         document.querySelectorAll('.terms-item').forEach(item => {
             if (category === 'all' || item.getAttribute('data-category') === category) {
