@@ -812,11 +812,17 @@ class SortableTableManager {
 
   extractAppointmentType(row) {
     // Look for appointment type - typically in a gray badge
+    // Need to handle different column positions:
+    // - Patient view: column 4 (has Appointment ID column)
+    // - Staff view: column 5 (no Appointment ID column)
+    // - Pending cancellation: column 5
     let typeElement =
-      row.querySelector("td:nth-child(5) span.bg-gray-100\\/60") || // Type column in both pending cancellation and main tables
-      row.querySelector("td:nth-child(5) .bg-gray-100\\/60") || // Alternative selector
+      row.querySelector("td:nth-child(4) span.bg-gray-100\\/60") || // Type column in patient view tables
+      row.querySelector("td:nth-child(5) span.bg-gray-100\\/60") || // Type column in staff view and pending cancellation tables
+      row.querySelector("td:nth-child(4) .bg-gray-100\\/60") || // Alternative selector for patient view
+      row.querySelector("td:nth-child(5) .bg-gray-100\\/60") || // Alternative selector for staff view
       row.querySelector(".bg-gray-100\\/60.text-gray-700") || // General type styling
-      row.querySelector("span.bg-gray-100\\/60");
+      row.querySelector("span.bg-gray-100\\/60"); // Fallback to any type badge
 
     return typeElement?.textContent.toLowerCase().trim() || "";
   }
@@ -843,19 +849,35 @@ class SortableTableManager {
 
   extractId(row, sortKey) {
     // Look for ID numbers in various formats
-    let idElement =
-      row.querySelector("td:nth-child(1) .bg-nhd-blue\\/10") || // Appointment ID column
-      row.querySelector(".bg-nhd-blue\\/10") || // General ID styling
-      row.querySelector(".bg-red-100"); // Pending cancellation ID styling
+    let idElement;
+
+    if (sortKey === "PaymentID") {
+      // For PaymentID, look in the first column (td:nth-child(1))
+      idElement = row.querySelector("td:nth-child(1)") ||
+                  row.querySelector("td:nth-child(1) .bg-nhd-blue\\/10") ||
+                  row.querySelector(".bg-nhd-blue\\/10");
+    } else if (sortKey === "AppointmentID") {
+      // For AppointmentID, look in the second column (td:nth-child(2))
+      idElement = row.querySelector("td:nth-child(2)") ||
+                  row.querySelector("td:nth-child(2) .bg-nhd-blue\\/10") ||
+                  row.querySelector(".bg-nhd-blue\\/10");
+    } else {
+      // Fallback for other ID types
+      idElement = row.querySelector("td:nth-child(1) .bg-nhd-blue\\/10") ||
+                  row.querySelector(".bg-nhd-blue\\/10") ||
+                  row.querySelector(".bg-red-100");
+    }
 
     if (idElement) {
       const text = idElement.textContent.trim();
 
       if (sortKey === "PaymentID") {
-        const match = text.match(/Payment #(\d+)/);
+        // Handle both "Payment #123" and "#123" formats
+        const match = text.match(/(?:Payment\s*)?#(\d+)/) || text.match(/(\d+)/);
         return match ? parseInt(match[1]) : 0;
       } else if (sortKey === "AppointmentID") {
-        const match = text.match(/#(\d+)/);
+        // Handle both "Appt #123" and "#123" formats
+        const match = text.match(/(?:Appt\s*)?#(\d+)/) || text.match(/(\d+)/);
         return match ? parseInt(match[1]) : 0;
       }
     }
@@ -864,7 +886,28 @@ class SortableTableManager {
   }
 
   extractDeadlineDate(row) {
-    // Look for deadline dates - this might not be used in appointment tables
+    // Look for deadline dates in payments table structure
+    // First try to find the deadline column (5th column for payments table)
+    let deadlineCell = row.querySelector("td:nth-child(5)");
+
+    if (deadlineCell) {
+      // Look for the date in text-sm text-gray-900 div
+      let dateElement = deadlineCell.querySelector(".text-sm.text-gray-900");
+
+      if (dateElement) {
+        const dateText = dateElement.textContent.trim();
+        const parsedDate = new Date(dateText);
+        return !isNaN(parsedDate.getTime()) ? parsedDate : new Date("9999-12-31");
+      }
+
+      // Check if it says "No deadline"
+      let noDeadlineElement = deadlineCell.querySelector(".text-gray-400");
+      if (noDeadlineElement && noDeadlineElement.textContent.includes("No deadline")) {
+        return new Date("9999-12-31");
+      }
+    }
+
+    // Fallback to original logic for other table types
     let deadlineElement =
       row.querySelector(".text-sm.text-gray-600") ||
       row.querySelector(".text-gray-400");

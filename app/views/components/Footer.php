@@ -53,9 +53,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         </svg>
                                         <div class="text-gray-300 text-sm">
-                                            <p>123 Sitio Nasipit, Barangay Banilad</p>
-                                            <p>Cebu City, Cebu</p>
-                                            <p>T2N 1T4</p>
+                                        	<p>Barangay Panubigan</p>
+                                         	<p>Canlaon City, Philippines</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center">

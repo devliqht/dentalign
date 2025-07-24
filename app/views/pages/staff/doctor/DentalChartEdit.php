@@ -11,7 +11,7 @@
                 <p class="text-gray-600">Comprehensive dental chart management for <span id="patient-name" class="font-semibold"></span></p>
             </div>
         </div>
-        
+
         <!-- Patient Info Card -->
         <div class="bg-white rounded-2xl border-1 shadow-sm border-gray-200 p-4 mb-6">
             <div id="patient-info" class="flex items-center justify-between">
@@ -66,7 +66,7 @@
                 <div class="grid grid-cols-16 gap-1 max-w-4xl">
                     <!-- Upper Right Quadrant (1-8) -->
                     <?php for ($i = 8; $i >= 1; $i--): ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -79,7 +79,7 @@
 
                     <!-- Upper Left Quadrant (9-16) -->
                     <?php for ($i = 9; $i <= 16; $i++): ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -107,7 +107,7 @@
                 <div class="grid grid-cols-16 gap-1 max-w-4xl">
                     <!-- Lower Right Quadrant (25-32) -->
                     <?php for ($i = 25; $i <= 32; $i++): ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -120,7 +120,7 @@
 
                     <!-- Lower Left Quadrant (17-24) -->
                     <?php for ($i = 24; $i >= 17; $i--): ?>
-                        <div class="tooth-container relative group cursor-pointer" 
+                        <div class="tooth-container relative group cursor-pointer"
                              data-tooth="<?php echo $i; ?>"
                              data-name="<?php echo htmlspecialchars(
                                  \DentalChartItem::getToothName($i)
@@ -169,7 +169,7 @@
     <!-- Treatment Plan Management -->
     <div class="bg-white rounded-2xl shadow-sm border border-nhd-brown/50 p-6 my-6">
         <h3 class="text-xl font-semibold text-nhd-brown mb-4">Treatment Plan Management</h3>
-        
+
         <!-- Existing Treatment Plans -->
         <div id="existing-treatment-plans" class="mb-6">
             <h4 class="text-lg font-medium text-gray-700 mb-3">Existing Treatment Plans</h4>
@@ -179,7 +179,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Create New Treatment Plan -->
         <div class="border-t border-gray-200 pt-6">
             <div class="flex justify-between items-center mb-4">
@@ -191,7 +191,7 @@
                     Create Treatment Plan
                 </button>
             </div>
-            
+
             <!-- Treatment Plan Creation Form -->
             <div id="treatment-plan-form" class="hidden space-y-4">
                 <div>
@@ -203,7 +203,7 @@
                     </select>
                     <p class="text-xs text-gray-500 mt-1">Only completed appointments with reports are available</p>
                 </div>
-                
+
                 <div>
                     <label for="treatment-plan-notes" class="block text-sm font-medium text-gray-700 mb-2">
                         Dentist Notes
@@ -211,7 +211,7 @@
                     <textarea id="treatment-plan-notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"
                               placeholder="Enter treatment plan notes and recommendations..."></textarea>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Treatment Status</label>
                     <select id="treatment-plan-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
@@ -221,7 +221,7 @@
                         <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
-                
+
                 <!-- Treatment Items Section -->
                 <div class="border-t border-gray-200 pt-4">
                     <div class="flex justify-between items-center mb-3">
@@ -233,12 +233,12 @@
                             Add Item
                         </button>
                     </div>
-                    
+
                     <div id="treatment-items-container" class="space-y-3">
                         <!-- Treatment items will be added dynamically -->
                     </div>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex gap-3 pt-4 border-t border-gray-200">
                     <button type="button" id="save-treatment-plan-btn" class="flex-1 bg-nhd-blue text-white px-4 py-2 rounded-lg hover:bg-nhd-blue/90 transition-colors">
@@ -270,10 +270,10 @@
                     </svg>
                 </button>
             </div>
-            
+
             <form id="tooth-edit-form" class="space-y-6">
                 <input type="hidden" id="edit-tooth-number-input" name="toothNumber">
-                
+
                 <!-- Status Selection -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Tooth Status</label>
@@ -317,18 +317,18 @@
                 <!-- Notes -->
                 <div>
                     <label for="edit-tooth-notes" class="block text-sm font-medium text-gray-700 mb-2">Clinical Notes</label>
-                    <textarea id="edit-tooth-notes" name="notes" rows="4" 
+                    <textarea id="edit-tooth-notes" name="notes" rows="4"
                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"
                               placeholder="Enter detailed clinical observations, treatment plans, or recommendations..."></textarea>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex gap-3 pt-6 border-t">
-                    <button type="button" onclick="saveToothData()" 
+                    <button type="button" onclick="saveToothData()"
                             class="flex-1 bg-nhd-blue/80 glass-card text-white px-4 py-2 rounded-2xl hover:bg-nhd-blue/90 transition-colors">
                         Save Changes
                     </button>
-                    <button type="button" onclick="closeToothEditModal()" 
+                    <button type="button" onclick="closeToothEditModal()"
                             class="px-4 py-2 border glass-card bg-red-600/80 hover:bg-red-600 transition-colors">
                         Cancel
                     </button>
@@ -340,10 +340,9 @@
 
 <!-- Treatment Plan Edit Modal -->
 <div id="treatment-plan-edit-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="glass-card bg-white/95 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-        <div class="flex flex-col h-full">
-            <!-- Modal Header -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+    <div class="glass-card bg-white/95 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
                 <div>
                     <h2 class="text-2xl font-bold text-nhd-brown">Treatment Plan Details</h2>
                     <p class="text-gray-600" id="treatment-plan-subtitle">
@@ -355,10 +354,10 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
-            </div>
-            
-            <!-- Modal Content -->
-            <div class="flex-1 overflow-y-auto p-6">
+        </div>
+
+        <!-- Modal Content -->
+        <div class="flex-1 overflow-y-auto p-6">
                 <!-- Treatment Plan Overview -->
                 <div class="bg-gray-50 rounded-lg p-4 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -385,14 +384,14 @@
                             <p id="treatment-plan-created-date" class="text-gray-600 text-sm py-2"></p>
                         </div>
                     </div>
-                    
+
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Dentist Notes</label>
                         <textarea id="treatment-plan-notes-edit" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent resize-vertical"
                                   placeholder="Enter treatment plan notes and recommendations..."></textarea>
                     </div>
                 </div>
-                
+
                 <!-- Treatment Items Section -->
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-4">
@@ -404,14 +403,15 @@
                             Add Item
                         </button>
                     </div>
-                    
+
                     <div id="treatment-items-list" class="space-y-4">
                         <!-- Treatment items will be populated here -->
                     </div>
                 </div>
-            </div>
-            
-            <div class="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 items-end justify-end w-full">
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 items-end justify-end w-full flex-shrink-0">
                 <button id="save-treatment-plan-changes-btn" class="flex 1 glass-card bg-nhd-blue/80 shadow-md px-4 py-2 hover:bg-nhd-blue/90 transition-colors">
                     Save All Changes
                 </button>
@@ -421,7 +421,6 @@
                 <button id="delete-treatment-plan-btn" class="px-4 py-2 glass-card bg-red-600/80 text-white hover:bg-red-700 transition-colors">
                     Delete Plan
                 </button>
-            </div>
         </div>
     </div>
 </div>
@@ -441,10 +440,10 @@
                     </svg>
                 </button>
             </div>
-            
+
             <form id="treatment-item-edit-form" class="space-y-4">
                 <input type="hidden" id="edit-treatment-item-id">
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tooth Number (Optional)</label>
@@ -453,7 +452,7 @@
                             <!-- Tooth options will be populated by JavaScript -->
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Procedure Code</label>
                         <select id="edit-item-procedure-code" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
@@ -461,24 +460,24 @@
                             <!-- Procedure options will be populated by JavaScript -->
                         </select>
                     </div>
-                    
+
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <input type="text" id="edit-item-description" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent"
                                placeholder="Enter treatment description...">
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Estimated Cost (₱)</label>
                         <input type="number" step="0.01" min="0" id="edit-item-cost" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent"
                                placeholder="0.00">
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Scheduled Date (Optional)</label>
                         <input type="date" id="edit-item-scheduled-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent">
                     </div>
-                    
+
                     <div class="md:col-span-2">
                         <div class="flex items-center">
                             <input type="checkbox" id="edit-item-completed" class="mr-2 rounded border-gray-300 text-nhd-blue focus:ring-nhd-blue">
@@ -490,7 +489,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex gap-3 pt-4 border-t border-gray-200">
                     <button type="button" onclick="saveTreatmentItem()" class="flex-1 glass-card bg-nhd-blue/80 px-4 py-2  hover:bg-nhd-blue transition-colors">
                         Save Item
@@ -538,4 +537,4 @@ window.BASE_URL = '<?php echo BASE_URL; ?>';
 label:has(input[type="radio"]:checked) {
     background-color: #b8cce6;
 }
-</style> 
+</style>
