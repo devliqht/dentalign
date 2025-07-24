@@ -51,11 +51,11 @@ class TreatmentPlan
     public function findByAppointmentReportID($appointmentReportID)
     {
         $query =
-            "SELECT TreatmentPlanID, AppointmentReportID, Status, DentistNotes, AssignedAt 
+            "SELECT TreatmentPlanID, AppointmentReportID, Status, DentistNotes, AssignedAt
              FROM " .
             $this->table .
-            " 
-             WHERE AppointmentReportID = ? 
+            "
+             WHERE AppointmentReportID = ?
              ORDER BY AssignedAt DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -69,10 +69,10 @@ class TreatmentPlan
     public function findByID($treatmentPlanID)
     {
         $query =
-            "SELECT TreatmentPlanID, AppointmentReportID, Status, DentistNotes, AssignedAt 
+            "SELECT TreatmentPlanID, AppointmentReportID, Status, DentistNotes, AssignedAt
              FROM " .
             $this->table .
-            " 
+            "
              WHERE TreatmentPlanID = ? LIMIT 1";
 
         $stmt = $this->conn->prepare($query);
@@ -95,7 +95,7 @@ class TreatmentPlan
     public function getTreatmentPlansByPatientID($patientID)
     {
         $query =
-            "SELECT 
+            "SELECT
                     tp.TreatmentPlanID,
                     tp.AppointmentReportID,
                     tp.Status,
@@ -133,7 +133,7 @@ class TreatmentPlan
     public function getValidAppointmentReportsForTreatmentPlan($patientID)
     {
         $query =
-            "SELECT 
+            "SELECT
                     ar.AppointmentReportID,
                     ar.AppointmentID,
                     a.DateTime as AppointmentDate,
@@ -144,7 +144,7 @@ class TreatmentPlan
                   INNER JOIN Appointment a ON ar.AppointmentID = a.AppointmentID
                   INNER JOIN Doctor d ON a.DoctorID = d.DoctorID
                   INNER JOIN USER u ON d.DoctorID = u.UserID
-                  WHERE a.PatientID = ? 
+                  WHERE a.PatientID = ?
                     AND a.Status = 'Completed'
                     AND ar.AppointmentReportID NOT IN (
                         SELECT AppointmentReportID FROM " .
@@ -179,8 +179,8 @@ class TreatmentPlan
         $query =
             "UPDATE " .
             $this->table .
-            " 
-                  SET Status = ?, DentistNotes = ? 
+            "
+                  SET Status = ?, DentistNotes = ?
                   WHERE TreatmentPlanID = ?";
 
         $stmt = $this->conn->prepare($query);
@@ -195,14 +195,8 @@ class TreatmentPlan
 
     public function delete($treatmentPlanID)
     {
-        // Delete treatment plan items first (cascade should handle this, but being explicit)
-        $deleteItemsQuery =
-            "DELETE FROM TreatmentPlanItem WHERE TreatmentPlanID = ?";
-        $stmt = $this->conn->prepare($deleteItemsQuery);
-        $stmt->bind_param("i", $treatmentPlanID);
-        $stmt->execute();
-
-        $query = "DELETE FROM " . $this->table . " WHERE TreatmentPlanID = ?";
+        // Soft delete: Set status to 'cancelled' instead of hard deleting
+        $query = "UPDATE " . $this->table . " SET Status = 'cancelled' WHERE TreatmentPlanID = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $treatmentPlanID);
         return $stmt->execute();
@@ -211,7 +205,7 @@ class TreatmentPlan
     public function getTreatmentPlanWithDetails($treatmentPlanID)
     {
         $query =
-            "SELECT 
+            "SELECT
                     tp.TreatmentPlanID,
                     tp.AppointmentReportID,
                     tp.Status,
@@ -246,10 +240,10 @@ class TreatmentPlan
 
     public function calculateProgress($treatmentPlanID)
     {
-        $query = "SELECT 
+        $query = "SELECT
                     COUNT(*) as total_items,
                     SUM(CASE WHEN CompletedAt IS NOT NULL THEN 1 ELSE 0 END) as completed_items
-                  FROM TreatmentPlanItem 
+                  FROM TreatmentPlanItem
                   WHERE TreatmentPlanID = ?";
 
         $stmt = $this->conn->prepare($query);

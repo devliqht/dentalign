@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <span class="px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(plan.Status)}">
                             ${plan.Status}
                         </span>
-                        <button onclick="viewTreatmentPlan(${plan.TreatmentPlanID})" 
+                        <button onclick="viewTreatmentPlan(${plan.TreatmentPlanID})"
                                 class="glass-card bg-nhd-blue/80 hover:bg-nhd-blue shadow-md text-sm font-medium">
                             View Details
                         </button>
@@ -282,14 +282,14 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="treatment-item border border-gray-200 rounded-lg p-3" data-item-id="${treatmentItemCounter}">
                 <div class="flex justify-between items-start mb-3">
                     <h6 class="font-medium text-gray-700">Treatment Item #${treatmentItemCounter}</h6>
-                    <button type="button" onclick="removeTreatmentItem(${treatmentItemCounter})" 
+                    <button type="button" onclick="removeTreatmentItem(${treatmentItemCounter})"
                             class="text-red-600 hover:text-red-800 text-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tooth Number (Optional)</label>
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ${generateToothOptions()}
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Procedure Code</label>
                         <select class="procedure-select w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent text-sm">
@@ -306,25 +306,25 @@ document.addEventListener("DOMContentLoaded", function () {
                             ${generateProcedureOptions()}
                         </select>
                     </div>
-                    
+
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <input type="text" class="description-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent text-sm"
                                placeholder="Enter treatment description...">
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Estimated Cost (₱)</label>
                         <input type="number" step="0.01" min="0" class="cost-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent text-sm"
                                placeholder="0.00">
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Scheduled Date (Optional)</label>
                         <input type="date" class="scheduled-date-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-nhd-blue focus:border-transparent text-sm">
                     </div>
                 </div>
-                
+
                 <div class="mt-3 flex items-center">
                     <input type="checkbox" class="completed-checkbox mr-2" id="completed-${treatmentItemCounter}">
                     <label for="completed-${treatmentItemCounter}" class="text-sm text-gray-700">Mark as completed</label>
@@ -1054,26 +1054,26 @@ document.addEventListener("DOMContentLoaded", function () {
                                 : '<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Pending</span>'
                             }
                         </div>
-                        
+
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
                             <div>
-                                <span class="font-medium">Tooth:</span> 
+                                <span class="font-medium">Tooth:</span>
                                 ${item.ToothNumber ? `#${item.ToothNumber}` : "General"}
                             </div>
                             <div>
-                                <span class="font-medium">Procedure:</span> 
+                                <span class="font-medium">Procedure:</span>
                                 ${item.ProcedureCode || "N/A"}
                             </div>
                             <div>
-                                <span class="font-medium">Cost:</span> 
+                                <span class="font-medium">Cost:</span>
                                 ₱${parseFloat(item.Cost || 0).toFixed(2)}
                             </div>
                             <div>
-                                <span class="font-medium">Scheduled:</span> 
+                                <span class="font-medium">Scheduled:</span>
                                 ${item.ScheduledDate ? new Date(item.ScheduledDate).toLocaleDateString() : "TBD"}
                             </div>
                         </div>
-                        
+
                         ${
                           item.CompletedAt
                             ? `
@@ -1084,13 +1084,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             : ""
                         }
                     </div>
-                    
+
                     <div class="flex items-center space-x-2 ml-4">
                         ${
                           !item.CompletedAt
                             ? `
-                            <button onclick="toggleItemCompletion('${item.TreatmentItemID}', true)" 
-                                    class="glass-card bg-green-600/80 hover:bg-green-600 text-sm font-medium" 
+                            <button onclick="toggleItemCompletion('${item.TreatmentItemID}', true)"
+                                    class="glass-card bg-green-600/80 hover:bg-green-600 text-sm font-medium"
                                     title="Mark as completed">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -1098,8 +1098,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             </button>
                         `
                             : `
-                            <button onclick="toggleItemCompletion('${item.TreatmentItemID}', false)" 
-                                    class="glass-card bg-yellow-600/80 hover:bg-yellow-700 text-sm font-medium" 
+                            <button onclick="toggleItemCompletion('${item.TreatmentItemID}', false)"
+                                    class="glass-card bg-yellow-600/80 hover:bg-yellow-700 text-sm font-medium"
                                     title="Mark as incomplete">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -1107,13 +1107,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             </button>
                         `
                         }
-                        
-                        <button onclick="editTreatmentItem('${item.TreatmentItemID}')" 
+
+                        <button onclick="editTreatmentItem('${item.TreatmentItemID}')"
                                 class="glass-card bg-nhd-blue/80 hover:bg-nhd-blue text-sm font-medium">
                             Edit
                         </button>
-                        
-                        <button onclick="deleteTreatmentItemConfirm('${item.TreatmentItemID}')" 
+
+                        <button onclick="deleteTreatmentItemConfirm('${item.TreatmentItemID}')"
                                 class="glass-card bg-red-600/80 hover:bg-red-800 text-sm font-medium">
                             Delete
                         </button>
@@ -1347,7 +1347,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .addEventListener("click", function () {
       if (
         confirm(
-          "Are you sure you want to delete this entire treatment plan? This action cannot be undone and will delete all associated treatment items.",
+          "Are you sure you want to cancel this entire treatment plan? This will set the plan status to 'cancelled' but preserve all treatment data.",
         )
       ) {
         fetch(`${window.BASE_URL}/doctor/delete-treatment-plan`, {
@@ -1360,19 +1360,19 @@ document.addEventListener("DOMContentLoaded", function () {
           .then((response) => response.json())
           .then((data) => {
             if (data.success) {
-              window.toast.success("Treatment plan deleted successfully");
+              window.toast.success("Treatment plan cancelled successfully");
               closeTreatmentPlanModal();
               loadTreatmentPlans();
             } else {
               window.toast.error(
-                data.message || "Failed to delete treatment plan",
+                data.message || "Failed to cancel treatment plan",
               );
             }
           })
           .catch((error) => {
-            console.error("Error deleting treatment plan:", error);
+            console.error("Error cancelling treatment plan:", error);
             window.toast.error(
-              "An error occurred while deleting the treatment plan",
+              "An error occurred while cancelling the treatment plan",
             );
           });
       }

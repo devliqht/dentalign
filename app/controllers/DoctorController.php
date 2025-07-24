@@ -1661,12 +1661,12 @@ class DoctorController extends Controller
             if ($treatmentPlan->delete($input["treatmentPlanID"])) {
                 echo json_encode([
                     "success" => true,
-                    "message" => "Treatment plan deleted successfully",
+                    "message" => "Treatment plan cancelled successfully",
                 ]);
             } else {
                 echo json_encode([
                     "success" => false,
-                    "message" => "Failed to delete treatment plan",
+                    "message" => "Failed to cancel treatment plan",
                 ]);
             }
         } catch (Exception $e) {
@@ -1674,7 +1674,7 @@ class DoctorController extends Controller
             echo json_encode([
                 "success" => false,
                 "message" =>
-                    "An error occurred while deleting the treatment plan",
+                    "An error occurred while cancelling the treatment plan",
             ]);
         }
         exit();
@@ -2107,7 +2107,7 @@ class DoctorController extends Controller
         // Get already blocked slots
         $blockedSlotModel = new BlockedSlot($this->conn);
         $blockedTimes = $blockedSlotModel->getByDoctorAndDate($doctorId, $date);
-        
+
         // Get already booked appointments
         $appointmentModel = new Appointment($this->conn);
         $appointments = $appointmentModel->getAppointmentsByDoctorAndDate($doctorId, $date);
@@ -2174,4 +2174,4 @@ class DoctorController extends Controller
         return $errors;
     }
 }
-?> 
+?>

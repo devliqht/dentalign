@@ -419,7 +419,7 @@
                     Cancel
                 </button>
                 <button id="delete-treatment-plan-btn" class="px-4 py-2 glass-card bg-red-600/80 text-white hover:bg-red-700 transition-colors">
-                    Delete Plan
+                    Cancel Plan
                 </button>
         </div>
     </div>
